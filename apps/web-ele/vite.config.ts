@@ -13,12 +13,23 @@ export default defineConfig(async () => {
       ],
       server: {
         proxy: {
-          '/api': {
+          // 系统、权限、管理相关接口 -> Node.js (NestJS)
+          '/api/auth': {
             changeOrigin: true,
-            rewrite: (path) => path.replace(/^\/api/, ''),
-            // mock代理目标地址
-            target: 'http://localhost:5320/api',
-            ws: true,
+            target: 'http://localhost:3000',
+          },
+          '/api/user': {
+            changeOrigin: true,
+            target: 'http://localhost:3000',
+          },
+          // 爬虫、数据分析相关接口 -> Python (FastAPI)
+          '/api/crawler': {
+            changeOrigin: true,
+            target: 'http://localhost:8000',
+          },
+          '/api/analysis': {
+            changeOrigin: true,
+            target: 'http://localhost:8000',
           },
         },
       },
