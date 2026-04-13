@@ -13,21 +13,8 @@ export default defineConfig(async () => {
       ],
       server: {
         proxy: {
-          // 系统、权限、管理相关接口 -> Node.js (NestJS)
-          '/api/auth': {
-            changeOrigin: true,
-            target: 'http://localhost:3000',
-          },
-          '/api/user': {
-            changeOrigin: true,
-            target: 'http://localhost:3000',
-          },
-          // 爬虫、数据分析相关接口 -> Python (FastAPI)
-          '/api/crawler': {
-            changeOrigin: true,
-            target: 'http://localhost:8000',
-          },
-          '/api/analysis': {
+          // 所有接口统一指向 Python (FastAPI) 数据引擎
+          '/api': {
             changeOrigin: true,
             target: 'http://localhost:8000',
           },

@@ -1,28 +1,15 @@
 {
-  "name": "vben-admin-monorepo",
-  "version": "5.7.0",
+  "name": "m-application",
+  "version": "0.1.0",
   "private": true,
   "keywords": [
     "monorepo",
-    "turbo",
-    "vben",
-    "vben admin",
-    "vben pro",
+    "price-monitoring",
     "vue",
-    "vue admin",
-    "vue vben admin",
-    "vue vben admin pro",
-    "vue3"
+    "fastapi"
   ],
-  "homepage": "https://github.com/vbenjs/vue-vben-admin",
-  "bugs": "https://github.com/vbenjs/vue-vben-admin/issues",
-  "repository": "vbenjs/vue-vben-admin.git",
   "license": "MIT",
-  "author": {
-    "name": "vben",
-    "email": "ann.vben@gmail.com",
-    "url": "https://github.com/anncwb"
-  },
+  "author": "maopengjie",
   "type": "module",
   "scripts": {
     "bootstrap": "pnpm install",
