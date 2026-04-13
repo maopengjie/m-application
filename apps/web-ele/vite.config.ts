@@ -13,7 +13,7 @@ export default defineConfig(async () => {
       ],
       server: {
         proxy: {
-          // 系统、权限、管理相关接口 -> Node.js (NestJS)
+          // 所有核心业务接口统一走 Node.js (NestJS) BFF
           '/api/auth': {
             changeOrigin: true,
             target: 'http://localhost:3000',
@@ -22,14 +22,9 @@ export default defineConfig(async () => {
             changeOrigin: true,
             target: 'http://localhost:3000',
           },
-          // 爬虫、数据分析相关接口 -> Python (FastAPI)
-          '/api/crawler': {
+          '/api/menu': {
             changeOrigin: true,
-            target: 'http://localhost:8000',
-          },
-          '/api/analysis': {
-            changeOrigin: true,
-            target: 'http://localhost:8000',
+            target: 'http://localhost:3000',
           },
         },
       },
