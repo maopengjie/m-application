@@ -42,7 +42,7 @@ vite.config.ts.*
 
 # Editor directories and files
 .idea
-# .vscode
+.vscode
 *.suo
 *.ntvs*
 *.njsproj
@@ -51,9 +51,22 @@ vite.config.ts.*
 .history
 .cursor
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+.pytest_cache/
+.python-version
+
+# Specific
+**/backend-mock/data
+skills-lock.json
+vben-admin.code-workspace
+
 # AI
 .agent
 .agents
 .claude
 .codex
-skills-lock.json
