@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.router import api_router
 from app.core.config import get_settings
+from app.core.elasticsearch import close_es_client
 from app.tasks.scheduler import start_scheduler, stop_scheduler
 
 settings = get_settings()
@@ -15,6 +16,7 @@ async def lifespan(_: FastAPI):
     start_scheduler()
     yield
     stop_scheduler()
+    await close_es_client()
 
 
 def create_app() -> FastAPI:

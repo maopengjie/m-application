@@ -18,8 +18,12 @@ class Settings(BaseSettings):
     access_token_expire_seconds: int = 7 * 24 * 60 * 60
     refresh_token_expire_seconds: int = 30 * 24 * 60 * 60
     refresh_cookie_key: str = "jwt"
+    
+    # Data Layer
     mysql_dsn: str = "sqlite:///./data_engine.db"
     redis_url: str = "redis://127.0.0.1:6379/0"
+    elasticsearch_url: str = "http://localhost:9200"
+    enable_elasticsearch: bool = False
 
     model_config = SettingsConfigDict(env_file=".env", env_prefix="DATA_ENGINE_")
 
