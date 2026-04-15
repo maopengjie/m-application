@@ -1,9 +1,0 @@
-fastapi
-uvicorn
-pandas
-httpx
-playwright
-beautifulsoup4
-python-jose[cryptography]
-passlib[berypt]
-python-multipart

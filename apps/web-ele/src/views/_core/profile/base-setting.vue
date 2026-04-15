@@ -7,7 +7,9 @@ import { computed, onMounted, ref } from 'vue';
 
 import { ProfileBaseSetting } from '@vben/common-ui';
 
-import { getUserInfoApi } from '#/api';
+import { ElMessage } from 'element-plus';
+
+import { getUserInfoApi, updateUserInfoApi } from '#/api';
 
 const profileBaseSettingRef = ref();
 
@@ -36,12 +38,16 @@ const formSchema = computed((): VbenFormSchema[] => {
     {
       fieldName: 'username',
       component: 'Input',
+      componentProps: {
+        disabled: true,
+      },
       label: '用户名',
     },
     {
       fieldName: 'roles',
       component: 'Select',
       componentProps: {
+        disabled: true,
         mode: 'tags',
         options: MOCK_ROLES_OPTIONS,
       },
@@ -55,11 +61,24 @@ const formSchema = computed((): VbenFormSchema[] => {
   ];
 });
 
+async function handleSubmit(values: any) {
+  try {
+    await updateUserInfoApi(values);
+    ElMessage.success('更新成功');
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 onMounted(async () => {
   const data = await getUserInfoApi();
   profileBaseSettingRef.value.getFormApi().setValues(data);
 });
 </script>
 <template>
-  <ProfileBaseSetting ref="profileBaseSettingRef" :form-schema="formSchema" />
+  <ProfileBaseSetting
+    ref="profileBaseSettingRef"
+    :form-schema="formSchema"
+    @submit="handleSubmit"
+  />
 </template>

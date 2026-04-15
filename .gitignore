@@ -50,6 +50,8 @@ vite.config.ts.*
 *.sw?
 .history
 .cursor
+__pycache__
+*.pyc
 
 # Python
 __pycache__/
