@@ -42,6 +42,7 @@
     "@vben/utils": "workspace:*",
     "@vueuse/core": "catalog:",
     "dayjs": "catalog:",
+    "echarts": "catalog:",
     "element-plus": "catalog:",
     "pinia": "catalog:",
     "vue": "catalog:",

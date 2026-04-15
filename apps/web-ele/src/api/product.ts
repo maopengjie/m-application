@@ -1,10 +1,10 @@
 import { requestClient } from './request';
 
 /**
- * 获取产品列表
+ * 搜索产品
  */
-export async function getProductListApi(params?: any) {
-  return requestClient.get('/products', { params });
+export async function searchProductsApi(params: { q: string; page?: number; page_size?: number }) {
+  return requestClient.get('/search', { params });
 }
 
 /**
@@ -15,8 +15,8 @@ export async function getProductDetailApi(id: string | number) {
 }
 
 /**
- * 搜索产品
+ * 获取产品列表 (兼容旧调用)
  */
-export async function searchProductsApi(keyword: string) {
-  return requestClient.get('/products/search', { params: { keyword } });
+export async function getProductListApi(params?: any) {
+  return requestClient.get('/products', { params });
 }

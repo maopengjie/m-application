@@ -1,22 +1,15 @@
 import { requestClient } from './request';
 
 /**
- * 获取告警列表
+ * 创建降价提醒
  */
-export async function getAlertListApi(params?: any) {
-  return requestClient.get('/alerts', { params });
-}
-
-/**
- * 创建价格订阅告警
- */
-export async function createPriceAlertApi(data: { productId: string | number; targetPrice: number }) {
+export async function createPriceAlertApi(data: { sku_id: number; target_price: number; user_id?: number }) {
   return requestClient.post('/alerts', data);
 }
 
 /**
- * 获取未读告警数
+ * 获取提醒列表
  */
-export async function getUnreadAlertCountApi() {
-  return requestClient.get('/alerts/unread-count');
+export async function getPriceAlertsApi(userId: number = 1) {
+  return requestClient.get('/alerts', { params: { user_id: userId } });
 }
