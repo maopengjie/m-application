@@ -62,7 +62,7 @@ zsh apps/data-engine/scripts/verify-data-layer.sh
 
 Search integration notes:
 
-- `POST /api/prices/search` uses Elasticsearch when `DATA_ENGINE_ENABLE_ELASTICSEARCH=true`.
+- `POST /api/v1/prices/search` uses Elasticsearch when `DATA_ENGINE_ENABLE_ELASTICSEARCH=true`.
 - Creating or refreshing `price_monitors` will also sync documents into the `price_monitors` index.
 - When Elasticsearch is disabled, the search endpoint returns a clear disabled response instead of failing.
 

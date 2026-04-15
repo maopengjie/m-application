@@ -1,6 +1,17 @@
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import analysis, auth, crawler, price, system, users
+from app.api.v1.endpoints import (
+    alert,
+    analysis,
+    auth,
+    crawler,
+    decision,
+    price,
+    product,
+    search,
+    system,
+    users,
+)
 
 api_router = APIRouter()
 api_router.include_router(system.router)
@@ -9,3 +20,7 @@ api_router.include_router(users.router)
 api_router.include_router(crawler.router)
 api_router.include_router(analysis.router)
 api_router.include_router(price.router)
+api_router.include_router(product.router)
+api_router.include_router(search.router)
+api_router.include_router(decision.router)
+api_router.include_router(alert.router)

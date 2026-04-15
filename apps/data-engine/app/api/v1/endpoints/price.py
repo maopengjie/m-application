@@ -14,7 +14,7 @@ price_monitor_service = PriceMonitorService()
 search_service = SearchService()
 
 
-@router.get("/", response_model=list[PriceMonitorSchema])
+@router.get("", response_model=list[PriceMonitorSchema])
 def read_prices(
     db: Session = Depends(get_db),
     skip: int = 0,
@@ -24,7 +24,7 @@ def read_prices(
     return price_monitor_service.list_monitors(db, skip=skip, limit=limit)
 
 
-@router.post("/", response_model=PriceMonitorSchema)
+@router.post("", response_model=PriceMonitorSchema)
 def create_price(
     *,
     db: Session = Depends(get_db),
