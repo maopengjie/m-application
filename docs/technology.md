@@ -148,7 +148,7 @@
 # 四、前端项目结构建议
 
 ```text
-frontend/
+web-ele/
 ├─ src/
 │  ├─ api/
 │  │  ├─ product.ts
@@ -185,7 +185,7 @@ frontend/
 建议采用 FastAPI 分层结构，不要把所有逻辑都堆在 main.py。
 
 ```text
-backend/
+data-engine/
 ├─ app/
 │  ├─ api/
 │  │  └─ v1/

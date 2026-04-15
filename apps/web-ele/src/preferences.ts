@@ -12,4 +12,7 @@ export const overridesPreferences = defineOverridesPreferences({
     enableRefreshToken: true,
     name: import.meta.env.VITE_APP_TITLE,
   },
+  widget: {
+    themeToggle: true,
+  },
 });
