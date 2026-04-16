@@ -2,8 +2,10 @@
 import { computed } from 'vue';
 import { ElTag } from 'element-plus';
 
+import type { Product } from '#/api/types';
+
 const props = defineProps<{
-  product?: any;
+  product: Product;
 }>();
 
 const emit = defineEmits(['click']);
@@ -13,6 +15,13 @@ const price = computed(() => props.product?.final_price || props.product?.price 
 const originalPrice = computed(() => props.product?.original_price || (props.product?.final_price ? props.product?.price || props.product?.min_price : null));
 const image = computed(() => props.product?.image || props.product?.main_image || '');
 const platform = computed(() => props.product?.platform || 'JD');
+const platformCount = computed(() => props.product?.platform_count || 1);
+const tags = computed(() => props.product?.tags || []);
+
+const handleImageError = (e: Event) => {
+  const target = e.target as HTMLImageElement;
+  target.src = 'https://via.placeholder.com/400x400?text=Image+Not+Found';
+};
 </script>
 
 <template>
@@ -26,14 +35,25 @@ const platform = computed(() => props.product?.platform || 'JD');
         v-if="image" 
         :src="image" 
         class="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal group-hover:scale-110 transition-transform duration-500" 
+        @error="handleImageError"
       />
       <div v-else class="text-gray-300">
         <span class="iconify lucide--image text-4xl"></span>
       </div>
       
       <!-- Platform Tag -->
-      <div class="absolute top-3 left-3">
+      <div class="absolute top-3 left-3 flex gap-1">
         <el-tag 
+          v-if="platformCount > 1"
+          type="info" 
+          effect="dark" 
+          size="small"
+          class="!border-none !rounded-lg px-2 !bg-blue-600/90"
+        >
+          {{ platformCount }} 个平台比价
+        </el-tag>
+        <el-tag 
+          v-else
           :type="platform === 'JD' ? 'danger' : 'success'" 
           effect="dark" 
           size="small"
@@ -69,14 +89,24 @@ const platform = computed(() => props.product?.platform || 'JD');
           </div>
           <div v-if="originalPrice" class="text-[10px] text-gray-400 line-through">¥{{ originalPrice }}</div>
         </div>
+
+        <div v-if="tags.length > 0" class="flex flex-wrap gap-1 mt-2">
+          <span 
+            v-for="tag in tags" 
+            :key="tag" 
+            class="text-[10px] px-2 py-0.5 rounded-full bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 border border-orange-100 dark:border-orange-800/30 font-medium"
+          >
+            {{ tag }}
+          </span>
+        </div>
         
         <div class="flex items-center justify-between mt-3 text-[10px] text-gray-400 dark:text-zinc-500">
           <span class="flex items-center gap-1">
             <span class="iconify lucide--store w-3 h-3"></span>
             {{ product?.shop_name || '直营店' }}
           </span>
-          <span v-if="product?.comments" class="flex items-center gap-1">
-            {{ product.comments }}+ 评价
+          <span v-if="product?.comments_count" class="flex items-center gap-1">
+            {{ product.comments_count }}+ 评价
           </span>
         </div>
       </div>

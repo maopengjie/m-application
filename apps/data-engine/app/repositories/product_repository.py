@@ -1,6 +1,6 @@
-from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import func, or_
-from app.models.product import Product, ProductSKU
+from sqlalchemy.orm import Session, joinedload, selectinload
+from sqlalchemy import func, or_, select, case
+from app.models.product import Product, ProductSKU, Coupon
 from typing import List, Optional
 
 
@@ -18,10 +18,50 @@ class ProductRepository:
             .first()
         )
 
-    def search(self, db: Session, query: str, limit: int = 20, skip: int = 0, category: str = None, brand: str = None) -> List[tuple[Product, float]]:
-        # Simple DB search fallback
-        q = db.query(Product)
+    def search(
+        self, 
+        db: Session, 
+        query: str, 
+        limit: int = 20, 
+        skip: int = 0, 
+        category: str = None, 
+        brand: str = None,
+        min_price: float = None,
+        max_price: float = None,
+        platforms: List[str] = None,
+        sort_by: str = None
+    ) -> tuple[List[tuple[Product, float]], int]:
+        # Calculate maximum applicable coupon dynamically per SKU
+        discount_subq = (
+            select(func.max(Coupon.amount))
+            .where(
+                Coupon.sku_id == ProductSKU.id,
+                or_(
+                    Coupon.condition_amount.is_(None),
+                    ProductSKU.price >= Coupon.condition_amount
+                )
+            )
+            .correlate(ProductSKU)
+            .scalar_subquery()
+        )
         
+        # Calculate effective price, ensuring it doesn't drop below 0
+        discount = func.coalesce(discount_subq, 0)
+        effective_price = case(
+            (ProductSKU.price - discount < 0, 0),
+            else_=ProductSKU.price - discount
+        )
+
+        # Query product and the minimum effective price among its matched SKUs
+        q = (
+            db.query(Product, func.min(effective_price).label("min_p"))
+            .join(ProductSKU)
+            .options(
+                selectinload(Product.skus).selectinload(ProductSKU.coupons),
+                selectinload(Product.skus).selectinload(ProductSKU.reviews)
+            )
+        )
+
         # Keyword search
         search_filter = or_(
             Product.name.ilike(f"%{query}%"),
@@ -29,22 +69,41 @@ class ProductRepository:
             Product.category.ilike(f"%{query}%"),
         )
         q = q.filter(search_filter)
-        
-        # Precise filters
+
+        # Precise filters on Product
         if category:
             q = q.filter(Product.category == category)
         if brand:
             q = q.filter(Product.brand == brand)
-            
-        products = q.offset(skip).limit(limit).all()
+
+        # Filters on ProductSKU
+        if min_price is not None:
+            q = q.filter(ProductSKU.price >= min_price)
+        if max_price is not None:
+            q = q.filter(ProductSKU.price <= max_price)
+        if platforms:
+            q = q.filter(ProductSKU.platform.in_(platforms))
+
+        # Group by product ID so we aggregate SKUs per product
+        q = q.group_by(Product.id)
         
+        # Calculate TOTAL matched elements before applying limit/offset
+        total_count = q.count()
+
+        # Apply global SQL sorting BEFORE pagination
+        if sort_by == "price_asc":
+            q = q.order_by(func.min(effective_price).asc())
+        elif sort_by == "price_desc":
+            q = q.order_by(func.min(effective_price).desc())
+
+        # Paginate the globally sorted and filtered result
+        products_with_prices = q.offset(skip).limit(limit).all()
+
         results = []
-        for p in products:
-            # Find min price for this product
-            min_price = db.query(func.min(ProductSKU.price)).filter(ProductSKU.product_id == p.id).scalar()
-            results.append((p, float(min_price) if min_price else 0.0))
+        for p, min_p in products_with_prices:
+            results.append((p, float(min_p) if min_p else 0.0))
         
-        return results
+        return results, total_count
 
     def get_sku_by_id(self, db: Session, sku_id: int) -> Optional[ProductSKU]:
         return (

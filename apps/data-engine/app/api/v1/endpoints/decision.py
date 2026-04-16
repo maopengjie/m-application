@@ -5,8 +5,13 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.schemas.decision import DecisionResponse
 from app.services.decision_service import DecisionService
+from app.api.v1.deps import get_current_user
 
-router = APIRouter(prefix="/decisions", tags=["decisions"])
+router = APIRouter(
+    prefix="/decisions", 
+    tags=["decisions"],
+    dependencies=[Depends(get_current_user)]
+)
 decision_service = DecisionService()
 
 

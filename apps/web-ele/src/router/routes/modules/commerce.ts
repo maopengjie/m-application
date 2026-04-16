@@ -6,18 +6,28 @@ const routes: RouteRecordRaw[] = [
     component: BasicLayout,
     meta: {
       icon: 'lucide:shopping-cart',
-      order: 2,
-      title: '购物决策',
+      order: 1,
+      title: '购物决策中心',
     },
-    name: 'Commerce',
+    name: 'SmartCommerce',
     path: '/commerce',
     children: [
+      {
+        name: 'CommerceHome',
+        path: 'home',
+        component: () => import('#/views/HomeView.vue'),
+        meta: {
+          icon: 'lucide:home',
+          title: '推荐主页',
+        },
+      },
       {
         name: 'CommerceSearch',
         path: 'search',
         component: () => import('#/views/SearchView.vue'),
         meta: {
-          title: '商品搜索',
+          icon: 'lucide:search',
+          title: '全网搜索',
         },
       },
       {
@@ -25,8 +35,9 @@ const routes: RouteRecordRaw[] = [
         path: 'detail/:id',
         component: () => import('#/views/ProductDetailView.vue'),
         meta: {
-          hideInMenu: true,
+          icon: 'lucide:info',
           title: '商品详情',
+          hideInMenu: true,
         },
       },
       {
@@ -34,6 +45,7 @@ const routes: RouteRecordRaw[] = [
         path: 'alerts',
         component: () => import('#/views/AlertView.vue'),
         meta: {
+          icon: 'lucide:bell',
           title: '降价提醒',
         },
       },

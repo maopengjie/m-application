@@ -34,11 +34,24 @@ def create_app() -> FastAPI:
         return {"message": f"{settings.app_name} is running"}
 
     # Unified Exception Handling
-    from fastapi import Request
+    from fastapi import Request, HTTPException
     from fastapi.responses import JSONResponse
     import logging
     
     logger = logging.getLogger(__name__)
+
+    @app.exception_handler(HTTPException)
+    async def http_exception_handler(request: Request, exc: HTTPException):
+        from app.utils.responses import response_error
+        # Format HTTP status correctly to unify with custom exception formats
+        return JSONResponse(
+            status_code=exc.status_code,
+            content=response_error(
+                message=str(exc.detail),
+                error=exc.detail
+            ),
+            headers=exc.headers
+        )
 
     @app.exception_handler(Exception)
     async def global_exception_handler(request: Request, exc: Exception):

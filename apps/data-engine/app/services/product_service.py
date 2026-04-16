@@ -59,15 +59,38 @@ class ProductService:
             
         return product
 
-    def search_products(self, db: Session, query: str, limit: int = 20, skip: int = 0, category: str = None, brand: str = None):
-        results = self.repo.search(db, query, limit=limit, skip=skip, category=category, brand=brand)
+    def search_products(
+        self, 
+        db: Session, 
+        query: str, 
+        limit: int = 20, 
+        skip: int = 0, 
+        category: str = None, 
+        brand: str = None,
+        min_price: float = None,
+        max_price: float = None,
+        platforms: List[str] = None,
+        sort_by: str = None
+    ):
+        results, total_count = self.repo.search(
+            db, 
+            query, 
+            limit=limit, 
+            skip=skip, 
+            category=category, 
+            brand=brand,
+            min_price=min_price,
+            max_price=max_price,
+            platforms=platforms,
+            sort_by=sort_by
+        )
         # Results is List[tuple[Product, float]], we need to attach final_price to SKUs
         for product, _ in results:
             for sku in product.skus:
                 promo = self.promo_service.calculate_final_price(sku)
                 sku.final_price = promo["final_price"]
                 sku.promotions = promo["promotions"]
-        return results
+        return results, total_count
 
     def create_product(self, db: Session, product_in: dict) -> Product:
         db_product = Product(**product_in)
@@ -81,6 +104,14 @@ class ProductService:
         if db_product:
             db.delete(db_product)
             db.commit()
+            
+            # Evict cache to maintain consistency
+            try:
+                self.redis.delete(f"product:{product_id}")
+                self.logger.info(f"Cache evicted for product:{product_id}")
+            except Exception as e:
+                self.logger.warning(f"Redis delete error during product eviction: {e}")
+                
             return True
         return False
 

@@ -2,6 +2,7 @@
 import { onMounted, ref, watch, onUnmounted } from 'vue';
 import * as echarts from 'echarts';
 import { getSkuPriceHistoryApi } from '#/api/product';
+import type { PriceHistoryStats } from '#/api/types';
 
 const props = defineProps<{
   skuId?: number | string;
@@ -10,7 +11,8 @@ const props = defineProps<{
 const chartRef = ref<HTMLElement | null>(null);
 const activeRange = ref(30);
 const loading = ref(false);
-const stats = ref<any>({
+const error = ref<string | null>(null);
+const stats = ref<PriceHistoryStats>({
   history: [],
   min_price: 0,
   max_price: 0,
@@ -24,12 +26,15 @@ const fetchHistory = async () => {
   if (!props.skuId) return;
   
   loading.value = true;
+  error.value = null;
   try {
     const res = await getSkuPriceHistoryApi(props.skuId, activeRange.value);
     stats.value = res;
     initChart();
-  } catch (error) {
-    console.error('Failed to fetch price history:', error);
+  } catch (err: unknown) {
+    const errMsg = err instanceof Error ? err.message : '历史数据加载失败，请重试';
+    console.error('Failed to fetch price history:', err);
+    error.value = errMsg;
   } finally {
     loading.value = false;
   }
@@ -46,6 +51,12 @@ const initChart = () => {
     new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime()
   );
 
+  interface TooltipParam {
+    name: string;
+    value: number;
+    data: any;
+  }
+
   const option = {
     tooltip: {
       trigger: 'axis',
@@ -53,7 +64,7 @@ const initChart = () => {
       borderWidth: 0,
       shadowBlur: 10,
       shadowColor: 'rgba(0,0,0,0.1)',
-      formatter: (params: any) => {
+      formatter: (params: TooltipParam[]) => {
         const item = params[0];
         const date = new Date(item.name).toLocaleDateString();
         return `
@@ -195,8 +206,15 @@ onUnmounted(() => {
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
       </div>
 
+      <!-- Error State -->
+      <div v-if="!loading && error" class="absolute inset-0 flex flex-col items-center justify-center bg-red-50/50 dark:bg-red-900/10 rounded-xl border border-red-100 dark:border-red-900/20">
+        <span class="iconify lucide--alert-circle text-red-500 text-4xl mb-2"></span>
+        <p class="text-red-500 text-sm mb-3">{{ error }}</p>
+        <el-button size="small" type="primary" plain @click="fetchHistory">点击重试</el-button>
+      </div>
+
       <!-- No Data -->
-      <div v-if="!loading && (!stats.history || stats.history.length === 0)" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-50/50 dark:bg-zinc-800/50 rounded-xl">
+      <div v-if="!loading && !error && (!stats.history || stats.history.length === 0)" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-50/50 dark:bg-zinc-800/50 rounded-xl">
         <span class="iconify lucide--bar-chart-2 text-gray-300 text-4xl mb-2"></span>
         <p class="text-gray-400 text-sm">暂无该时段价格数据</p>
       </div>

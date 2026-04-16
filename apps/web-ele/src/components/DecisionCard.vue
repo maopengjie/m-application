@@ -1,29 +1,27 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { ElProgress } from 'element-plus';
+import type { DecisionResult } from '#/api/types';
 
 const props = defineProps<{
-  decision?: {
-    score: number;
-    suggestion: string;
-    confidence: number;
-    reason: string;
-    price_score: number;
-    history_score: number;
-    coupon_score: number;
-    risk_score: number;
-    best_platform?: string;
-  }
+  decision?: DecisionResult;
 }>();
 
-const suggestionMap: any = {
+interface SuggestionInfo {
+  label: string;
+  color: string;
+  bg: string;
+  icon: string;
+}
+
+const suggestionMap: Record<string, SuggestionInfo> = {
   BUY: { label: '值得购买', color: 'text-green-600 dark:text-green-400', bg: 'bg-green-50 dark:bg-green-900/20', icon: 'ri:checkbox-circle-fill' },
   WAIT: { label: '建议等待', color: 'text-orange-500 dark:text-orange-400', bg: 'bg-orange-50 dark:bg-orange-900/20', icon: 'ri:time-fill' },
   AVOID: { label: '谨慎避雷', color: 'text-red-500 dark:text-red-400', bg: 'bg-red-50 dark:bg-red-900/20', icon: 'ri:close-circle-fill' },
 };
 
 const currentSuggestion = computed(() => {
-  return suggestionMap[props.decision?.suggestion || 'WAIT'];
+  return suggestionMap[props.decision?.suggestion || 'WAIT'] || suggestionMap.WAIT;
 });
 </script>
 
@@ -45,7 +43,7 @@ const currentSuggestion = computed(() => {
 
     <!-- Score Breakdown -->
     <div class="mt-6 grid grid-cols-2 gap-x-4 gap-y-3">
-      <div v-for="(score, label) in { '价格竞争力': decision?.price_score, '历史低价': decision?.history_score, '优惠力度': decision?.coupon_score, '账号靠谱度': decision?.risk_score }" :key="label" class="space-y-1">
+      <div v-for="(score, label) in { '价格竞争力': decision?.price_score, '历史低价': decision?.history_score, '优惠力度': decision?.coupon_score, '商家及评价分析': decision?.risk_score }" :key="label" class="space-y-1">
         <div class="flex justify-between text-[10px] text-gray-500">
           <span>{{ label }}</span>
           <span class="font-bold">{{ score }}</span>

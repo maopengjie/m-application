@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import ProductCard from './ProductCard.vue';
 
+import type { Product } from '#/api/types';
+
 defineProps<{
-  products: any[];
+  products: Product[];
   loading?: boolean;
 }>();
 
 const emit = defineEmits<{
-  (e: 'click', product: any): void;
+  (e: 'click', product: Product): void;
 }>();
 </script>
 

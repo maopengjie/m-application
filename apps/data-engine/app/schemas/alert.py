@@ -8,6 +8,9 @@ class PriceAlertCreate(BaseModel):
     sku_id: int
     target_price: Decimal
     user_id: int = 1  # Default for MVP
+    notify_methods: Optional[str] = "web" # Comma separated: web,email,sms
+    email: Optional[str] = None
+    phone: Optional[str] = None
 
 
 class AlertProductInfo(BaseModel):

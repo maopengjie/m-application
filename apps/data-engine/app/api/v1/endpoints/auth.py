@@ -1,9 +1,12 @@
-from fastapi import APIRouter, Cookie, Header, Response, status
+from fastapi import APIRouter, Cookie, Header, Response, status, Depends, HTTPException
+from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
+from app.core.database import get_db
 from app.schemas.auth import LoginPayload
 from app.services.auth_service import AuthService
 from app.utils.responses import response_error, response_success
+from app.api.v1.deps import get_current_user
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 settings = get_settings()
@@ -16,7 +19,10 @@ def set_refresh_cookie(response: Response, refresh_token: str) -> None:
         value=refresh_token,
         httponly=True,
         max_age=settings.refresh_token_expire_seconds,
-        samesite="lax",
+        samesite=settings.cookie_samesite,
+        secure=settings.cookie_secure,
+        path=settings.cookie_path,
+        domain=settings.cookie_domain,
     )
 
 
@@ -24,26 +30,19 @@ def clear_refresh_cookie(response: Response) -> None:
     response.delete_cookie(
         key=settings.refresh_cookie_key,
         httponly=True,
-        samesite="lax",
+        samesite=settings.cookie_samesite,
+        secure=settings.cookie_secure,
+        path=settings.cookie_path,
+        domain=settings.cookie_domain,
     )
 
 
-def unauthorized_response(response: Response) -> dict:
-    response.status_code = status.HTTP_401_UNAUTHORIZED
-    return response_error("Unauthorized Exception", "Unauthorized Exception")
-
-
-def forbidden_response(response: Response, message: str = "Forbidden Exception") -> dict:
-    response.status_code = status.HTTP_403_FORBIDDEN
-    return response_error(message, message)
-
-
 @router.post("/login")
-async def login(payload: LoginPayload, response: Response):
-    auth_result = auth_service.login(payload.username, payload.password)
+async def login(payload: LoginPayload, response: Response, db: Session = Depends(get_db)):
+    auth_result = auth_service.login(db, payload.username, payload.password)
     if not auth_result:
         clear_refresh_cookie(response)
-        return forbidden_response(response, "Username or password is incorrect.")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Username or password is incorrect or account is locked.")
 
     set_refresh_cookie(response, auth_result["refresh_token"])
     return response_success(
@@ -57,18 +56,19 @@ async def login(payload: LoginPayload, response: Response):
 @router.post("/refresh")
 async def refresh_token(
     response: Response,
+    db: Session = Depends(get_db),
     jwt_cookie: str | None = Cookie(default=None, alias=settings.refresh_cookie_key),
 ):
     if not jwt_cookie:
-        return forbidden_response(response)
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden Exception")
 
     clear_refresh_cookie(response)
-    access_token = auth_service.refresh_access_token(jwt_cookie)
-    if not access_token:
-        return forbidden_response(response)
+    tokens = auth_service.refresh_access_token(db, jwt_cookie)
+    if not tokens:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden Exception")
 
-    set_refresh_cookie(response, jwt_cookie)
-    return access_token
+    set_refresh_cookie(response, tokens["refresh_token"])
+    return response_success({"accessToken": tokens["access_token"]})
 
 
 @router.post("/logout")
@@ -82,8 +82,8 @@ async def logout(
 
 
 @router.get("/codes")
-async def get_access_codes(response: Response, authorization: str | None = Header(default=None)):
-    user = auth_service.get_user_from_access_token(authorization)
-    if not user:
-        return unauthorized_response(response)
-    return response_success(auth_service.get_access_codes(user["username"]))
+async def get_access_codes(
+    user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    return response_success(auth_service.get_access_codes(db, user["username"]))

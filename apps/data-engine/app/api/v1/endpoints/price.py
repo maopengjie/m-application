@@ -8,8 +8,13 @@ from app.schemas.price_monitor import PriceMonitor as PriceMonitorSchema, PriceM
 from app.schemas.search import SearchRequest
 from app.services.price_service import PriceMonitorService
 from app.services.search_service import SearchService
+from app.api.v1.deps import PermissionChecker
 
-router = APIRouter(prefix="/prices", tags=["prices"])
+router = APIRouter(
+    prefix="/prices", 
+    tags=["prices"],
+    dependencies=[Depends(PermissionChecker(["AC_100010"]))]
+)
 price_monitor_service = PriceMonitorService()
 search_service = SearchService()
 

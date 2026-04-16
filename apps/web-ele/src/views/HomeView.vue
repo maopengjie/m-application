@@ -10,7 +10,7 @@ const keyword = ref('');
 const handleSearch = () => {
   if (keyword.value.trim()) {
     router.push({
-      name: 'PriceSearch',
+      name: 'CommerceSearch',
       query: { q: keyword.value }
     });
   }
@@ -89,7 +89,7 @@ const popularSearches = ['iPhone 15 Pro', 'RTX 4090', '华为 Mate 60', '乐高 
           <div class="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-xl flex items-center justify-center mb-4">
             <span class="iconify lucide--bell"></span>
           </div>
-          <h3 class="font-bold text-gray-900 dark:text-zinc-100 mb-1">降价守家</h3>
+          <h3 class="font-bold text-gray-900 dark:text-zinc-100 mb-1">降价管家</h3>
           <p class="text-xs text-gray-500 dark:text-zinc-400">设置目标价，全天候监控，降价立刻通知您</p>
         </div>
       </div>

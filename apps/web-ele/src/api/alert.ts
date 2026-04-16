@@ -3,7 +3,14 @@ import { requestClient } from './request';
 /**
  * 创建降价提醒
  */
-export async function createPriceAlertApi(data: { sku_id: number; target_price: number; user_id?: number }) {
+export async function createPriceAlertApi(data: { 
+  sku_id: number; 
+  target_price: number; 
+  user_id?: number;
+  notify_methods?: string;
+  email?: string;
+  phone?: string;
+}) {
   return requestClient.post('/alerts', data);
 }
 

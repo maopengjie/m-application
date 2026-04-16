@@ -8,12 +8,18 @@ class SearchRequest(BaseModel):
 
 
 class ProductSearchResult(BaseModel):
-    id: int
+    product_id: int
     name: str
-    main_image: Optional[str] = None
+    image: Optional[str] = None
     brand: Optional[str] = None
+    platform: Optional[str] = None
+    category: Optional[str] = None
     min_price: float
     final_price: Optional[float] = None
+    shop_name: Optional[str] = None
+    platform_count: int = 1
+    comments_count: int = 0
+    tags: List[str] = []
 
 
 class SearchResponse(BaseModel):

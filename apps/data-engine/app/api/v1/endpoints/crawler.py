@@ -1,10 +1,16 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
 from app.schemas.crawler import CrawlerStartPayload, CrawlPreviewPayload
 from app.services.crawler_service import CrawlerService
 from app.utils.responses import response_success
+from app.api.v1.deps import PermissionChecker
 
-router = APIRouter(prefix="/crawler", tags=["crawler"])
+# Require admin or super code for all crawler operations
+router = APIRouter(
+    prefix="/crawler", 
+    tags=["crawler"],
+    dependencies=[Depends(PermissionChecker(["AC_100010"]))]
+)
 crawler_service = CrawlerService()
 
 

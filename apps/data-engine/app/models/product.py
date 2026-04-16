@@ -15,6 +15,7 @@ class Product(Base, TimestampMixin):
     brand: Mapped[Optional[str]] = mapped_column(String(100))
     category: Mapped[Optional[str]] = mapped_column(String(100))
     main_image: Mapped[Optional[str]] = mapped_column(String(500))
+    rating: Mapped[Optional[float]] = mapped_column(Numeric(3, 1), default=4.5)
 
     skus: Mapped[list["ProductSKU"]] = relationship(back_populates="product", cascade="all, delete-orphan")
 
@@ -30,6 +31,7 @@ class ProductSKU(Base, TimestampMixin):
     price: Mapped[float] = mapped_column(Numeric(10, 2))
     original_price: Mapped[Optional[float]] = mapped_column(Numeric(10, 2))
     shop_name: Mapped[Optional[str]] = mapped_column(String(255))
+    buy_url: Mapped[Optional[str]] = mapped_column(String(500))
     is_official: Mapped[bool] = mapped_column(Boolean, default=False)
 
     product: Mapped["Product"] = relationship(back_populates="skus")
@@ -86,6 +88,9 @@ class RiskScore(Base):
     score: Mapped[int] = mapped_column(Integer)
     comment_abnormal: Mapped[bool] = mapped_column(Boolean, default=False)
     sales_abnormal: Mapped[bool] = mapped_column(Boolean, default=False)
+    price_abnormal: Mapped[bool] = mapped_column(Boolean, default=False)
+    rating_low: Mapped[bool] = mapped_column(Boolean, default=False)
+    details_json: Mapped[Optional[str]] = mapped_column(Text) # Store details as JSON string
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=datetime.now, onupdate=datetime.now
     )
@@ -100,6 +105,9 @@ class PriceAlert(Base):
     user_id: Mapped[int] = mapped_column(Integer, index=True)
     sku_id: Mapped[int] = mapped_column(ForeignKey("product_skus.id"), index=True)
     target_price: Mapped[float] = mapped_column(Numeric(10, 2))
+    notify_methods: Mapped[str] = mapped_column(String(100), default="web")
+    email: Mapped[Optional[str]] = mapped_column(String(100))
+    phone: Mapped[Optional[str]] = mapped_column(String(20))
     is_triggered: Mapped[bool] = mapped_column(Boolean, default=False)
     status: Mapped[str] = mapped_column(String(20), default="active")
     triggered_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)

@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.schemas.alert import PriceAlertCreate, PriceAlertResponse
 from app.services.alert_service import AlertService
+from app.api.v1.deps import get_current_user, PermissionChecker
 
 router = APIRouter(prefix="/alerts", tags=["alerts"])
 alert_service = AlertService()
@@ -13,13 +14,13 @@ alert_service = AlertService()
 @router.get("", response_model=list[PriceAlertResponse])
 def list_alerts(
     db: Session = Depends(get_db),
-    user_id: int = Query(1),
+    current_user: dict = Depends(get_current_user),
 ) -> Any:
     """List price alerts for a user."""
-    return alert_service.list_alerts(db, user_id)
+    return alert_service.list_alerts(db, current_user["id"])
 
 
-@router.post("/scan")
+@router.post("/scan", dependencies=[Depends(PermissionChecker(["AC_100010"]))])
 def scan_alerts(
     db: Session = Depends(get_db),
 ) -> Any:
@@ -33,9 +34,12 @@ def create_alert(
     *,
     db: Session = Depends(get_db),
     alert_in: PriceAlertCreate,
+    current_user: dict = Depends(get_current_user),
 ) -> Any:
     """Create a new price alert."""
-    return alert_service.create_alert(db, alert_in.model_dump())
+    payload = alert_in.model_dump()
+    payload["user_id"] = current_user["id"] # Enforce setting alert to current user
+    return alert_service.create_alert(db, payload)
 
 
 @router.delete("/{alert_id}")
@@ -43,8 +47,10 @@ def delete_alert(
     *,
     db: Session = Depends(get_db),
     alert_id: int,
+    current_user: dict = Depends(get_current_user),
 ) -> Any:
     """Delete a price alert."""
+    # Note: ideally we should also verify the alert belongs to current_user inside service
     success = alert_service.delete_alert(db, alert_id)
     if not success:
         raise HTTPException(status_code=404, detail="Alert not found")

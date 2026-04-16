@@ -1,15 +1,29 @@
 <script setup lang="ts">
 import { ElTable, ElTableColumn, ElTag, ElButton, ElPopover } from 'element-plus';
+import type { ProductSKU } from '#/api/types';
+
 defineProps<{
-  data: any[];
+  data: ProductSKU[];
+  selectedId?: number | string;
 }>();
 
-const emit = defineEmits(['createAlert']);
+const emit = defineEmits(['createAlert', 'select']);
 </script>
 
 <template>
-  <el-table :data="data" style="width: 100%" border>
-    <el-table-column prop="platform" label="平台" width="120">
+  <el-table 
+    :data="data" 
+    style="width: 100%" 
+    border 
+    highlight-current-row
+    @row-click="(row) => emit('select', row)"
+  >
+    <el-table-column label="状态" width="80">
+      <template #default="{ row }">
+        <el-tag v-if="row.id === selectedId" type="primary" size="small">分析中</el-tag>
+      </template>
+    </el-table-column>
+    <el-table-column prop="platform" label="平台" width="100">
       <template #default="{ row }">
         <el-tag :type="row.platform === 'JD' ? 'danger' : 'success'" effect="dark" size="small">
           {{ row.platform }}

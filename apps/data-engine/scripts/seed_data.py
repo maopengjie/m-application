@@ -15,6 +15,8 @@ from app.models.product import (
     Review,
     RiskScore,
 )
+from app.models.user import User
+from app.core.security import get_password_hash
 
 
 def seed_data():
@@ -23,10 +25,15 @@ def seed_data():
         # Check if already seeded
         existing_iphone = db.query(Product).filter(Product.name == "iPhone 15 Pro").first()
         if existing_iphone:
-            print("Database already contains seed data. Skipping...")
+            # Check if users are seeded, if not, seed them
+            if not db.query(User).first():
+                seed_users(db)
+            else:
+                print("Database already contains seed data. Skipping...")
             return
 
         print("Seeding database with mock data...")
+        seed_users(db)
         
         # 1. Create a Product
         iphone = Product(
@@ -146,6 +153,45 @@ def seed_data():
         db.rollback()
     finally:
         db.close()
+
+
+def seed_users(db):
+    print("Seeding users...")
+    users = [
+        {
+            "username": "vben",
+            "password": "123456",
+            "real_name": "Vben",
+            "roles": ["super"],
+            "home_path": "/dashboard",
+        },
+        {
+            "username": "admin",
+            "password": "123456",
+            "real_name": "Admin",
+            "roles": ["admin"],
+            "home_path": "/workspace",
+        },
+        {
+            "username": "jack",
+            "password": "123456",
+            "real_name": "Jack",
+            "roles": ["user"],
+            "home_path": "/analytics",
+        },
+    ]
+    
+    for u_data in users:
+        user = User(
+            username=u_data["username"],
+            hashed_password=get_password_hash(u_data["password"]),
+            real_name=u_data["real_name"],
+            roles=u_data["roles"],
+            home_path=u_data["home_path"],
+            is_active=True
+        )
+        db.add(user)
+    db.commit()
 
 
 if __name__ == "__main__":

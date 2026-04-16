@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ElButton } from 'element-plus';
+import type { Coupon } from '#/api/types';
+
 defineProps<{
-  coupons?: any[];
+  coupons?: Coupon[];
 }>();
 </script>
 

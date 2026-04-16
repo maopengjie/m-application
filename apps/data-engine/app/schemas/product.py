@@ -42,6 +42,9 @@ class RiskScoreBase(BaseModel):
     score: int
     comment_abnormal: bool = False
     sales_abnormal: bool = False
+    price_abnormal: bool = False
+    rating_low: bool = False
+    details: List[str] = []
     updated_at: datetime
 
 
@@ -56,6 +59,7 @@ class ProductSKUBase(BaseModel):
     price: Decimal
     original_price: Optional[Decimal] = None
     shop_name: Optional[str] = None
+    buy_url: Optional[str] = None
     is_official: bool = False
 
 
@@ -83,6 +87,7 @@ class ProductBase(BaseModel):
     brand: Optional[str] = None
     category: Optional[str] = None
     main_image: Optional[str] = None
+    rating: Optional[float] = 4.5
 
 
 class ProductCreate(ProductBase):
