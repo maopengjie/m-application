@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.schemas.product import Product as ProductSchema, ProductCreate
+from app.schemas.product import Product as ProductSchema, ProductCreate, PriceHistoryStats
 from app.services.product_service import ProductService
 
 router = APIRouter(prefix="/products", tags=["products"])
@@ -54,3 +54,14 @@ def delete_product(
     if not success:
         raise HTTPException(status_code=404, detail="Product not found")
     return {"message": "Product deleted successfully"}
+
+
+@router.get("/skus/{sku_id}/history", response_model=PriceHistoryStats)
+def get_sku_price_history(
+    *,
+    db: Session = Depends(get_db),
+    sku_id: int,
+    days: int = 30,
+) -> Any:
+    """Get price history and stats for a specific SKU."""
+    return product_service.get_price_history(db, sku_id, days)

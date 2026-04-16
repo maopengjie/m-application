@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ElTable, ElTableColumn, ElTag, ElButton } from 'element-plus';
 defineProps<{
   data: any[];
 }>();

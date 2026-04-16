@@ -1,5 +1,14 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { 
+  ElInput, 
+  ElButton, 
+  ElRadioGroup, 
+  ElRadioButton, 
+  ElInputNumber, 
+  ElSelect, 
+  ElOption 
+} from 'element-plus';
 
 const props = defineProps<{
   initialKeyword?: string;
@@ -50,10 +59,10 @@ const handleFilterChange = () => {
       <div class="flex items-center gap-2">
         <span class="text-gray-500 dark:text-zinc-400">平台:</span>
         <el-radio-group v-model="filters.platform" size="small" @change="handleFilterChange">
-          <el-radio-button label="">全部</el-radio-button>
-          <el-radio-button label="JD">京东</el-radio-button>
-          <el-radio-button label="TM">天猫</el-radio-button>
-          <el-radio-button label="PDD">拼多多</el-radio-button>
+          <el-radio-button value="">全部</el-radio-button>
+          <el-radio-button value="JD">京东</el-radio-button>
+          <el-radio-button value="TM">天猫</el-radio-button>
+          <el-radio-button value="PDD">拼多多</el-radio-button>
         </el-radio-group>
       </div>
 

@@ -1,5 +1,15 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
+import { 
+  ElDialog, 
+  ElForm, 
+  ElFormItem, 
+  ElInputNumber, 
+  ElCheckboxGroup, 
+  ElCheckbox, 
+  ElInput, 
+  ElButton 
+} from 'element-plus';
 
 const props = defineProps<{
   modelValue: boolean;
@@ -60,9 +70,9 @@ const handleSubmit = () => {
       
       <el-form-item label="通过以下方式通知我">
         <el-checkbox-group v-model="form.notifyMethods">
-          <el-checkbox label="web">站内信</el-checkbox>
-          <el-checkbox label="email">邮件</el-checkbox>
-          <el-checkbox label="sms">短信</el-checkbox>
+          <el-checkbox value="web">站内信</el-checkbox>
+          <el-checkbox value="email">邮件</el-checkbox>
+          <el-checkbox value="sms">短信</el-checkbox>
         </el-checkbox-group>
       </el-form-item>
 

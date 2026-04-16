@@ -55,13 +55,15 @@ def seed_data():
         db.add(tmall_sku)
         db.flush()
 
-        # 3. Add Price History
-        for i in range(7):
+        # 3. Add Price History (90 days)
+        for i in range(90):
             date = datetime.now() - timedelta(days=i)
-            # JD prices
-            db.add(PriceHistory(sku_id=jd_sku.id, price=7999.00 - (i * 10), recorded_at=date))
-            # Tmall prices
-            db.add(PriceHistory(sku_id=tmall_sku.id, price=7899.00 - (i * 5), recorded_at=date))
+            # JD prices with some fluctuation
+            jd_price = 7999.00 - (i * 10) if i < 45 else 7549.00 + (i - 45) * 4
+            db.add(PriceHistory(sku_id=jd_sku.id, price=jd_price, recorded_at=date))
+            # Tmall prices with some fluctuation
+            tmall_price = 7899.00 - (i * 8) if i < 60 else 7419.00 + (i - 60) * 6
+            db.add(PriceHistory(sku_id=tmall_sku.id, price=tmall_price, recorded_at=date))
 
         # 4. Add Coupons
         db.add(

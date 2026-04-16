@@ -33,3 +33,6 @@ class ProductService:
             db.commit()
             return True
         return False
+
+    def get_price_history(self, db: Session, sku_id: int, days: int = 30):
+        return self.repo.get_price_history_with_stats(db, sku_id, days)

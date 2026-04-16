@@ -72,3 +72,4 @@ vben-admin.code-workspace
 .agents
 .claude
 .codex
+*.db

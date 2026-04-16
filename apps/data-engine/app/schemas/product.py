@@ -94,3 +94,11 @@ class Product(ProductBase):
     skus: List[ProductSKU] = []
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class PriceHistoryStats(BaseModel):
+    history: List[PriceHistoryBase]
+    min_price: float
+    max_price: float
+    avg_price: float
+    current_price: float

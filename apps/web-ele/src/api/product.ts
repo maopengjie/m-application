@@ -20,3 +20,12 @@ export async function getProductDetailApi(id: string | number) {
 export async function getProductListApi(params?: any) {
   return requestClient.get('/products', { params });
 }
+
+/**
+ * 获取 SKU 历史价格
+ */
+export async function getSkuPriceHistoryApi(skuId: string | number, days: number = 30) {
+  return requestClient.get(`/products/skus/${skuId}/history`, {
+    params: { days },
+  });
+}

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import { ElTag } from 'element-plus';
 
 const props = defineProps<{
   product?: any;

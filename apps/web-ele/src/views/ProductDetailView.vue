@@ -4,7 +4,7 @@ import { useRoute } from 'vue-router';
 
 import { Page } from '@vben/common-ui';
 
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElTag, ElButton, ElEmpty } from 'element-plus';
 
 import { createPriceAlertApi } from '#/api/alert';
 import { getSkuDecisionApi } from '#/api/decision';
@@ -155,7 +155,7 @@ onMounted(fetchDetail);
               <span class="iconify lucide--trending-down text-blue-500"></span>
               价格趋势分析
             </h3>
-            <PriceTrendChart :history="selectedSku?.price_history || []" />
+            <PriceTrendChart :sku-id="selectedSku?.id" />
           </div>
 
           <!-- Shop Comparison -->

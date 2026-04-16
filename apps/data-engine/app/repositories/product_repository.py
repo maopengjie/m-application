@@ -46,3 +46,41 @@ class ProductRepository:
             .filter(ProductSKU.id == sku_id)
             .first()
         )
+
+    def get_price_history_with_stats(self, db: Session, sku_id: int, days: int = 30) -> dict:
+        from datetime import datetime, timedelta
+        from app.models.product import PriceHistory
+
+        start_date = datetime.now() - timedelta(days=days)
+        history = (
+            db.query(PriceHistory)
+            .filter(PriceHistory.sku_id == sku_id, PriceHistory.recorded_at >= start_date)
+            .order_by(PriceHistory.recorded_at.asc())
+            .all()
+        )
+
+        if not history:
+            # Fallback to get last known price if no history in range
+            sku = db.query(ProductSKU).filter(ProductSKU.id == sku_id).first()
+            current_price = float(sku.price) if sku else 0.0
+            return {
+                "history": [],
+                "min_price": current_price,
+                "max_price": current_price,
+                "avg_price": current_price,
+                "current_price": current_price,
+            }
+
+        prices = [float(h.price) for h in history]
+        current_price = prices[-1]
+        min_price = min(prices)
+        max_price = max(prices)
+        avg_price = sum(prices) / len(prices)
+
+        return {
+            "history": [{"price": h.price, "recorded_at": h.recorded_at} for h in history],
+            "min_price": min_price,
+            "max_price": max_price,
+            "avg_price": avg_price,
+            "current_price": current_price,
+        }
