@@ -18,14 +18,25 @@ class ProductRepository:
             .first()
         )
 
-    def search(self, db: Session, query: str, limit: int = 20) -> List[tuple[Product, float]]:
+    def search(self, db: Session, query: str, limit: int = 20, skip: int = 0, category: str = None, brand: str = None) -> List[tuple[Product, float]]:
         # Simple DB search fallback
+        q = db.query(Product)
+        
+        # Keyword search
         search_filter = or_(
             Product.name.ilike(f"%{query}%"),
             Product.brand.ilike(f"%{query}%"),
             Product.category.ilike(f"%{query}%"),
         )
-        products = db.query(Product).filter(search_filter).limit(limit).all()
+        q = q.filter(search_filter)
+        
+        # Precise filters
+        if category:
+            q = q.filter(Product.category == category)
+        if brand:
+            q = q.filter(Product.brand == brand)
+            
+        products = q.offset(skip).limit(limit).all()
         
         results = []
         for p in products:

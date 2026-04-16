@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
 
-from app.core.database import SessionLocal, engine
+from app.core.database import SessionLocal
 from app.models.product import (
     Product,
     ProductSKU,
@@ -20,6 +20,14 @@ from app.models.product import (
 def seed_data():
     db = SessionLocal()
     try:
+        # Check if already seeded
+        existing_iphone = db.query(Product).filter(Product.name == "iPhone 15 Pro").first()
+        if existing_iphone:
+            print("Database already contains seed data. Skipping...")
+            return
+
+        print("Seeding database with mock data...")
+        
         # 1. Create a Product
         iphone = Product(
             name="iPhone 15 Pro",
@@ -108,6 +116,27 @@ def seed_data():
         # 6. Add Risk Score
         db.add(RiskScore(sku_id=jd_sku.id, score=95, comment_abnormal=False, sales_abnormal=False))
         db.add(RiskScore(sku_id=tmall_sku.id, score=98, comment_abnormal=False, sales_abnormal=False))
+
+        # 7. Add another product for search testing
+        macbook = Product(
+            name="MacBook Air M3",
+            brand="Apple",
+            category="Laptop",
+            main_image="https://example.com/macbook.jpg"
+        )
+        db.add(macbook)
+        db.flush()
+        
+        db.add(ProductSKU(
+            product_id=macbook.id,
+            platform="JD",
+            platform_sku_id="100095831600",
+            title="Apple MacBook Air 13英寸 M3 8G 256G",
+            price=8999.00,
+            original_price=8999.00,
+            shop_name="京东自营",
+            is_official=True
+        ))
 
         db.commit()
         print("Successfully seeded database with mock data.")

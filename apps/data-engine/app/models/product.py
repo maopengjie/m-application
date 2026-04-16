@@ -102,6 +102,8 @@ class PriceAlert(Base):
     target_price: Mapped[float] = mapped_column(Numeric(10, 2))
     is_triggered: Mapped[bool] = mapped_column(Boolean, default=False)
     status: Mapped[str] = mapped_column(String(20), default="active")
+    triggered_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    triggered_price: Mapped[Optional[float]] = mapped_column(Numeric(10, 2), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now)
 
     sku: Mapped["ProductSKU"] = relationship(back_populates="alerts")

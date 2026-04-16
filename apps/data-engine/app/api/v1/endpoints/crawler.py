@@ -22,7 +22,7 @@ async def trigger_update():
     db = SessionLocal()
     try:
         service = CollectorService()
-        count = service.simulate_price_collection(db)
-        return {"message": "Price update simulation completed", "updates_count": count}
+        count = service.run_collection(db)
+        return {"message": "Price update task completed", "updates_count": count}
     finally:
         db.close()

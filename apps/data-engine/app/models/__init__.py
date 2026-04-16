@@ -8,6 +8,7 @@ from app.models.product import (
     RiskScore,
     PriceAlert,
 )
+from app.models.task import CrawlTask
 
 __all__ = [
     "PriceMonitor",
@@ -18,4 +19,5 @@ __all__ = [
     "Review",
     "RiskScore",
     "PriceAlert",
+    "CrawlTask",
 ]

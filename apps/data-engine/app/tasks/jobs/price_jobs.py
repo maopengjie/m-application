@@ -7,7 +7,7 @@ collector_service = CollectorService()
 def refresh_prices_job():
     """Scheduled job to update all product prices."""
     with SessionLocal() as db:
-        collector_service.simulate_price_collection(db)
+        collector_service.run_collection(db)
 
 
 def register_price_jobs(scheduler) -> None:

@@ -1,7 +1,11 @@
+import logging
 from sqlalchemy.orm import Session
 from app.repositories.alert_repository import AlertRepository
 from app.models.product import PriceAlert, ProductSKU
 from app.services.promotion_service import PromotionService
+
+
+logger = logging.getLogger(__name__)
 
 
 class AlertService:
@@ -16,10 +20,15 @@ class AlertService:
         # Default status for new alerts
         alert_in.setdefault("status", "active")
         alert_in.setdefault("is_triggered", False)
-        return self.repo.create_alert(db, alert_in)
+        alert = self.repo.create_alert(db, alert_in)
+        logger.info(f"Created price alert ID {alert.id} for SKU {alert.sku_id} (Target: {alert.target_price})")
+        return alert
 
     def delete_alert(self, db: Session, alert_id: int) -> bool:
-        return self.repo.delete_alert(db, alert_id)
+        success = self.repo.delete_alert(db, alert_id)
+        if success:
+            logger.info(f"Deleted price alert ID {alert_id}")
+        return success
 
     def check_alerts(self, db: Session) -> list[PriceAlert]:
         """
@@ -42,7 +51,13 @@ class AlertService:
                 # Triggered!
                 alert.is_triggered = True
                 alert.status = "triggered"
+                alert.triggered_at = datetime.now()
+                alert.triggered_price = current_final_price
                 db.commit()
                 triggered_alerts.append(alert)
+                logger.info(f"ALERT TRIGGERED: ID {alert.id}, SKU {sku.id}, Price {current_final_price} <= Target {alert.target_price}")
+        
+        if triggered_alerts:
+            logger.info(f"Total triggered alerts in this scan: {len(triggered_alerts)}")
         
         return triggered_alerts

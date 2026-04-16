@@ -30,8 +30,8 @@ class ProductService:
                 sku.promotions = promo["promotions"]
         return product
 
-    def search_products(self, db: Session, query: str, limit: int = 20):
-        results = self.repo.search(db, query, limit)
+    def search_products(self, db: Session, query: str, limit: int = 20, skip: int = 0, category: str = None, brand: str = None):
+        results = self.repo.search(db, query, limit=limit, skip=skip, category=category, brand=brand)
         # Results is List[tuple[Product, float]], we need to attach final_price to SKUs
         for product, _ in results:
             for sku in product.skus:

@@ -14,11 +14,16 @@ product_service = ProductService()
 def search_products(
     q: str = Query(..., min_length=1),
     sort_by: Optional[str] = Query(None), # price_asc, price_desc
-    limit: int = 20,
+    category: Optional[str] = Query(None),
+    brand: Optional[str] = Query(None),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_db),
 ) -> Any:
     """Search products across the platform."""
-    results = product_service.search_products(db, q, limit)
+    # We fetch more in repo to allow for better in-memory filtering/sorting if needed, 
+    # but for true pagination we should let the repo handle it.
+    results = product_service.search_products(db, q, limit=limit, skip=skip)
     
     items = []
     for p, min_price in results:

@@ -29,6 +29,8 @@ class PriceAlertResponse(PriceAlertCreate):
     id: int
     is_triggered: bool
     status: str
+    triggered_at: Optional[datetime] = None
+    triggered_price: Optional[float] = None
     created_at: datetime
     sku: Optional[AlertSkuInfo] = None
     
