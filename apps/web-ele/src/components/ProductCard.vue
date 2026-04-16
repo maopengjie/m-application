@@ -9,8 +9,9 @@ const props = defineProps<{
 const emit = defineEmits(['click']);
 
 const title = computed(() => props.product?.title || props.product?.name || '未知商品');
-const price = computed(() => props.product?.price || 0);
-const image = computed(() => props.product?.image || '');
+const price = computed(() => props.product?.final_price || props.product?.price || props.product?.min_price || 0);
+const originalPrice = computed(() => props.product?.original_price || (props.product?.final_price ? props.product?.price || props.product?.min_price : null));
+const image = computed(() => props.product?.image || props.product?.main_image || '');
 const platform = computed(() => props.product?.platform || 'JD');
 </script>
 
@@ -57,10 +58,16 @@ const platform = computed(() => props.product?.platform || 'JD');
       </h3>
       
       <div class="mt-auto">
-        <div class="flex items-baseline gap-1">
-          <span class="text-xs text-red-500 font-bold">¥</span>
-          <span class="text-xl font-black text-red-500">{{ price }}</span>
-          <span v-if="product?.original_price" class="text-xs text-gray-400 line-through ml-1">¥{{ product.original_price }}</span>
+        <div class="flex flex-col gap-1">
+          <div v-if="product?.final_price" class="flex items-center gap-1">
+             <span class="text-[10px] bg-red-500 text-white px-1 rounded">到手价</span>
+             <span class="text-xl font-black text-red-500">¥{{ price }}</span>
+          </div>
+          <div v-else class="flex items-baseline gap-1">
+            <span class="text-xs text-red-500 font-bold">¥</span>
+            <span class="text-xl font-black text-red-500">{{ price }}</span>
+          </div>
+          <div v-if="originalPrice" class="text-[10px] text-gray-400 line-through">¥{{ originalPrice }}</div>
         </div>
         
         <div class="flex items-center justify-between mt-3 text-[10px] text-gray-400 dark:text-zinc-500">

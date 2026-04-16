@@ -4,19 +4,40 @@ from app.models.product import Product
 from typing import List, Optional
 
 
+from app.services.promotion_service import PromotionService
+
+
 class ProductService:
     def __init__(self):
         self.repo = ProductRepository()
+        self.promo_service = PromotionService()
 
     def list_products(self, db: Session, skip: int = 0, limit: int = 100) -> List[Product]:
-        # Reuse existing logic for now or move to repo
-        return db.query(Product).offset(skip).limit(limit).all()
+        products = db.query(Product).offset(skip).limit(limit).all()
+        for product in products:
+            for sku in product.skus:
+                promo = self.promo_service.calculate_final_price(sku)
+                sku.final_price = promo["final_price"]
+                sku.promotions = promo["promotions"]
+        return products
 
     def get_product(self, db: Session, product_id: int) -> Optional[Product]:
-        return self.repo.get_by_id(db, product_id)
+        product = self.repo.get_by_id(db, product_id)
+        if product:
+            for sku in product.skus:
+                promo = self.promo_service.calculate_final_price(sku)
+                sku.final_price = promo["final_price"]
+                sku.promotions = promo["promotions"]
+        return product
 
     def search_products(self, db: Session, query: str, limit: int = 20):
         results = self.repo.search(db, query, limit)
+        # Results is List[tuple[Product, float]], we need to attach final_price to SKUs
+        for product, _ in results:
+            for sku in product.skus:
+                promo = self.promo_service.calculate_final_price(sku)
+                sku.final_price = promo["final_price"]
+                sku.promotions = promo["promotions"]
         return results
 
     def create_product(self, db: Session, product_in: dict) -> Product:

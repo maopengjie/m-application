@@ -13,24 +13,34 @@ const route = useRoute();
 
 
 const keyword = ref((route.query.q as string) || '');
+const currentSort = ref('relevance');
 const loading = ref(false);
 const products = ref([]);
 
-const handleSearch = async (newKeyword: string) => {
+const handleSearch = async (newKeyword: string, sortBy?: string) => {
   if (!newKeyword) return;
   
   keyword.value = newKeyword;
-  router.push({ query: { q: newKeyword } });
+  if (sortBy) currentSort.value = sortBy;
+  
+  router.push({ query: { q: newKeyword, sort_by: currentSort.value } });
   
   loading.value = true;
   try {
-    const res = await searchProductsApi({ q: newKeyword });
+    const res = await searchProductsApi({ 
+      q: newKeyword,
+      sort_by: currentSort.value === 'relevance' ? undefined : currentSort.value
+    });
     products.value = res?.items || [];
   } catch (err: any) {
     ElMessage.error(err.message || '搜索失败');
   } finally {
     loading.value = false;
   }
+};
+
+const handleFilter = (filters: any) => {
+  handleSearch(keyword.value, filters.sortBy);
 };
 
 const handleProductClick = (product: any) => {
@@ -49,7 +59,11 @@ onMounted(() => {
 
 <template>
   <Page title="比价搜索" description="搜索全网商品，获取最佳购买建议和价格趋势">
-    <SearchFilterBar :initial-keyword="keyword" @search="handleSearch" />
+    <SearchFilterBar 
+      :initial-keyword="keyword" 
+      @search="handleSearch" 
+      @filter="handleFilter"
+    />
 
     <div v-if="keyword" class="mb-4 text-sm text-gray-500 dark:text-zinc-400">
       找到关于 <span class="text-primary font-bold">"{{ keyword }}"</span> 的 {{ products.length }} 个结果

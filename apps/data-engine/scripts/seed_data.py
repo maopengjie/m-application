@@ -69,11 +69,21 @@ def seed_data():
         db.add(
             Coupon(
                 sku_id=jd_sku.id,
+                title="满5000减200",
+                desc="Apple产品专享满减券",
                 type="满减",
                 amount=200.00,
                 condition_amount=5000.00,
-                start_time=datetime.now(),
-                end_time=datetime.now() + timedelta(days=7),
+            )
+        )
+        db.add(
+            Coupon(
+                sku_id=tmall_sku.id,
+                title="官方旗舰店立减150",
+                desc="下单立享优惠",
+                type="优惠券",
+                amount=150.00,
+                condition_amount=0.00,
             )
         )
 

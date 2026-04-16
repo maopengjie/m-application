@@ -3,7 +3,12 @@ import { requestClient } from './request';
 /**
  * 搜索产品
  */
-export async function searchProductsApi(params: { q: string; page?: number; page_size?: number }) {
+export async function searchProductsApi(params: {
+  q: string;
+  sort_by?: string;
+  page?: number;
+  page_size?: number;
+}) {
   return requestClient.get('/search', { params });
 }
 

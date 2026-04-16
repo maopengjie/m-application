@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, ConfigDict
 from decimal import Decimal
 
@@ -15,11 +15,11 @@ class PriceHistory(PriceHistoryBase):
 
 
 class CouponBase(BaseModel):
+    title: str
+    desc: Optional[str] = None
     type: str
     amount: Decimal
     condition_amount: Optional[Decimal] = None
-    start_time: Optional[datetime] = None
-    end_time: Optional[datetime] = None
 
 
 class Coupon(CouponBase):
@@ -72,6 +72,8 @@ class ProductSKU(ProductSKUBase):
     coupons: List[Coupon] = []
     reviews: List[Review] = []
     risk_score: Optional[RiskScore] = None
+    final_price: Optional[float] = None
+    promotions: List[Dict[str, Any]] = []
 
     model_config = ConfigDict(from_attributes=True)
 

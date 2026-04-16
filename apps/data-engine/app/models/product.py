@@ -56,6 +56,8 @@ class Coupon(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     sku_id: Mapped[int] = mapped_column(ForeignKey("product_skus.id"), index=True)
+    title: Mapped[str] = mapped_column(String(100))
+    desc: Mapped[Optional[str]] = mapped_column(String(255))
     type: Mapped[str] = mapped_column(String(50))  # coupon, discount, etc.
     amount: Mapped[float] = mapped_column(Numeric(10, 2))
     condition_amount: Mapped[Optional[float]] = mapped_column(Numeric(10, 2))

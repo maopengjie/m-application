@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ElTable, ElTableColumn, ElTag, ElButton } from 'element-plus';
+import { ElTable, ElTableColumn, ElTag, ElButton, ElPopover } from 'element-plus';
 defineProps<{
   data: any[];
 }>();
@@ -24,14 +24,35 @@ const emit = defineEmits(['createAlert']);
         </div>
       </template>
     </el-table-column>
-    <el-table-column prop="price" label="当前价" width="120">
+    <el-table-column prop="price" label="当前价" width="100">
       <template #default="{ row }">
-        <span class="text-red-500 font-bold">¥{{ row.price }}</span>
+        <span class="text-gray-600 dark:text-zinc-400">¥{{ row.price }}</span>
       </template>
     </el-table-column>
-    <el-table-column prop="original_price" label="原价" width="120">
+    <el-table-column label="优惠 / 到手价" min-width="160">
       <template #default="{ row }">
-        <span class="text-gray-400 dark:text-zinc-500 line-through">¥{{ row.original_price }}</span>
+        <div class="flex flex-col">
+          <div class="flex items-center gap-1">
+            <span class="text-red-500 font-bold text-lg">¥{{ row.final_price || row.price }}</span>
+            <el-popover
+              v-if="row.promotions && row.promotions.length"
+              placement="top"
+              :width="200"
+              trigger="hover"
+            >
+              <template #reference>
+                <el-tag size="small" type="danger" effect="plain" class="cursor-pointer">优惠包</el-tag>
+              </template>
+              <div class="space-y-2">
+                <div v-for="(p, i) in row.promotions" :key="i" class="flex justify-between text-xs">
+                  <span>{{ p.title }}</span>
+                  <span class="text-red-500">-¥{{ p.amount }}</span>
+                </div>
+              </div>
+            </el-popover>
+          </div>
+          <span v-if="row.original_price" class="text-xs text-gray-400 line-through">原价 ¥{{ row.original_price }}</span>
+        </div>
       </template>
     </el-table-column>
     <el-table-column label="操作" width="120" fixed="right">

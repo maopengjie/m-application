@@ -13,6 +13,7 @@ class ProductSearchResult(BaseModel):
     main_image: Optional[str] = None
     brand: Optional[str] = None
     min_price: float
+    final_price: Optional[float] = None
 
 
 class SearchResponse(BaseModel):

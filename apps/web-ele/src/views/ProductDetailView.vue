@@ -116,10 +116,18 @@ onMounted(fetchDetail);
               {{ product.name }}
             </h1>
             
-            <div class="flex items-baseline gap-4 mb-6">
-              <span class="text-4xl font-black text-red-500">¥{{ selectedSku?.price }}</span>
+            <div class="flex items-baseline gap-4 mb-2">
+              <span class="text-xs font-bold text-red-500 bg-red-50 dark:bg-red-950/30 px-2 py-0.5 rounded">预计到手价</span>
+              <span class="text-4xl font-black text-red-500">¥{{ selectedSku?.final_price || selectedSku?.price }}</span>
               <span v-if="selectedSku?.original_price" class="text-lg text-gray-400 line-through">¥{{ selectedSku.original_price }}</span>
-              <el-tag v-if="selectedSku?.price < selectedSku?.original_price" type="danger" size="small" plain>-{{ Math.round((1 - selectedSku.price / selectedSku.original_price) * 100) }}%</el-tag>
+            </div>
+            
+            <div v-if="selectedSku?.promotions?.length" class="flex flex-wrap gap-2 mb-6">
+              <el-tag v-for="(p, i) in selectedSku.promotions" :key="i" type="danger" size="small" effect="plain">{{ p.title }}</el-tag>
+              <span class="text-xs text-gray-400 self-center">已省 ¥{{ (selectedSku.price - selectedSku.final_price).toFixed(2) }}</span>
+            </div>
+            <div v-else class="mb-8">
+               <span class="text-sm text-gray-500">当前价格: ¥{{ selectedSku?.price }}</span>
             </div>
             
             <div class="flex flex-wrap gap-4 mb-8">
