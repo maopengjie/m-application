@@ -11,6 +11,11 @@ from app.repositories.price_monitor_repository import PriceMonitorRepository
 from app.services.search_service import SearchService
 
 
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 class PriceMonitorService:
     CACHE_KEY = "price_monitors:list"
     CACHE_TTL_SECONDS = 300
@@ -43,7 +48,11 @@ class PriceMonitorService:
     def create_monitor(self, db: Session, payload: dict) -> PriceMonitor:
         monitor = self.repository.create(db, payload)
         self._clear_list_cache()
-        self.search_service.index_monitor(monitor)
+        # Best-effort search indexing: do not let search failures break creation
+        try:
+            self.search_service.index_monitor(monitor)
+        except Exception as e:
+            logger.error(f"Search indexing failed for monitor {monitor.id}: {e}")
         return monitor
 
     def update_all_prices(self, db: Session) -> None:
@@ -53,7 +62,11 @@ class PriceMonitorService:
                 continue
             monitor.current_price = round(random.uniform(10.0, 500.0), 2)
             monitor = self.repository.save(db, monitor)
-            self.search_service.index_monitor(monitor)
+            # Best-effort search indexing: do not let search failures break pricing updates
+            try:
+                self.search_service.index_monitor(monitor)
+            except Exception as e:
+                logger.error(f"Search indexing failed during update for monitor {monitor.id}: {e}")
         self._clear_list_cache()
 
     @staticmethod

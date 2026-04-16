@@ -32,6 +32,15 @@ def override_get_db():
         db.close()
 
 
+@pytest.fixture
+def db():
+    Base.metadata.create_all(bind=engine)
+    db = TestingSessionLocal()
+    yield db
+    db.close()
+    Base.metadata.drop_all(bind=engine)
+
+
 @pytest.fixture(scope="module")
 def client():
     app.dependency_overrides[get_db] = override_get_db
@@ -74,5 +83,60 @@ def test_product_cache_invalidation_on_delete(client):
         assert resp.status_code == 200
         mock_redis.delete.assert_called_with("product:999")
     finally:
-        # Restore mock to avoid breaking subsequent tests if added
+        # Restore original redis
+        product_service.redis = original_redis
+
+
+def test_product_cache_data_parity(client, db):
+    # 1. Create a product with complex fields (Decimal price, etc.)
+    from app.models.product import ProductSKU
+    p = Product(id=888, name="Parity Test Product", brand="Test", category="Test")
+    db.add(p)
+    db.flush()
+    
+    sku = ProductSKU(
+        product_id=p.id,
+        platform="JD",
+        platform_sku_id="sku_888",
+        title="SKU 888",
+        price=123.45,
+        original_price=150.0
+    )
+    db.add(sku)
+    db.commit()
+
+    # 2. Setup Redis Mock to simulate real string-based caching
+    from app.api.v1.endpoints.product import product_service
+    mock_redis = MagicMock()
+    cache_store = {}
+    
+    def mock_setex(key, ttl, value):
+        cache_store[key] = value
+    def mock_get(key):
+        return cache_store.get(key)
+        
+    mock_redis.setex.side_effect = mock_setex
+    mock_redis.get.side_effect = mock_get
+    
+    original_redis = product_service.redis
+    product_service.redis = mock_redis
+
+    try:
+        # 3. First call: Cold Path (triggers cache write)
+        resp_cold = client.get(f"/api/v1/products/{p.id}")
+        assert resp_cold.status_code == 200
+        data_cold = resp_cold.json()
+        assert "sku_888" in str(data_cold)
+        assert mock_redis.setex.called
+
+        # 4. Second call: Hot Path (triggers cache read)
+        resp_hot = client.get(f"/api/v1/products/{p.id}")
+        assert resp_hot.status_code == 200
+        data_hot = resp_hot.json()
+
+        # 5. Assert Field-for-Field Parity
+        assert data_cold == data_hot
+        assert float(data_hot["skus"][0]["price"]) == 123.45
+        assert "final_price" in data_hot["skus"][0]
+    finally:
         product_service.redis = original_redis

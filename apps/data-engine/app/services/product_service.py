@@ -34,7 +34,9 @@ class ProductService:
             cached = self.redis.get(cache_key)
             if cached:
                 self.logger.info(f"Cache hit for product:{product_id}")
-                return json.loads(cached)
+                from app.schemas.product import Product as ProductSchema
+                # Re-validate and return the Pydantic model directly to ensure parity
+                return ProductSchema.model_validate_json(cached)
         except Exception as e:
             self.logger.warning(f"Redis read error: {e}")
 
