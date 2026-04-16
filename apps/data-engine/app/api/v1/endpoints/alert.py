@@ -1,5 +1,5 @@
 from typing import Any
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -27,16 +27,3 @@ def create_alert(
 ) -> Any:
     """Create a new price alert."""
     return alert_service.create_alert(db, alert_in.model_dump())
-
-
-@router.delete("/{alert_id}")
-def delete_alert(
-    *,
-    db: Session = Depends(get_db),
-    alert_id: int,
-) -> Any:
-    """Delete a price alert."""
-    success = alert_service.delete_alert(db, alert_id)
-    if not success:
-        raise HTTPException(status_code=404, detail="Alert not found")
-    return {"message": "Alert deleted successfully"}

@@ -13,7 +13,7 @@ interface PriceAlert {
   target_price: number;
   created_at: string;
   product_title: string;
-  product_image: string;
+  product_image?: string;
   current_price: number;
   notify_methods: string[];
 }

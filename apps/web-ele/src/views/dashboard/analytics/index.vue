@@ -41,7 +41,7 @@ const { t } = useI18n();
           <div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-transparent dark:from-blue-900/10 opacity-50"></div>
           <div class="z-10 text-center">
              <div class="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-500">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18" /><path d="m19 9-5 5-4-4-3 3" /></svg>
              </div>
              <h2 class="text-xl font-semibold text-gray-900 dark:text-zinc-100">Analytics Graph Placeholder</h2>
              <p class="text-gray-500 dark:text-zinc-400 mt-2 max-w-sm">Detailed performance analytics and trend monitoring visualization will appear here.</p>
@@ -67,18 +67,12 @@ const { t } = useI18n();
 
 <style scoped>
 .analytics-container {
-  animation: fade-in 0.6s ease-out;
+  animation: fadeIn 0.6s ease-out;
 }
 
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
 
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  to { opacity: 1; transform: translateY(0); }
 }
 </style>

@@ -46,7 +46,6 @@
     "element-plus": "catalog:",
     "pinia": "catalog:",
     "vue": "catalog:",
-    "vue-i18n": "catalog:",
     "vue-router": "catalog:"
   },
   "devDependencies": {

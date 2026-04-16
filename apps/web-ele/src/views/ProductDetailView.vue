@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { Page } from '@vben/common-ui';
@@ -15,7 +15,6 @@ import DecisionCard from '#/components/DecisionCard.vue';
 import PriceCompareTable from '#/components/PriceCompareTable.vue';
 import PriceTrendChart from '#/components/PriceTrendChart.vue';
 import RiskPanel from '#/components/RiskPanel.vue';
-import { computed } from 'vue';
 
 const route = useRoute();
 const productId = route.query.id as string;
