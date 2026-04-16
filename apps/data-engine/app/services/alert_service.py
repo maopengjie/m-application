@@ -53,6 +53,17 @@ class AlertService:
         Scan all active (non-triggered) alerts and check if current final price <= target price.
         Returns a list of triggered alerts.
         """
+        # Consistency Guard: Do not scan if a price update is currently in progress
+        from app.models.task import CrawlTask
+        active_update = (
+            db.query(CrawlTask)
+            .filter(CrawlTask.task_type == "price_update", CrawlTask.status == "running")
+            .first()
+        )
+        if active_update:
+            logger.info(f"Skipping alert scan: Price update (Job ID: {active_update.id}) is in progress.")
+            return []
+
         active_alerts = self.repo.get_active_alerts(db)
         triggered_alerts = []
 

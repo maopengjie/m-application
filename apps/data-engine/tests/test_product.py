@@ -1,7 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
 from unittest.mock import MagicMock
 
@@ -140,3 +140,33 @@ def test_product_cache_data_parity(client, db):
         assert "final_price" in data_hot["skus"][0]
     finally:
         product_service.redis = original_redis
+
+
+def test_numeric_precision_integrity(db: Session):
+    """
+    Verify that our Numeric(10, 2) columns correctly handle precision,
+    bridging the parity gap between SQLite (lenient) and MySQL (strict).
+    """
+    from app.models.product import ProductSKU, Product
+    from decimal import Decimal
+    
+    p = Product(name="Precision Test", brand="Test", category="Test")
+    db.add(p)
+    db.flush()
+    
+    # Intentionally use a high-precision decimal
+    precise_price = Decimal("123.456789") 
+    sku = ProductSKU(
+        product_id=p.id,
+        platform="JD",
+        platform_sku_id="precision_sku",
+        title="Precision SKU",
+        price=precise_price
+    )
+    db.add(sku)
+    db.commit()
+    db.refresh(sku)
+    
+    # In SQLite, this might stay a float/decimal, but our model specifies (10, 2).
+    # We want to ensure that our application logic sees the correctly rounded value.
+    assert sku.price == Decimal("123.46") # Standard rounding to 2 places
