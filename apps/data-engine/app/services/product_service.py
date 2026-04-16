@@ -1,7 +1,10 @@
+import json
+import logging
 from sqlalchemy.orm import Session
 from app.repositories.product_repository import ProductRepository
 from app.models.product import Product
-from typing import List, Optional
+from typing import List, Optional, Any
+from app.core.redis import get_redis_client
 
 
 from app.services.promotion_service import PromotionService
@@ -11,6 +14,8 @@ class ProductService:
     def __init__(self):
         self.repo = ProductRepository()
         self.promo_service = PromotionService()
+        self.redis = get_redis_client()
+        self.logger = logging.getLogger(__name__)
 
     def list_products(self, db: Session, skip: int = 0, limit: int = 100) -> List[Product]:
         products = db.query(Product).offset(skip).limit(limit).all()
@@ -21,13 +26,37 @@ class ProductService:
                 sku.promotions = promo["promotions"]
         return products
 
-    def get_product(self, db: Session, product_id: int) -> Optional[Product]:
+    def get_product(self, db: Session, product_id: int) -> Any:
+        cache_key = f"product:{product_id}"
+        
+        # 1. Try to get from cache
+        try:
+            cached = self.redis.get(cache_key)
+            if cached:
+                self.logger.info(f"Cache hit for product:{product_id}")
+                return json.loads(cached)
+        except Exception as e:
+            self.logger.warning(f"Redis read error: {e}")
+
+        # 2. Cache miss, fetch from DB
         product = self.repo.get_by_id(db, product_id)
         if product:
+            # Attach computed fields (Promotions, etc.)
             for sku in product.skus:
                 promo = self.promo_service.calculate_final_price(sku)
                 sku.final_price = promo["final_price"]
                 sku.promotions = promo["promotions"]
+            
+            # 3. Save to cache
+            try:
+                from app.schemas.product import Product as ProductSchema
+                # Convert ORM to Pydantic and then to JSON-serializable dict
+                pydantic_product = ProductSchema.model_validate(product)
+                self.redis.setex(cache_key, 3600, pydantic_product.model_dump_json())
+                self.logger.info(f"Cache write for product:{product_id}")
+            except Exception as e:
+                self.logger.warning(f"Redis write error: {e}")
+            
         return product
 
     def search_products(self, db: Session, query: str, limit: int = 20, skip: int = 0, category: str = None, brand: str = None):

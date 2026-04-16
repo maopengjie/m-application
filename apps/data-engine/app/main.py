@@ -33,6 +33,25 @@ def create_app() -> FastAPI:
     async def root():
         return {"message": f"{settings.app_name} is running"}
 
+    # Unified Exception Handling
+    from fastapi import Request
+    from fastapi.responses import JSONResponse
+    import logging
+    
+    logger = logging.getLogger(__name__)
+
+    @app.exception_handler(Exception)
+    async def global_exception_handler(request: Request, exc: Exception):
+        from app.utils.responses import response_error
+        logger.error(f"Global Error: {exc}", exc_info=True)
+        return JSONResponse(
+            status_code=500,
+            content=response_error(
+                message="服务器内部错误",
+                error=str(exc) if settings.debug else "Internal Server Error"
+            ),
+        )
+
     app.include_router(api_router, prefix=settings.api_v1_prefix)
     return app
 

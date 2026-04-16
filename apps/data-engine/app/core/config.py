@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     redis_url: str = "redis://127.0.0.1:6379/0"
     elasticsearch_url: str = "http://localhost:9200"
     enable_elasticsearch: bool = False
+    debug: bool = True
 
     model_config = SettingsConfigDict(env_file=".env", env_prefix="DATA_ENGINE_")
 
