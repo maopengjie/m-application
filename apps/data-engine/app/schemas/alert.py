@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 from pydantic import BaseModel, ConfigDict
 from decimal import Decimal
 
@@ -9,8 +10,26 @@ class PriceAlertCreate(BaseModel):
     user_id: int = 1  # Default for MVP
 
 
+class AlertProductInfo(BaseModel):
+    id: int
+    name: str
+    main_image: Optional[str] = None
+    brand: Optional[str] = None
+
+
+class AlertSkuInfo(BaseModel):
+    id: int
+    platform: str
+    price: float
+    shop_name: Optional[str] = None
+    product: AlertProductInfo
+
+
 class PriceAlertResponse(PriceAlertCreate):
     id: int
+    is_triggered: bool
+    status: str
     created_at: datetime
-    model_config = ConfigDict(from_attributes=True)
+    sku: Optional[AlertSkuInfo] = None
+    
     model_config = ConfigDict(from_attributes=True)
