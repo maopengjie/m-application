@@ -66,6 +66,7 @@ const data = [
 .opacity-100 {
   opacity: 1;
 }
+
 .scale-100 {
   transform: scale(1);
 }

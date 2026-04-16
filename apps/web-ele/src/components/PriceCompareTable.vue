@@ -30,7 +30,7 @@ const emit = defineEmits(['createAlert']);
     </el-table-column>
     <el-table-column prop="original_price" label="原价" width="120">
       <template #default="{ row }">
-        <span class="text-gray-400 line-through">¥{{ row.original_price }}</span>
+        <span class="text-gray-400 dark:text-zinc-500 line-through">¥{{ row.original_price }}</span>
       </template>
     </el-table-column>
     <el-table-column label="操作" width="120" fixed="right">

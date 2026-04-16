@@ -1,69 +1,96 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { getPriceAlertsApi } from '#/api/alert';
-import { ElMessage } from 'element-plus';
-import { Bell, Delete } from '@element-plus/icons-vue';
+import { onMounted, ref } from 'vue';
 
-const alerts = ref<any[]>([]);
-const loading = ref(false);
+import { Page } from '@vben/common-ui';
+
+import { ElMessage, ElMessageBox } from 'element-plus';
+
+import { deletePriceAlertApi, getPriceAlertsApi } from '#/api/alert';
+
+interface PriceAlert {
+  id: number;
+  sku_id: number;
+  target_price: number;
+  created_at: string;
+  product_title: string;
+  product_image: string;
+  current_price: number;
+  notify_methods: string[];
+}
+
+const loading = ref(true);
+const alerts = ref<PriceAlert[]>([]);
 
 const fetchAlerts = async () => {
   loading.value = true;
   try {
-    const res = await getPriceAlertsApi(1); // Mock user_id 1
-    alerts.value = res || [];
-  } catch (error) {
-    console.error('Fetch alerts failed:', error);
-    ElMessage.error('获取提醒列表失败');
+    const res = await getPriceAlertsApi();
+    alerts.value = res?.items || [];
+  } catch (error: any) {
+    ElMessage.error(error.message || '获取提醒列表失败');
   } finally {
     loading.value = false;
   }
 };
 
-onMounted(() => {
-  fetchAlerts();
-});
+const handleDelete = (alert: any) => {
+  ElMessageBox.confirm('确定要取消此降价提醒吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(async () => {
+    try {
+      await deletePriceAlertApi(alert.id);
+      ElMessage.success('已取消提醒');
+      fetchAlerts();
+    } catch (error: any) {
+      ElMessage.error(error.message || '操作失败');
+    }
+  });
+};
+
+onMounted(fetchAlerts);
 </script>
 
 <template>
-  <div class="p-6 max-w-5xl mx-auto">
-    <div class="flex items-center justify-between mb-8">
-      <div>
-        <h1 class="text-2xl font-bold text-gray-800">降价提醒</h1>
-        <p class="text-gray-500 mt-1">订阅商品价格变动，时刻掌握最佳购买时机</p>
-      </div>
-      <el-button type="primary" @click="fetchAlerts">刷新列表</el-button>
-    </div>
-
-    <div v-loading="loading">
-      <div v-if="alerts.length > 0" class="space-y-4">
-        <div
-          v-for="item in alerts"
-          :key="item.id"
-          class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex items-center gap-6"
-        >
-          <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-            <el-icon :size="24"><Bell /></el-icon>
+  <Page title="降价提醒" description="管理您关注的所有商品降价提醒">
+    <div v-loading="loading" class="min-h-[400px]">
+      <div v-if="alerts.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div v-for="alert in alerts" :key="alert.id" class="bg-white dark:bg-zinc-900 rounded-xl border border-gray-100 dark:border-zinc-800 p-4 shadow-sm hover:shadow-md transition-shadow">
+          <div class="flex gap-4">
+            <img :src="alert.product_image" class="w-20 h-20 object-cover rounded border flex-shrink-0" />
+            <div class="flex-grow min-w-0">
+              <h3 class="text-sm font-bold truncate mb-1 dark:text-zinc-200">{{ alert.product_title }}</h3>
+              <div class="text-xs text-gray-400 dark:text-zinc-500 mb-2">设置于: {{ new Date(alert.created_at).toLocaleDateString() }}</div>
+              
+              <div class="flex items-center justify-between mt-2">
+                <div class="flex flex-col">
+                  <span class="text-xs text-gray-400 dark:text-zinc-500">目标价</span>
+                  <span class="text-red-500 font-bold">¥{{ alert.target_price }}</span>
+                </div>
+                <div class="flex flex-col text-right">
+                  <span class="text-xs text-gray-400 dark:text-zinc-500">当前价</span>
+                  <span class="font-bold dark:text-zinc-100">¥{{ alert.current_price }}</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="flex-1">
-            <div class="text-sm text-gray-500 mb-1">SKU ID: {{ item.sku_id }}</div>
-            <div class="text-gray-800 font-medium">目标价格: <span class="text-red-500 font-bold">¥{{ item.target_price }}</span></div>
-            <div class="text-xs text-gray-400 mt-1">创建时间: {{ new Date(item.created_at).toLocaleString() }}</div>
-          </div>
-          <div class="flex items-center gap-4">
-            <el-tag :type="item.is_active ? 'success' : 'info'" size="small">
-              {{ item.is_active ? '进行中' : '已完成' }}
-            </el-tag>
-            <el-button link type="danger">
-              <el-icon><Delete /></el-icon>
-            </el-button>
+          
+          <div class="mt-4 pt-4 border-t dark:border-zinc-800 flex items-center justify-between">
+            <div class="flex gap-1">
+              <el-tag v-for="method in alert.notify_methods" :key="method" size="small" effect="plain">
+                {{ method === 'web' ? '站内' : method === 'email' ? '邮件' : '短信' }}
+              </el-tag>
+            </div>
+            <el-button type="danger" link size="small" @click="handleDelete(alert)">取消提醒</el-button>
           </div>
         </div>
       </div>
 
-      <div v-else-if="!loading" class="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-200">
-        <el-empty description="暂无订阅提醒，去搜索喜欢的商品吧" />
+      <div v-else-if="!loading" class="flex flex-col items-center justify-center py-20 text-gray-400">
+        <el-empty description="暂无降价提醒，快去搜索心仪商品吧" />
+        <el-button type="primary" @click="() => $router.push('/price-monitor/search')">去搜索</el-button>
       </div>
     </div>
-  </div>
+  </Page>
 </template>

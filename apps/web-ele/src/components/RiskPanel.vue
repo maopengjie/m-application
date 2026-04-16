@@ -8,9 +8,9 @@ const props = defineProps<{
 
 const config = computed(() => {
   const levels = {
-    low: { bg: 'bg-green-50', border: 'border-green-100', text: 'text-green-700', label: '低风险', dot: 'bg-green-500' },
-    medium: { bg: 'bg-orange-50', border: 'border-orange-100', text: 'text-orange-700', label: '中风险', dot: 'bg-orange-500' },
-    high: { bg: 'bg-red-50', border: 'border-red-100', text: 'text-red-700', label: '高风险', dot: 'bg-red-500' },
+    low: { bg: 'bg-green-50 dark:bg-green-950/20', border: 'border-green-100 dark:border-green-900/30', text: 'text-green-700 dark:text-green-400', label: '低风险', dot: 'bg-green-500' },
+    medium: { bg: 'bg-orange-50 dark:bg-orange-950/20', border: 'border-orange-100 dark:border-orange-900/30', text: 'text-orange-700 dark:text-orange-400', label: '中风险', dot: 'bg-orange-500' },
+    high: { bg: 'bg-red-50 dark:bg-red-950/20', border: 'border-red-100 dark:border-red-900/30', text: 'text-red-700 dark:text-red-400', label: '高风险', dot: 'bg-red-500' },
   };
   return levels[props.level || 'medium'];
 });
@@ -23,7 +23,7 @@ const config = computed(() => {
         <span :class="[config.dot, 'w-2 h-2 rounded-full']"></span>
         <span :class="[config.text, 'font-bold text-sm']">{{ config.label }}</span>
       </div>
-      <span class="text-[10px] text-gray-400 font-medium uppercase tracking-wider">Market Intelligence</span>
+      <span class="text-[10px] text-gray-400 dark:text-zinc-500 font-medium uppercase tracking-wider">Market Intelligence</span>
     </div>
     
     <div v-if="risks && risks.length" class="space-y-3">
@@ -34,7 +34,7 @@ const config = computed(() => {
         <span :class="config.text" class="font-medium opacity-90">{{ risk }}</span>
       </div>
     </div>
-    <div v-else class="text-xs text-gray-400 italic">
+    <div v-else class="text-xs text-gray-400 dark:text-zinc-500 italic">
       当前商品暂无明显风险提示
     </div>
   </div>

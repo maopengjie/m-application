@@ -13,6 +13,7 @@ A monorepo for the Price Monitoring System.
 - [PRD](./docs/PRD.md): Product Requirements Document.
 - [Development Plan](./docs/plan.md): Phase-by-phase implementation roadmap.
 - [Technology Stack](./docs/technology.md): Detailed technical specifications.
+- [Design System (Stitch)](./docs/DESIGN.md): UI/UX blueprint and mockups.
 - [Data Engine API](./docs/api-data-engine.md): API documentation for the Python backend.
 
 ## Current Progress
