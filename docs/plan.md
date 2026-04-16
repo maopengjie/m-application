@@ -44,7 +44,7 @@
 - [x] 创建前端 Vue3 项目 (Vben Admin based)
 - [x] 集成 Element Plus、Pinia、Router、Axios、ECharts
 - [x] 创建后端 FastAPI 项目 (`apps/data-engine`)
-- [ ] 集成 SQLAlchemy、Alembic、MySQL 连接、Redis (待完善)
+- [x] 集成 SQLAlchemy、Alembic、MySQL 连接、Redis
 - [x] 创建基础目录结构
 - [x] 提供启动方式
 
@@ -59,32 +59,25 @@
 
 ---
 
-### Phase 1：数据库与后端基础 🚧
+### Phase 1：数据库与后端基础 ✅
 
 **目标**：先把数据结构定下来，让后端具备基本 CRUD 能力。
 
 #### 让 AI 完成的内容
-- [ ] 设计并创建以下表：
-  - `product`
-  - `product_sku`
-  - `price_history`
-  - `coupon`
-  - `review`
-  - `risk_score`
-  - `price_alert`
-- [ ] 输出 SQLAlchemy Models
-- [ ] 输出 Alembic 迁移文件
-- [ ] 提供数据库初始化脚本
+- [x] 设计并创建核心表（Product, SKU, History, etc.）
+- [x] 输出 SQLAlchemy Models
+- [x] 输出 Alembic 迁移文件
+- [x] 提供数据库初始化与验证脚本
 - [x] 插入测试数据 (Mock Data in `main.py`)
 
 #### 交付标准
-- [ ] 能执行迁移
-- [ ] MySQL 中成功建表
-- [x] 能插入测试数据 (Mock data available)
-- [x] FastAPI 能读到数据库数据 (Mocked)
+- [x] 能执行迁移
+- [x] MySQL 中成功建表并持久化
+- [x] 基础设施验证 (MySQL & Redis) 通过
+- [x] 能插入并查询测试数据
 
 #### 给 AI 的任务标题
-**任务 2**：实现数据库表结构、ORM 模型、迁移脚本和测试种子数据 (进行中)
+**任务 2**：实现数据库表结构、ORM 模型、迁移脚本和测试种子数据 (已完成并验证)
 
 ---
 
