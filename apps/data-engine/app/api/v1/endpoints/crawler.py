@@ -14,11 +14,15 @@ async def start_crawler(payload: CrawlerStartPayload):
     return response_success(result, "Crawler task started")
 
 
-@router.post("/preview")
-async def preview_crawler(payload: CrawlPreviewPayload):
-    result = crawler_service.fetch_page(
-        payload.target_url,
-        dynamic=payload.dynamic,
-        selector=payload.selector,
-    )
-    return response_success(result, "Crawler preview fetched")
+@router.post("/trigger-update")
+async def trigger_update():
+    from app.core.database import SessionLocal
+    from app.services.collector_service import CollectorService
+    
+    db = SessionLocal()
+    try:
+        service = CollectorService()
+        count = service.simulate_price_collection(db)
+        return {"message": "Price update simulation completed", "updates_count": count}
+    finally:
+        db.close()
