@@ -1,4 +1,5 @@
 import time
+from sqlalchemy.orm import Session
 
 from app.crawlers.product_crawler import ProductCrawler
 
@@ -7,8 +8,19 @@ class CrawlerService:
     def __init__(self, crawler: ProductCrawler | None = None):
         self.crawler = crawler or ProductCrawler()
 
-    def start_crawler(self, target_url: str) -> dict[str, str]:
-        return {"job_id": f"job_{int(time.time())}", "target_url": target_url}
+    def start_crawler(self, db: Session, target_url: str) -> dict[str, str]:
+        from app.models.task import CrawlTask
+        
+        task = CrawlTask(
+            task_type="manual_crawl",
+            status="pending",
+            metadata_json={"target_url": target_url}
+        )
+        db.add(task)
+        db.commit()
+        db.refresh(task)
+        
+        return {"job_id": f"job_{task.id}", "target_url": target_url}
 
     def fetch_page(self, target_url: str, dynamic: bool = False, selector: str | None = None) -> dict[str, str]:
         return self.crawler.fetch(target_url, selector=selector, dynamic=dynamic)

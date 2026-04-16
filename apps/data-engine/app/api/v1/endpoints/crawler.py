@@ -5,6 +5,9 @@ from app.services.crawler_service import CrawlerService
 from app.utils.responses import response_success
 from app.api.v1.deps import PermissionChecker
 
+from sqlalchemy.orm import Session
+from app.core.database import get_db
+
 # Require admin or super code for all crawler operations
 router = APIRouter(
     prefix="/crawler", 
@@ -15,8 +18,11 @@ crawler_service = CrawlerService()
 
 
 @router.post("/start")
-async def start_crawler(payload: CrawlerStartPayload):
-    result = crawler_service.start_crawler(payload.target_url)
+async def start_crawler(
+    payload: CrawlerStartPayload,
+    db: Session = Depends(get_db)
+):
+    result = crawler_service.start_crawler(db, payload.target_url)
     return response_success(result, "Crawler task started")
 
 

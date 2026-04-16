@@ -19,6 +19,19 @@ class CollectorService:
         """
         Main collection entry point.
         """
+        # 1. Concurrency Guard: Ensure only one price_update task runs at a time
+        existing_task = (
+            db.query(CrawlTask)
+            .filter(CrawlTask.task_type == "price_update", CrawlTask.status == "running")
+            .first()
+        )
+        if existing_task:
+            from fastapi import HTTPException
+            raise HTTPException(
+                status_code=409, 
+                detail=f"Conflict: A price update task (ID: {existing_task.id}) is already active."
+            )
+
         task = CrawlTask(
             task_type="price_update",
             status="running",
@@ -65,8 +78,18 @@ class CollectorService:
             task.success_count = success_count
             task.failed_count = failed_count
             task.status = "success" if failed_count == 0 else "partial_success"
+            
+            # Store all errors in metadata for deep auditing
+            if not task.metadata_json:
+                task.metadata_json = {}
+            task.metadata_json["all_errors"] = errors
+            
             if errors:
-                task.error_log = "\n".join(errors[:10])
+                log_limit = 50
+                summary = "\n".join(errors[:log_limit])
+                if len(errors) > log_limit:
+                    summary += f"\n... and {len(errors) - log_limit} more errors. See metadata_json for full log."
+                task.error_log = summary
             
             task.end_time = datetime.now()
             db.commit()
@@ -84,15 +107,26 @@ class CollectorService:
 
     def _scrape_sku_price(self, sku: ProductSKU) -> Optional[float]:
         """
-        Specialized logic for different platforms.
-        Currently handles simulated fetch with network logic.
+        Fetch price for a given SKU. 
+        Currently supports simulated price logic for MVP.
+        TODO: Integrate platform-specific scrapers (JDScraper, TmallScraper, etc.)
         """
-        # Simulate network fetch for the 'true crawler' experience
-        # In the future, this will call JDScraper / TmallScraper
-        # random.uniform(0.1, 0.5) delay is already in BaseScraper.fetch_url
+        # In the future, we will dispatch based on platform:
+        # scraper = ScraperFactory.get_scraper(sku.platform)
+        # if sku.buy_url:
+        #     return scraper.fetch_price(sku.buy_url)
         
-        # We simulate a 95% success rate to show error handling
+        return self._simulate_scrape(sku)
+
+    def _simulate_scrape(self, sku: ProductSKU) -> Optional[float]:
+        """
+        Placeholder logic to simulate the 'true crawler' experience during MVP.
+        Maintains a 95% success rate for error-handling testing.
+        """
+        # random.uniform(0.1, 0.5) delay is already in BaseScraper.fetch_url 
+        # but we call simulate here to avoid hitting real networks in baseline MVP
         if random.random() < 0.05:
+            logger.warning(f"Simulated crawl failure for SKU {sku.id} ({sku.platform})")
             return None
             
         old_price = float(sku.price)
