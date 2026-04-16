@@ -8,6 +8,11 @@ const props = defineProps<{
     suggestion: string;
     confidence: number;
     reason: string;
+    price_score: number;
+    history_score: number;
+    coupon_score: number;
+    risk_score: number;
+    best_platform?: string;
   }
 }>();
 
@@ -38,9 +43,28 @@ const currentSuggestion = computed(() => {
       </div>
     </div>
 
+    <!-- Score Breakdown -->
+    <div class="mt-6 grid grid-cols-2 gap-x-4 gap-y-3">
+      <div v-for="(score, label) in { '价格竞争力': decision?.price_score, '历史低价': decision?.history_score, '优惠力度': decision?.coupon_score, '账号靠谱度': decision?.risk_score }" :key="label" class="space-y-1">
+        <div class="flex justify-between text-[10px] text-gray-500">
+          <span>{{ label }}</span>
+          <span class="font-bold">{{ score }}</span>
+        </div>
+        <el-progress :percentage="score || 0" :show-text="false" :stroke-width="4" :color="score && score > 70 ? '#10b981' : (score && score > 40 ? '#f59e0b' : '#ef4444')" />
+      </div>
+    </div>
+
+    <div v-if="decision?.best_platform" class="mt-6 pt-4 border-t dark:border-zinc-800 flex items-center gap-2">
+       <span class="iconify lucide--award text-yellow-500 w-4 h-4"></span>
+       <div class="text-xs">
+         <span class="text-gray-500 dark:text-zinc-500">全网最佳:</span>
+         <span class="ml-1 font-bold text-gray-800 dark:text-zinc-200">{{ decision.best_platform }}</span>
+       </div>
+    </div>
+
     <div class="mt-6 space-y-2">
       <div class="flex justify-between text-xs">
-        <span class="text-gray-500 dark:text-zinc-500">置信度</span>
+        <span class="text-gray-500 dark:text-zinc-500">算法置信度</span>
         <span class="font-bold text-gray-700 dark:text-zinc-300">{{ (decision?.confidence || 0) * 100 }}%</span>
       </div>
       <el-progress :percentage="(decision?.confidence || 0.85) * 100" :show-text="false" :stroke-width="8" />
