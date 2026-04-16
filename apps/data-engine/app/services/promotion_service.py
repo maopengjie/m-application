@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from decimal import Decimal
 from typing import List, Dict, Any
 from app.schemas.product import Coupon, ProductSKU
@@ -12,11 +13,29 @@ class PromotionService:
         base_price = Decimal(str(sku.price))
         final_price = base_price
         promotions = []
+        
+        now = datetime.now(timezone.utc)
+
+        def is_coupon_valid(c):
+            # Check price threshold
+            if c.condition_amount is not None and base_price < c.condition_amount:
+                return False
+            
+            # Check time validity
+            # Handle naive datetime conversions safely if needed
+            c_start = c.start_time.replace(tzinfo=timezone.utc) if c.start_time and c.start_time.tzinfo is None else c.start_time
+            c_end = c.end_time.replace(tzinfo=timezone.utc) if c.end_time and c.end_time.tzinfo is None else c.end_time
+            
+            if c_start and now < c_start:
+                return False
+            if c_end and now > c_end:
+                return False
+                
+            return True
 
         # Assuming coupons are sorted by amount descending for simple greedy calculation
-        # In a real system, this would be much more complex (best combination)
         applicable_coupons = sorted(
-            [c for c in sku.coupons if c.condition_amount is None or base_price >= c.condition_amount],
+            [c for c in sku.coupons if is_coupon_valid(c)],
             key=lambda x: x.amount,
             reverse=True
         )

@@ -62,7 +62,7 @@ class DecisionService:
         if not sku.coupons and coupon_score < 50: coupon_score = 30 # No coupons penalty
 
         # 4. 风险 (15%) - From risk_score
-        risk_val = sku.risk_score.score if sku.risk_score else 80
+        risk_val = sku.risk_score.score if sku.risk_score else 50
         risk_score = risk_val
 
         # Total weighted score
@@ -72,19 +72,20 @@ class DecisionService:
 
         # Best platform info
         best_sku = sku
+        lowest_seen_price = current_final_price
         for s in all_skus:
             p = self.promo_service.calculate_final_price(s)
-            if p["final_price"] < current_final_price:
+            if p["final_price"] < lowest_seen_price:
                 best_sku = s
-                # Note: we don't update current_final_price here as we want to keep it for reasons
+                lowest_seen_price = p["final_price"]
         
         best_platform = f"{best_sku.platform} ({best_sku.shop_name})"
 
         suggestion = "WAIT"
         confidence = 0.7 + (total_score / 1000)
-        if total_score > 75:
+        if total_score > 80:
             suggestion = "BUY"
-        elif total_score < 45:
+        elif total_score < 50:
             suggestion = "AVOID"
 
         reasons = []

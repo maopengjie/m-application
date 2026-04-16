@@ -50,8 +50,7 @@ def delete_alert(
     current_user: dict = Depends(get_current_user),
 ) -> Any:
     """Delete a price alert."""
-    # Note: ideally we should also verify the alert belongs to current_user inside service
-    success = alert_service.delete_alert(db, alert_id)
+    success = alert_service.delete_alert(db, alert_id, current_user["id"])
     if not success:
-        raise HTTPException(status_code=404, detail="Alert not found")
+        raise HTTPException(status_code=404, detail="Alert not found or unauthorized")
     return {"message": "Alert deleted successfully"}

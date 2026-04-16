@@ -39,6 +39,14 @@ class ProductRepository:
                 or_(
                     Coupon.condition_amount.is_(None),
                     ProductSKU.price >= Coupon.condition_amount
+                ),
+                or_(
+                    Coupon.start_time.is_(None),
+                    Coupon.start_time <= func.now()
+                ),
+                or_(
+                    Coupon.end_time.is_(None),
+                    Coupon.end_time >= func.now()
                 )
             )
             .correlate(ProductSKU)

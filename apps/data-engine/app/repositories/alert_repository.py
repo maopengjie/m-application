@@ -17,8 +17,12 @@ class AlertRepository:
         db.commit()
         db.refresh(db_alert)
         return db_alert
-    def delete_alert(self, db: Session, alert_id: int) -> bool:
-        db_alert = db.query(PriceAlert).filter(PriceAlert.id == alert_id).first()
+    def delete_alert(self, db: Session, alert_id: int, user_id: int) -> bool:
+        db_alert = (
+            db.query(PriceAlert)
+            .filter(PriceAlert.id == alert_id, PriceAlert.user_id == user_id)
+            .first()
+        )
         if db_alert:
             db.delete(db_alert)
             db.commit()
@@ -26,4 +30,14 @@ class AlertRepository:
         return False
 
     def get_active_alerts(self, db: Session) -> list[PriceAlert]:
-        return db.query(PriceAlert).filter(PriceAlert.is_triggered == False).all()
+        return (
+            db.query(PriceAlert)
+            .filter(PriceAlert.is_triggered == False, PriceAlert.status == "active")
+            .all()
+        )
+    def get_alert_by_user_and_sku(self, db: Session, user_id: int, sku_id: int) -> PriceAlert:
+        return (
+            db.query(PriceAlert)
+            .filter(PriceAlert.user_id == user_id, PriceAlert.sku_id == sku_id, PriceAlert.is_triggered == False)
+            .first()
+        )

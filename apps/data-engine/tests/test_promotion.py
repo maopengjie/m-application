@@ -1,11 +1,14 @@
 import pytest
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from app.services.promotion_service import PromotionService
 
 class MockCoupon:
-    def __init__(self, amount, condition_amount=None):
+    def __init__(self, amount, condition_amount=None, start_time=None, end_time=None):
         self.amount = Decimal(str(amount))
         self.condition_amount = Decimal(str(condition_amount)) if condition_amount else None
+        self.start_time = start_time
+        self.end_time = end_time
 
 class MockSKU:
     def __init__(self, price, coupons=None):
@@ -42,3 +45,27 @@ def test_calculate_final_price_greedy_selection():
     # Service picks the largest coupon (20.0)
     assert result["final_price"] == 80.0
     assert result["total_discount"] == 20.0
+
+def test_calculate_final_price_filters_expired_coupon():
+    now = datetime.now(timezone.utc)
+    expired_coupon = MockCoupon(
+        amount=10.0, 
+        start_time=now - timedelta(days=5),
+        end_time=now - timedelta(days=1)
+    )
+    sku = MockSKU(price=100.0, coupons=[expired_coupon])
+    result = PromotionService.calculate_final_price(sku)
+    assert result["final_price"] == 100.0
+    assert result["total_discount"] == 0.0
+
+def test_calculate_final_price_filters_future_coupon():
+    now = datetime.now(timezone.utc)
+    future_coupon = MockCoupon(
+        amount=30.0, 
+        start_time=now + timedelta(days=1),
+        end_time=now + timedelta(days=5)
+    )
+    sku = MockSKU(price=100.0, coupons=[future_coupon])
+    result = PromotionService.calculate_final_price(sku)
+    assert result["final_price"] == 100.0
+    assert result["total_discount"] == 0.0

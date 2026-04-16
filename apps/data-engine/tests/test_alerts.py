@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+from fastapi import HTTPException
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -5,9 +7,8 @@ from sqlalchemy.pool import StaticPool
 
 from app.core.database import Base, get_db
 from app.main import app
-from app.models.product import Product, ProductSKU, PriceAlert
+from app.models.product import Product, ProductSKU, PriceAlert, Coupon
 from app.services.alert_service import AlertService
-from app.services.collector_service import CollectorService
 
 # Use in-memory SQLite for fast integration testing
 SQLALCHEMY_DATABASE_URL = "sqlite://"
@@ -87,7 +88,7 @@ def test_alert_trigger_cycle(db):
     assert alert.is_triggered is True
     assert alert.status == "triggered"
 
-def test_alert_deletion(db):
+def test_alert_deletion_ownership(db):
     sku = ProductSKU(product_id=1, platform="JD", platform_sku_id="s1", title="T", price=100)
     db.add(sku)
     db.flush()
@@ -96,8 +97,77 @@ def test_alert_deletion(db):
     alert = alert_service.create_alert(db, {"user_id": 1, "sku_id": sku.id, "target_price": 50})
     alert_id = alert.id
     
-    success = alert_service.delete_alert(db, alert_id)
-    assert success is True
+    # Attempt delete by another user (ID 2)
+    success = alert_service.delete_alert(db, alert_id, user_id=2)
+    assert success is False # Should fail because user 2 doesn't own it
     
-    res = db.query(PriceAlert).filter(PriceAlert.id == alert_id).first()
-    assert res is None
+    # Verify alert still exists
+    assert db.query(PriceAlert).filter(PriceAlert.id == alert_id).first() is not None
+    
+    # Delete by owner (ID 1)
+    success = alert_service.delete_alert(db, alert_id, user_id=1)
+    assert success is True
+    assert db.query(PriceAlert).filter(PriceAlert.id == alert_id).first() is None
+
+def test_alert_status_aware_scanning(db):
+    sku = ProductSKU(product_id=1, platform="JD", platform_sku_id="s2", title="T", price=100)
+    db.add(sku)
+    db.flush()
+    
+    alert_service = AlertService()
+    alert = alert_service.create_alert(db, {"user_id": 1, "sku_id": sku.id, "target_price": 80})
+    
+    # Manually pause the alert
+    alert.status = "paused"
+    db.commit()
+    
+    # Price drops below target
+    sku.price = 70
+    db.commit()
+    
+    # Scan should ignore paused alert
+    triggered = alert_service.check_alerts(db)
+    assert len(triggered) == 0
+    db.refresh(alert)
+    assert alert.is_triggered is False
+
+def test_alert_invalid_sku_rejection(db):
+    alert_service = AlertService()
+    with pytest.raises(HTTPException) as excinfo:
+        alert_service.create_alert(db, {"user_id": 1, "sku_id": 9999, "target_price": 50})
+    assert excinfo.value.status_code == 404
+
+def test_alert_duplicate_prevention(db):
+    sku = ProductSKU(product_id=1, platform="JD", platform_sku_id="s3", title="T", price=100)
+    db.add(sku)
+    db.flush()
+    
+    alert_service = AlertService()
+    alert_service.create_alert(db, {"user_id": 1, "sku_id": sku.id, "target_price": 50})
+    
+    # Try creating same alert again for same user + SKU
+    with pytest.raises(HTTPException) as excinfo:
+        alert_service.create_alert(db, {"user_id": 1, "sku_id": sku.id, "target_price": 40})
+    assert excinfo.value.status_code == 400
+
+def test_alert_trigger_price_with_coupons(db):
+    sku = ProductSKU(product_id=1, platform="JD", platform_sku_id="s4", title="T", price=1000)
+    db.add(sku)
+    db.flush()
+    
+    # 1. Create alert for 850
+    alert_service = AlertService()
+    alert = alert_service.create_alert(db, {"user_id": 1, "sku_id": sku.id, "target_price": 850})
+    
+    # 2. Add coupon for -200 -> final price 800
+    coupon = Coupon(sku_id=sku.id, amount=200, title="-200", type="coupon")
+    db.add(coupon)
+    db.commit()
+    
+    # 3. Scan alerts
+    triggered = alert_service.check_alerts(db)
+    assert len(triggered) == 1
+    
+    db.refresh(alert)
+    assert alert.is_triggered is True
+    assert alert.triggered_price == 800.0 # Should be final price, not base price 1000

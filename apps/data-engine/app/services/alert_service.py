@@ -1,6 +1,8 @@
 import logging
+from datetime import datetime
 from sqlalchemy.orm import Session
 from app.repositories.alert_repository import AlertRepository
+from app.repositories.product_repository import ProductRepository
 from app.models.product import PriceAlert, ProductSKU
 from app.services.promotion_service import PromotionService
 
@@ -11,12 +13,28 @@ logger = logging.getLogger(__name__)
 class AlertService:
     def __init__(self):
         self.repo = AlertRepository()
+        self.product_repo = ProductRepository()
         self.promo_service = PromotionService()
 
     def list_alerts(self, db: Session, user_id: int) -> list[PriceAlert]:
         return self.repo.list_alerts(db, user_id)
 
     def create_alert(self, db: Session, alert_in: dict) -> PriceAlert:
+        # 1. Validate SKU existence
+        sku = self.product_repo.get_sku_by_id(db, alert_in["sku_id"])
+        if not sku:
+            from fastapi import HTTPException
+            raise HTTPException(status_code=404, detail=f"SKU ID {alert_in['sku_id']} not found")
+        
+        # 2. Check for duplicate active subscriptions for the same user + SKU
+        existing = self.repo.get_alert_by_user_and_sku(db, alert_in["user_id"], alert_in["sku_id"])
+        if existing:
+            from fastapi import HTTPException
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Active alert already exists for this product (ID: {existing.id})"
+            )
+
         # Default status for new alerts
         alert_in.setdefault("status", "active")
         alert_in.setdefault("is_triggered", False)
@@ -24,10 +42,10 @@ class AlertService:
         logger.info(f"Created price alert ID {alert.id} for SKU {alert.sku_id} (Target: {alert.target_price})")
         return alert
 
-    def delete_alert(self, db: Session, alert_id: int) -> bool:
-        success = self.repo.delete_alert(db, alert_id)
+    def delete_alert(self, db: Session, alert_id: int, user_id: int) -> bool:
+        success = self.repo.delete_alert(db, alert_id, user_id)
         if success:
-            logger.info(f"Deleted price alert ID {alert_id}")
+            logger.info(f"Deleted price alert ID {alert_id} for user {user_id}")
         return success
 
     def check_alerts(self, db: Session) -> list[PriceAlert]:
