@@ -1,23 +1,27 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import { Page } from '@vben/common-ui';
-import { Card, CardContent, CardHeader, CardTitle } from '@vben-core/shadcn-ui';
-import { Server, Activity, CheckCircle2, Clock, PlayCircle } from 'lucide-vue-next';
-import { getCrawlerTasksApi, triggerPriceUpdateApi } from '#/api/crawler';
-import { ElMessage } from 'element-plus';
+import { onMounted, ref } from "vue";
+
+import { Page } from "@vben/common-ui";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@vben-core/shadcn-ui";
+
+import { ElMessage } from "element-plus";
+import { Activity, Clock, PlayCircle, Server } from "lucide-vue-next";
+
+import { getCrawlerTasksApi, triggerPriceUpdateApi } from "#/api/crawler";
 
 const tasks = ref<any[]>([]);
 const loading = ref(true);
-const error = ref<string | null>(null);
+const error = ref<null | string>(null);
 
 const fetchTasks = async () => {
   loading.value = true;
   error.value = null;
   try {
     tasks.value = await getCrawlerTasksApi();
-  } catch (err: any) {
-    error.value = err.message || '获取任务列表失败';
-    console.error('Failed to fetch tasks', err);
+  } catch (error_: any) {
+    error.value = error_.message || "获取任务列表失败";
+    console.error("Failed to fetch tasks", error_);
   } finally {
     loading.value = false;
   }
@@ -26,10 +30,10 @@ const fetchTasks = async () => {
 const handleTriggerUpdate = async () => {
   try {
     await triggerPriceUpdateApi();
-    ElMessage.success('更新任务已触发');
+    ElMessage.success("更新任务已触发");
     void fetchTasks();
-  } catch (err) {
-    ElMessage.error('触发失败');
+  } catch {
+    ElMessage.error("触发失败");
   }
 };
 
@@ -39,16 +43,27 @@ onMounted(() => {
 
 const getStatusBadgeClass = (status: string) => {
   switch (status) {
-    case 'success': return 'bg-green-500/10 text-green-500 border-green-500/20';
-    case 'running': return 'bg-primary/10 text-primary border-primary/20';
-    case 'failed': return 'bg-destructive/10 text-destructive border-destructive/20';
-    default: return 'bg-muted text-muted-foreground border-muted-foreground/20';
+    case "failed": {
+      return "bg-destructive/10 text-destructive border-destructive/20";
+    }
+    case "running": {
+      return "bg-primary/10 text-primary border-primary/20";
+    }
+    case "success": {
+      return "bg-green-500/10 text-green-500 border-green-500/20";
+    }
+    default: {
+      return "bg-muted text-muted-foreground border-muted-foreground/20";
+    }
   }
 };
 </script>
 
 <template>
-  <Page title="爬虫任务管理" description="实时监控数据引擎的抓取任务，支持手动触发价格更新和异常排查。">
+  <Page
+    title="爬虫任务管理"
+    description="实时监控数据引擎的抓取任务，支持手动触发价格更新和异常排查。"
+  >
     <div class="grid gap-6 md:grid-cols-4 mb-8">
       <Card class="bg-primary/5 border-primary/10">
         <CardHeader class="pb-2">
@@ -69,7 +84,7 @@ const getStatusBadgeClass = (status: string) => {
           <Server class="h-5 w-5" />
           <CardTitle class="text-lg">任务流水</CardTitle>
         </div>
-        <button 
+        <button
           @click="handleTriggerUpdate"
           class="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:opacity-90 transition-all shadow-lg active:scale-95"
         >
@@ -79,9 +94,11 @@ const getStatusBadgeClass = (status: string) => {
       </CardHeader>
       <CardContent class="p-0">
         <div v-if="loading" class="flex justify-center items-center py-40">
-          <span class="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></span>
+          <span
+            class="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"
+          ></span>
         </div>
-        
+
         <div v-else-if="error" class="flex flex-col items-center justify-center py-20">
           <el-empty :description="error">
             <template #extra>
@@ -90,7 +107,10 @@ const getStatusBadgeClass = (status: string) => {
           </el-empty>
         </div>
 
-        <div v-else-if="tasks.length === 0" class="flex flex-col items-center justify-center py-20 text-muted-foreground">
+        <div
+          v-else-if="tasks.length === 0"
+          class="flex flex-col items-center justify-center py-20 text-muted-foreground"
+        >
           <el-empty description="暂无任务记录" />
         </div>
         <div v-else class="overflow-x-auto">
@@ -109,12 +129,16 @@ const getStatusBadgeClass = (status: string) => {
                 <td class="px-6 py-4 font-mono">#{{ task.id }}</td>
                 <td class="px-6 py-4">
                   <span class="px-2 py-1 rounded text-xs font-medium border bg-muted/50">
-                    {{ task.task_type === 'price_update' ? '全量价格更新' : '单一商品抓取' }}
+                    {{ task.task_type === "price_update" ? "全量价格更新" : "单一商品抓取" }}
                   </span>
                 </td>
                 <td class="px-6 py-4">
                   <div class="flex items-center gap-2">
-                    <span :class="['px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase', getStatusBadgeClass(task.status)]">
+                    <span
+                      class="px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase" :class="[
+                        getStatusBadgeClass(task.status),
+                      ]"
+                    >
                       {{ task.status }}
                     </span>
                   </div>
@@ -123,10 +147,17 @@ const getStatusBadgeClass = (status: string) => {
                   <div class="flex flex-col gap-1 w-32">
                     <div class="flex justify-between text-[10px] text-muted-foreground">
                       <span>{{ task.success_count }} / {{ task.total_count }}</span>
-                      <span>{{ Math.round((task.success_count / (task.total_count || 1)) * 100) }}%</span>
+                      <span>{{
+                          Math.round((task.success_count / (task.total_count || 1)) * 100)
+                        }}%</span>
                     </div>
                     <div class="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-                      <div class="h-full bg-primary" :style="{ width: `${(task.success_count / (task.total_count || 1)) * 100}%` }"></div>
+                      <div
+                        class="h-full bg-primary"
+                        :style="{
+                          width: `${(task.success_count / (task.total_count || 1)) * 100}%`,
+                        }"
+                      ></div>
                     </div>
                   </div>
                 </td>

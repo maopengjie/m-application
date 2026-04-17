@@ -1,22 +1,26 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import { Page } from '@vben/common-ui';
-import { Card, CardContent, CardHeader, CardTitle } from '@vben-core/shadcn-ui';
-import { ShieldAlert, ShieldCheck, AlertTriangle, Search, Info } from 'lucide-vue-next';
-import { getRisksApi } from '#/api/risk';
+import { onMounted, ref } from "vue";
+
+import { Page } from "@vben/common-ui";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@vben-core/shadcn-ui";
+
+import { AlertTriangle, Info, Search, ShieldAlert, ShieldCheck } from "lucide-vue-next";
+
+import { getRisksApi } from "#/api/risk";
 
 const risks = ref<any[]>([]);
 const loading = ref(true);
-const error = ref<string | null>(null);
+const error = ref<null | string>(null);
 
 const fetchRisks = async () => {
   loading.value = true;
   error.value = null;
   try {
     risks.value = await getRisksApi();
-  } catch (err: any) {
-    error.value = err.message || '风险中心加载失败';
-    console.error('Failed to fetch risks', err);
+  } catch (error_: any) {
+    error.value = error_.message || "风险中心加载失败";
+    console.error("Failed to fetch risks", error_);
   } finally {
     loading.value = false;
   }
@@ -27,30 +31,37 @@ onMounted(() => {
 });
 
 const getRiskStatus = (score: number) => {
-  if (score < 50) return 'danger';
-  if (score < 80) return 'warning';
-  return 'success';
+  if (score < 50) return "danger";
+  if (score < 80) return "warning";
+  return "success";
 };
 </script>
 
 <template>
-  <Page title="避雷分析" description="利用 AI 模型分析商品评价、店铺信誉及价格走势，助您规避购物陷阱。">
+  <Page
+    title="避雷分析"
+    description="利用 AI 模型分析商品评价、店铺信誉及价格走势，助您规避购物陷阱。"
+  >
     <div class="mb-8">
       <div class="relative flex items-center max-w-2xl mx-auto">
         <Search class="absolute left-3 h-5 w-5 text-muted-foreground" />
-        <input 
-          type="text" 
-          placeholder="粘贴商品链接进行深度扫描..." 
+        <input
+          type="text"
+          placeholder="粘贴商品链接进行深度扫描..."
           class="w-full h-12 pl-10 pr-24 rounded-xl border bg-background shadow-sm focus:ring-2 focus:ring-primary outline-none transition-all"
         />
-        <button class="absolute right-2 h-8 px-4 bg-primary text-primary-foreground rounded-lg text-sm font-medium">
+        <button
+          class="absolute right-2 h-8 px-4 bg-primary text-primary-foreground rounded-lg text-sm font-medium"
+        >
           开始扫描
         </button>
       </div>
     </div>
 
     <div v-if="loading" class="flex justify-center items-center py-40">
-      <span class="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></span>
+      <span
+        class="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"
+      ></span>
     </div>
 
     <div v-else-if="error" class="flex flex-col items-center justify-center py-20">
@@ -65,10 +76,27 @@ const getRiskStatus = (score: number) => {
       <el-empty description="暂未发现显著风险商品" />
     </div>
     <div v-else class="grid gap-6">
-      <Card v-for="risk in risks" :key="risk.id" class="border-l-4" :class="{ 'border-l-destructive': getRiskStatus(risk.score) === 'danger', 'border-l-yellow-500': getRiskStatus(risk.score) === 'warning', 'border-l-green-500': getRiskStatus(risk.score) === 'success' }">
+      <Card
+        v-for="risk in risks"
+        :key="risk.id"
+        class="border-l-4"
+        :class="{
+          'border-l-destructive': getRiskStatus(risk.score) === 'danger',
+          'border-l-yellow-500': getRiskStatus(risk.score) === 'warning',
+          'border-l-green-500': getRiskStatus(risk.score) === 'success',
+        }"
+      >
         <CardHeader class="flex flex-row items-center justify-between py-4">
           <div class="flex items-center gap-3">
-            <div :class="['p-2 rounded-lg', getRiskStatus(risk.score) === 'danger' ? 'bg-destructive/10 text-destructive' : getRiskStatus(risk.score) === 'warning' ? 'bg-yellow-500/10 text-yellow-500' : 'bg-green-500/10 text-green-500']">
+            <div
+              class="p-2 rounded-lg" :class="[
+                getRiskStatus(risk.score) === 'danger'
+                  ? 'bg-destructive/10 text-destructive'
+                  : getRiskStatus(risk.score) === 'warning'
+                    ? 'bg-yellow-500/10 text-yellow-500'
+                    : 'bg-green-500/10 text-green-500',
+              ]"
+            >
               <ShieldAlert v-if="getRiskStatus(risk.score) === 'danger'" class="h-5 w-5" />
               <AlertTriangle v-else-if="getRiskStatus(risk.score) === 'warning'" class="h-5 w-5" />
               <ShieldCheck v-else class="h-5 w-5" />

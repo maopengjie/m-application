@@ -3,6 +3,7 @@
 This guide provides a minimal set of instructions to get the full-stack platform (Frontend + Backend) running for demonstration purposes.
 
 ## 1. Prerequisites
+
 - **Node.js**: v18+ & **pnpm**: v8+
 - **Python**: v3.11+
 - **Docker**: For MySQL and Redis
@@ -23,7 +24,8 @@ chmod +x setup.sh
 # 2. Start the Backend server
 .venv/bin/python src/main.py
 ```
-*Backend runs at: `http://127.0.0.1:8000`*
+
+_Backend runs at: `http://127.0.0.1:8000`_
 
 ---
 
@@ -40,17 +42,18 @@ pnpm install
 # 2. Start the Dev server
 pnpm run dev
 ```
-*Frontend runs at: `http://127.0.0.1:5777`*
+
+_Frontend runs at: `http://127.0.0.1:5777`_
 
 ---
 
 ## 4. Demo Accounts & Access
 
-| Username | Password | Role | Features |
-| :--- | :--- | :--- | :--- |
-| **vben** | `123456` | `super` | Full system access (including Task Monitor) |
-| **admin** | `123456` | `admin` | Operations (Price Update, Risk Analysis) |
-| **jack** | `123456` | `user` | Standard User (Search, Detail, Alerts) |
+| Username  | Password | Role    | Features                                    |
+| :-------- | :------- | :------ | :------------------------------------------ |
+| **vben**  | `123456` | `super` | Full system access (including Task Monitor) |
+| **admin** | `123456` | `admin` | Operations (Price Update, Risk Analysis)    |
+| **jack**  | `123456` | `user`  | Standard User (Search, Detail, Alerts)      |
 
 ---
 
@@ -67,6 +70,7 @@ pnpm run dev
 ---
 
 ## 6. Troubleshooting
+
 - **API 404/500**: Ensure the backend is running and you ran `./setup.sh` to initialize the database.
 - **Frontend Build**: If `pnpm run build` fails, ensure you have the correct shadcn dependencies (already patched).
 - **Docker**: If `setup.sh` hangs on MySQL wait, ensure Docker Desktop is running.
