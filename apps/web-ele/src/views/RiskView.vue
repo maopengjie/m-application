@@ -89,7 +89,8 @@ const getRiskStatus = (score: number) => {
         <CardHeader class="flex flex-row items-center justify-between py-4">
           <div class="flex items-center gap-3">
             <div
-              class="p-2 rounded-lg" :class="[
+              class="p-2 rounded-lg"
+              :class="[
                 getRiskStatus(risk.score) === 'danger'
                   ? 'bg-destructive/10 text-destructive'
                   : getRiskStatus(risk.score) === 'warning'

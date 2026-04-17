@@ -135,9 +135,8 @@ const getStatusBadgeClass = (status: string) => {
                 <td class="px-6 py-4">
                   <div class="flex items-center gap-2">
                     <span
-                      class="px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase" :class="[
-                        getStatusBadgeClass(task.status),
-                      ]"
+                      class="px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase"
+                      :class="[getStatusBadgeClass(task.status)]"
                     >
                       {{ task.status }}
                     </span>
