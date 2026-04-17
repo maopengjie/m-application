@@ -1,76 +1,54 @@
-# Decidely Platform - Deployment & Demo Guide
+# Decidely Platform - Deployment & Maintenance Manual
 
-This guide provides a minimal set of instructions to get the full-stack platform (Frontend + Backend) running for demonstration purposes.
+This manual provides technical details for deploying and maintaining the Decidely platform in production and staging environments.
 
-## 1. Prerequisites
+## 1. Dependency Services
 
-- **Node.js**: v18+ & **pnpm**: v8+
-- **Python**: v3.11+
-- **Docker**: For MySQL and Redis
+| Service | Version | Purpose | Connectivity Note |
+| :--- | :--- | :--- | :--- |
+| **MySQL** | 8.0+ | Core relational data, user accounts, price history. | Ensure `utf8mb4` collation. |
+| **Redis** | 6.2+ | Distributed Leader Election, Task Locking, Token blacklisting. | Essential for clustered backend. |
+| **Elasticsearch** | 7.x/8.x | High-performance full-text search (Optional). | Configured via `ENABLE_ELASTICSEARCH`. |
 
----
+## 2. Startup Sequence (Cluster/Production)
 
-## 2. Infrastructure & Backend Setup (Data Engine)
+Follow this order to ensure data integrity and avoid service connection timeouts:
 
-The backend handles price crawling, analysis, and API services.
+1.  **Infrastructure Initialization**: Start MySQL and Redis containers/services.
+2.  **Database Migration**: Run `alembic upgrade head` from the `apps/data-engine` directory.
+3.  **Data Seeding (First-time only)**: Run `python scripts/seed_data.py`.
+4.  **Backend Cluster**: Starting multiple instances of `src/main.py`. The first instance to acquire the Redis lock will become the `Leader` and handle scheduler tasks.
+5.  **Frontend Deployment**: Build the `web-ele` package (`pnpm build`) and serve via Nginx or start the dev server for testing.
 
-```bash
-cd apps/data-engine
+## 3. Environment Variables (.env)
 
-# 1. One-click setup (starts Docker, runs migrations, seeds data)
-chmod +x setup.sh
-./setup.sh
+Key variables in `apps/data-engine/.env`:
 
-# 2. Start the Backend server
-.venv/bin/python src/main.py
-```
+| Variable | Default (Example) | Description |
+| :--- | :--- | :--- |
+| `DATA_ENGINE_DEBUG` | `false` | Enable detailed error messages in the API. |
+| `DATA_ENGINE_ACCESS_TOKEN_SECRET` | (Random Hex) | Used for JWT signing. Must be kept secret. |
+| `DATA_ENGINE_MYSQL_DSN` | `mysql+pymysql://...` | Connection string for MySQL. |
+| `DATA_ENGINE_REDIS_URL` | `redis://...` | Connection for distributed task management. |
+| `DATA_ENGINE_ENABLE_ELASTICSEARCH` | `false` | Toggles DB-based vs ES-based search. |
 
-_Backend runs at: `http://127.0.0.1:8000`_
+## 4. Default Accounts (Demo)
 
----
+| Username | Role | Password | Description |
+| :--- | :--- | :--- | :--- |
+| **vben** | `super` | `123456` | Full access, system monitoring. |
+| **admin** | `admin` | `123456` | Task management, manual triggers. |
+| **jack** | `user` | `123456` | End-user features only. |
 
-## 3. Frontend Setup (Web-Ele)
+## 5. Maintenance & Troubleshooting
 
-The frontend is built on Vben Admin (Vue 3 + Element Plus).
+### Log Locations
+-   **Backend**: `apps/data-engine/app.log` (Rotates at 10MB).
+-   **Docker**: `docker compose logs -f`
 
-```bash
-cd apps/web-ele
+### Health Verification
+-   Directly query the health endpoint: `GET /health`.
+-   Verify all DB columns are synced: `python scripts/verify_schema.py` (if provided).
 
-# 1. Install dependencies
-pnpm install
-
-# 2. Start the Dev server
-pnpm run dev
-```
-
-_Frontend runs at: `http://127.0.0.1:5777`_
-
----
-
-## 4. Demo Accounts & Access
-
-| Username  | Password | Role    | Features                                    |
-| :-------- | :------- | :------ | :------------------------------------------ |
-| **vben**  | `123456` | `super` | Full system access (including Task Monitor) |
-| **admin** | `123456` | `admin` | Operations (Price Update, Risk Analysis)    |
-| **jack**  | `123456` | `user`  | Standard User (Search, Detail, Alerts)      |
-
----
-
-## 5. Key Demo Flow
-
-1. **Login**: Use `vben` for the full experience.
-2. **Search**: Search for "iPhone" in top search bar or homepage.
-3. **Detail**: Click a product card to see the **Price Trend Chart** and **Competition Table**.
-4. **Analysis**: Check the **Decision Card** (AI buy recommendation) and **Risk Panel**.
-5. **Alert**: Click "降价提醒" to create a monitor.
-6. **Task**: Navigate to `工具 -> 爬虫任务` to see background engine status.
-7. **Coupon**: Navigate to `优惠计算` to see aggregated platform coupons.
-
----
-
-## 6. Troubleshooting
-
-- **API 404/500**: Ensure the backend is running and you ran `./setup.sh` to initialize the database.
-- **Frontend Build**: If `pnpm run build` fails, ensure you have the correct shadcn dependencies (already patched).
-- **Docker**: If `setup.sh` hangs on MySQL wait, ensure Docker Desktop is running.
+### Emergency Rollback
+Refer to [ROLLBACK.md](./ROLLBACK.md) for detailed instructions on reverting code and database schema.

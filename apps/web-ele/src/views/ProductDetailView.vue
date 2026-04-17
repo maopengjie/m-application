@@ -5,13 +5,15 @@ import { Page } from "@vben/common-ui";
 
 import { ElButton, ElEmpty, ElTag } from "element-plus";
 
-import AlertDialog from "#/components/AlertDialog.vue";
-import CouponPanel from "#/components/CouponPanel.vue";
-import DecisionCard from "#/components/DecisionCard.vue";
-import PriceCompareTable from "#/components/PriceCompareTable.vue";
-import PriceTrendChart from "#/components/PriceTrendChart.vue";
-import RiskPanel from "#/components/RiskPanel.vue";
+import { defineAsyncComponent } from "vue";
 import { useProductDetail } from "#/views/use-product-detail";
+
+const AlertDialog = defineAsyncComponent(() => import("#/components/AlertDialog.vue"));
+const CouponPanel = defineAsyncComponent(() => import("#/components/CouponPanel.vue"));
+const DecisionCard = defineAsyncComponent(() => import("#/components/DecisionCard.vue"));
+const PriceCompareTable = defineAsyncComponent(() => import("#/components/PriceCompareTable.vue"));
+const PriceTrendChart = defineAsyncComponent(() => import("#/components/PriceTrendChart.vue"));
+const RiskPanel = defineAsyncComponent(() => import("#/components/RiskPanel.vue"));
 
 const route = useRoute();
 const productId = route.params.id as string;

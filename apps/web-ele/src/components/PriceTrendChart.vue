@@ -3,7 +3,32 @@ import type { PriceHistoryStats } from "#/api/types";
 
 import { onMounted, onUnmounted, ref, watch } from "vue";
 
-import * as echarts from "echarts";
+import * as echarts from "echarts/core";
+import { LineChart } from "echarts/charts";
+import {
+  DatasetComponent,
+  GridComponent,
+  MarkLineComponent,
+  TooltipComponent,
+  TransformComponent,
+} from "echarts/components";
+import { LabelLayout, UniversalTransition } from "echarts/features";
+import { CanvasRenderer } from "echarts/renderers";
+
+// Import graphic utility
+import { graphic } from "echarts/core";
+
+echarts.use([
+  TooltipComponent,
+  GridComponent,
+  DatasetComponent,
+  TransformComponent,
+  LineChart,
+  CanvasRenderer,
+  LabelLayout,
+  UniversalTransition,
+  MarkLineComponent,
+]);
 
 import { getSkuPriceHistoryApi } from "#/api/product";
 
@@ -123,7 +148,7 @@ const initChart = () => {
         itemStyle: { color: "#3b82f6" },
         lineStyle: { width: 3, color: "#3b82f6" },
         areaStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          color: new graphic.LinearGradient(0, 0, 0, 1, [
             { offset: 0, color: "rgba(59, 130, 246, 0.2)" },
             { offset: 1, color: "rgba(59, 130, 246, 0)" },
           ]),
