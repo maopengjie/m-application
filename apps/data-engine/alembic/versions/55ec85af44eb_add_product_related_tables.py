@@ -17,6 +17,7 @@ def upgrade() -> None:
     sa.Column('brand', sa.String(length=100), nullable=True),
     sa.Column('category', sa.String(length=100), nullable=True),
     sa.Column('main_image', sa.String(length=500), nullable=True),
+    sa.Column('rating', sa.Numeric(precision=3, scale=1), server_default=sa.text('4.5'), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.PrimaryKeyConstraint('id')
@@ -30,6 +31,7 @@ def upgrade() -> None:
     sa.Column('price', sa.Numeric(precision=10, scale=2), nullable=False),
     sa.Column('original_price', sa.Numeric(precision=10, scale=2), nullable=True),
     sa.Column('shop_name', sa.String(length=255), nullable=True),
+    sa.Column('buy_url', sa.String(length=500), nullable=True),
     sa.Column('is_official', sa.Boolean(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
@@ -86,6 +88,7 @@ def upgrade() -> None:
     sa.Column('score', sa.Integer(), nullable=False),
     sa.Column('comment_abnormal', sa.Boolean(), nullable=False),
     sa.Column('sales_abnormal', sa.Boolean(), nullable=False),
+    sa.Column('details_json', sa.Text(), nullable=True),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
     sa.ForeignKeyConstraint(['sku_id'], ['product_skus.id'], ),
     sa.PrimaryKeyConstraint('sku_id')

@@ -8,7 +8,10 @@ from app.core.config import get_settings
 from app.core.elasticsearch import close_es_client
 from app.tasks.scheduler import start_scheduler, stop_scheduler
 
+from app.core.logging import setup_logging
+
 settings = get_settings()
+setup_logging()
 
 
 @asynccontextmanager
@@ -31,7 +34,32 @@ def create_app() -> FastAPI:
 
     @app.get("/")
     async def root():
-        return {"message": f"{settings.app_name} is running"}
+        return {
+            "message": f"{settings.app_name} is running",
+            "version": "1.0.0",
+            "status": "healthy"
+        }
+
+    @app.get("/health")
+    async def health_check():
+        from app.core.database import engine
+        from sqlalchemy import text
+        import logging
+        health_logger = logging.getLogger("health")
+        
+        db_status = "ok"
+        try:
+            with engine.connect() as conn:
+                conn.execute(text("SELECT 1"))
+        except Exception as e:
+            db_status = f"unhealthy: {str(e)}"
+            health_logger.error(f"Health Check - DB Error: {e}")
+
+        return {
+            "status": "healthy" if "unhealthy" not in db_status else "degraded",
+            "database": db_status,
+            "app": "running"
+        }
 
     # Unified Exception Handling
     from fastapi import Request, HTTPException

@@ -6,7 +6,10 @@ from app.core.security import sign_token, verify_token, verify_password
 from app.repositories.auth_repository import AuthRepository
 from app.models.user import User
 
+import logging
+
 settings = get_settings()
+logger = logging.getLogger(__name__)
 
 
 class AuthService:
@@ -34,9 +37,11 @@ class AuthService:
             return None
 
         if not verify_password(password, user.hashed_password):
+            logger.warning(f"Login failed: Incorrect password for user '{username}'")
             self.repository.increment_failed_attempts(db, username)
             return None
 
+        logger.info(f"User logged in successfully: '{username}'")
         self.repository.update_last_login(db, user.id)
 
         user_dict = self.public_user(user)
