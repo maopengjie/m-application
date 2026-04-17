@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { CSSProperties } from 'vue';
+import type { CSSProperties } from "vue";
 
-import { computed } from 'vue';
+import { computed } from "vue";
 
 interface Props {
   /**
@@ -21,10 +21,7 @@ const style = computed((): CSSProperties => {
 </script>
 
 <template>
-  <section
-    :style="style"
-    class="flex w-full border-b border-border bg-background transition-all"
-  >
+  <section :style="style" class="flex w-full border-b border-border bg-background transition-all">
     <slot></slot>
   </section>
 </template>

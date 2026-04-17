@@ -1,14 +1,14 @@
-import type { OxlintConfig } from 'oxlint';
+import type { OxlintConfig } from "oxlint";
 
 const command: OxlintConfig = {
   jsPlugins: [
     {
-      name: 'command',
-      specifier: 'eslint-plugin-command',
+      name: "command",
+      specifier: "eslint-plugin-command",
     },
   ],
   rules: {
-    'command/command': 'error',
+    "command/command": "error",
   },
 };
 

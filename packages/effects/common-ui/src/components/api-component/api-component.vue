@@ -1,36 +1,33 @@
 <script lang="ts" setup>
-import type {
-  ApiComponentProps,
-  ApiComponentOptionsItem as OptionsItem,
-} from './types';
+import type { ApiComponentProps, ApiComponentOptionsItem as OptionsItem } from "./types";
 
-import { computed, nextTick, ref, unref, useAttrs, watch } from 'vue';
+import { computed, nextTick, ref, unref, useAttrs, watch } from "vue";
 
-import { LoaderCircle } from '@vben/icons';
+import { LoaderCircle } from "@vben/icons";
 
-import { cloneDeep, get, isEqual, isFunction } from '@vben-core/shared/utils';
+import { cloneDeep, get, isEqual, isFunction } from "@vben-core/shared/utils";
 
-import { objectOmit } from '@vueuse/core';
+import { objectOmit } from "@vueuse/core";
 
-defineOptions({ name: 'ApiComponent', inheritAttrs: false });
+defineOptions({ name: "ApiComponent", inheritAttrs: false });
 
 const props = withDefaults(defineProps<ApiComponentProps>(), {
-  labelField: 'label',
-  valueField: 'value',
-  disabledField: 'disabled',
-  childrenField: '',
-  optionsPropName: 'options',
-  resultField: '',
-  visibleEvent: '',
+  labelField: "label",
+  valueField: "value",
+  disabledField: "disabled",
+  childrenField: "",
+  optionsPropName: "options",
+  resultField: "",
+  visibleEvent: "",
   numberToString: false,
   params: () => ({}),
   immediate: true,
   alwaysLoad: false,
-  loadingSlot: '',
+  loadingSlot: "",
   beforeFetch: undefined,
   shouldFetch: undefined,
   afterFetch: undefined,
-  modelPropName: 'modelValue',
+  modelPropName: "modelValue",
   api: undefined,
   autoSelect: false,
   options: () => [],
@@ -52,13 +49,7 @@ const isFirstLoaded = ref(false);
 const hasPendingRequest = ref(false);
 
 const getOptions = computed(() => {
-  const {
-    labelField,
-    valueField,
-    disabledField,
-    childrenField,
-    numberToString,
-  } = props;
+  const { labelField, valueField, disabledField, childrenField, numberToString } = props;
 
   const refOptionsData = unref(refOptions);
 
@@ -120,11 +111,7 @@ async function fetchApi() {
       finalParams = (await beforeFetch(cloneDeep(finalParams))) || finalParams;
     }
     // 判断是否需要控制执行中断
-    if (
-      shouldFetch &&
-      isFunction(shouldFetch) &&
-      !(await shouldFetch(finalParams))
-    ) {
+    if (shouldFetch && isFunction(shouldFetch) && !(await shouldFetch(finalParams))) {
       return;
     }
     let res = await api(finalParams);
@@ -186,25 +173,21 @@ watch(
 );
 
 function emitChange() {
-  if (
-    modelValue.value === undefined &&
-    props.autoSelect &&
-    unref(getOptions).length > 0
-  ) {
+  if (modelValue.value === undefined && props.autoSelect && unref(getOptions).length > 0) {
     let firstOption;
     if (isFunction(props.autoSelect)) {
       firstOption = props.autoSelect(unref(getOptions));
     } else {
       switch (props.autoSelect) {
-        case 'first': {
+        case "first": {
           firstOption = unref(getOptions)[0];
           break;
         }
-        case 'last': {
+        case "last": {
           firstOption = unref(getOptions)[unref(getOptions).length - 1];
           break;
         }
-        case 'one': {
+        case "one": {
           if (unref(getOptions).length === 1) {
             firstOption = unref(getOptions)[0];
           }
@@ -215,7 +198,7 @@ function emitChange() {
 
     if (firstOption) modelValue.value = firstOption.value;
   }
-  emit('optionsChange', unref(getOptions));
+  emit("optionsChange", unref(getOptions));
 }
 const componentRef = ref();
 defineExpose({

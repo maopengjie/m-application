@@ -1,16 +1,16 @@
 <script lang="ts" setup>
-import { VbenAvatar } from '@vben-core/shadcn-ui';
+import { VbenAvatar } from "@vben-core/shadcn-ui";
 
 interface Props {
   avatar?: string;
 }
 
 defineOptions({
-  name: 'WorkbenchHeader',
+  name: "WorkbenchHeader",
 });
 
 withDefaults(defineProps<Props>(), {
-  avatar: '',
+  avatar: "",
 });
 </script>
 <template>

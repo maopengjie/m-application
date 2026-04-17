@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ChevronsLeft, ChevronsRight } from '@vben-core/icons';
+import { ChevronsLeft, ChevronsRight } from "@vben-core/icons";
 
-const collapsed = defineModel<boolean>('collapsed');
+const collapsed = defineModel<boolean>("collapsed");
 
 function handleCollapsed() {
   collapsed.value = !collapsed.value;

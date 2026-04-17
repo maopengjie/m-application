@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import type { DialogContentEmits, DialogContentProps } from 'reka-ui';
+import type { DialogContentEmits, DialogContentProps } from "reka-ui";
 
-import type { ClassType } from '@vben-core/typings';
+import type { ClassType } from "@vben-core/typings";
 
-import { computed, ref } from 'vue';
+import { computed, ref } from "vue";
 
-import { cn } from '@vben-core/shared/utils';
+import { cn } from "@vben-core/shared/utils";
 
-import { X } from 'lucide-vue-next';
-import { DialogClose, DialogContent, useForwardPropsEmits } from 'reka-ui';
+import { X } from "lucide-vue-next";
+import { DialogClose, DialogContent, useForwardPropsEmits } from "reka-ui";
 
-import DialogOverlay from './DialogOverlay.vue';
+import DialogOverlay from "./DialogOverlay.vue";
 
 const props = withDefaults(
   defineProps<
     DialogContentProps & {
-      animationType?: 'scale' | 'slide';
+      animationType?: "scale" | "slide";
       appendTo?: HTMLElement | string;
       class?: ClassType;
       closeClass?: ClassType;
@@ -28,15 +28,13 @@ const props = withDefaults(
     }
   >(),
   {
-    appendTo: 'body',
-    animationType: 'slide',
+    appendTo: "body",
+    animationType: "slide",
     closeDisabled: false,
     showClose: true,
   },
 );
-const emits = defineEmits<
-  DialogContentEmits & { close: []; closed: []; opened: [] }
->();
+const emits = defineEmits<DialogContentEmits & { close: []; closed: []; opened: [] }>();
 
 const delegatedProps = computed(() => {
   const {
@@ -52,15 +50,11 @@ const delegatedProps = computed(() => {
 });
 
 function isAppendToBody() {
-  return (
-    props.appendTo === 'body' ||
-    props.appendTo === document.body ||
-    !props.appendTo
-  );
+  return props.appendTo === "body" || props.appendTo === document.body || !props.appendTo;
 }
 
 const position = computed(() => {
-  return isAppendToBody() ? 'fixed' : 'absolute';
+  return isAppendToBody() ? "fixed" : "absolute";
 });
 
 const forwarded = useForwardPropsEmits(delegatedProps, emits);
@@ -70,9 +64,9 @@ function onAnimationEnd(event: AnimationEvent) {
   // 只有在 contentRef 的动画结束时才触发 opened/closed 事件
   if (event.target === contentRef.value?.$el) {
     if (props.open) {
-      emits('opened');
+      emits("opened");
     } else {
-      emits('closed');
+      emits("closed");
     }
   }
 }
@@ -89,8 +83,7 @@ defineExpose({
         :style="{
           ...(zIndex ? { zIndex } : {}),
           position,
-          backdropFilter:
-            overlayBlur && overlayBlur > 0 ? `blur(${overlayBlur}px)` : 'none',
+          backdropFilter: overlayBlur && overlayBlur > 0 ? `blur(${overlayBlur}px)` : 'none',
         }"
         @click="() => emits('close')"
       />

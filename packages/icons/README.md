@@ -15,5 +15,5 @@ pnpm add @vben/icons
 ### 使用
 
 ```ts
-import { X } from '@vben/icons';
+import { X } from "@vben/icons";
 ```

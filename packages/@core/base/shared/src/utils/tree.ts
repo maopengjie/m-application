@@ -17,7 +17,7 @@ function traverseTreeValues<T, V>(
 ): V[] {
   const result: V[] = [];
   const { childProps } = options || {
-    childProps: 'children',
+    childProps: "children",
   };
 
   const dfs = (treeNode: T) => {
@@ -53,7 +53,7 @@ function filterTree<T extends Record<string, any>>(
   options?: TreeConfigOptions,
 ): T[] {
   const { childProps } = options || {
-    childProps: 'children',
+    childProps: "children",
   };
 
   const _filterTree = (nodes: T[]): T[] => {
@@ -83,7 +83,7 @@ function mapTree<T, V extends Record<string, any>>(
   options?: TreeConfigOptions,
 ): V[] {
   const { childProps } = options || {
-    childProps: 'children',
+    childProps: "children",
   };
   return tree.map((node) => {
     const mapperNode: Record<string, any> = mapper(node);
@@ -107,7 +107,7 @@ function sortTree<T extends Record<string, any>>(
   options?: TreeConfigOptions,
 ): T[] {
   const { childProps } = options || {
-    childProps: 'children',
+    childProps: "children",
   };
 
   return treeData.toSorted(sortFunction).map((item) => {

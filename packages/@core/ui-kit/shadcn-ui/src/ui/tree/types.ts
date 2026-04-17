@@ -1,7 +1,7 @@
-import type { Arrayable } from '@vueuse/core';
-import type { FlattenedItem } from 'reka-ui';
+import type { Arrayable } from "@vueuse/core";
+import type { FlattenedItem } from "reka-ui";
 
-import type { Recordable } from '@vben-core/typings';
+import type { Recordable } from "@vben-core/typings";
 
 export interface TreeProps {
   /** 单选时允许取消已有选项 */
@@ -50,13 +50,13 @@ export function treePropsDefaults() {
     defaultExpandedKeys: () => [],
     defaultExpandedLevel: 0,
     disabled: false,
-    disabledField: 'disabled',
-    iconField: 'icon',
-    labelField: 'label',
+    disabledField: "disabled",
+    iconField: "icon",
+    labelField: "label",
     multiple: false,
     showIcon: true,
     transition: true,
-    valueField: 'value',
-    childrenField: 'children',
+    valueField: "value",
+    childrenField: "children",
   };
 }

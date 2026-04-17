@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { RotateCw } from '@vben-core/icons';
+import { RotateCw } from "@vben-core/icons";
 
-const emit = defineEmits(['refresh']);
+const emit = defineEmits(["refresh"]);
 
 const handleRefresh = () => {
-  emit('refresh');
+  emit("refresh");
 };
 </script>
 

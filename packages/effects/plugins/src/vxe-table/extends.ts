@@ -1,26 +1,21 @@
-import type { VxeGridProps, VxeUIExport } from 'vxe-table';
+import type { VxeGridProps, VxeUIExport } from "vxe-table";
 
-import type { Recordable } from '@vben/types';
+import type { Recordable } from "@vben/types";
 
-import type { VxeGridApi } from './api';
+import type { VxeGridApi } from "./api";
 
-import { formatDate, formatDateTime, isFunction } from '@vben/utils';
+import { formatDate, formatDateTime, isFunction } from "@vben/utils";
 
 export function extendProxyOptions(
   api: VxeGridApi,
   options: VxeGridProps,
   getFormValues: () => Recordable<any>,
 ) {
-  [
-    'query',
-    'querySuccess',
-    'queryError',
-    'queryAll',
-    'queryAllSuccess',
-    'queryAllError',
-  ].forEach((key) => {
-    extendProxyOption(key, api, options, getFormValues);
-  });
+  ["query", "querySuccess", "queryError", "queryAll", "queryAllSuccess", "queryAllError"].forEach(
+    (key) => {
+      extendProxyOption(key, api, options, getFormValues);
+    },
+  );
 }
 
 function extendProxyOption(
@@ -67,13 +62,13 @@ function extendProxyOption(
 }
 
 export function extendsDefaultFormatter(vxeUI: VxeUIExport) {
-  vxeUI.formats.add('formatDate', {
+  vxeUI.formats.add("formatDate", {
     tableCellFormatMethod({ cellValue }) {
       return formatDate(cellValue);
     },
   });
 
-  vxeUI.formats.add('formatDateTime', {
+  vxeUI.formats.add("formatDateTime", {
     tableCellFormatMethod({ cellValue }) {
       return formatDateTime(cellValue);
     },

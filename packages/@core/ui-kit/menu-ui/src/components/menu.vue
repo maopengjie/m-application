@@ -1,50 +1,32 @@
 <script lang="ts" setup>
-import type { UseResizeObserverReturn } from '@vueuse/core';
+import type { UseResizeObserverReturn } from "@vueuse/core";
 
-import type { SetupContext, VNodeArrayChildren } from 'vue';
+import type { SetupContext, VNodeArrayChildren } from "vue";
 
-import type {
-  MenuItemClicked,
-  MenuItemRegistered,
-  MenuProps,
-  MenuProvider,
-} from '../types';
+import type { MenuItemClicked, MenuItemRegistered, MenuProps, MenuProvider } from "../types";
 
-import {
-  computed,
-  nextTick,
-  reactive,
-  ref,
-  toRef,
-  useSlots,
-  watch,
-  watchEffect,
-} from 'vue';
+import { computed, nextTick, reactive, ref, toRef, useSlots, watch, watchEffect } from "vue";
 
-import { useNamespace } from '@vben-core/composables';
-import { Ellipsis } from '@vben-core/icons';
+import { useNamespace } from "@vben-core/composables";
+import { Ellipsis } from "@vben-core/icons";
 
-import { useResizeObserver } from '@vueuse/core';
+import { useResizeObserver } from "@vueuse/core";
 
-import {
-  createMenuContext,
-  createSubMenuContext,
-  useMenuStyle,
-} from '../hooks';
-import { useMenuScroll } from '../hooks/use-menu-scroll';
-import { flattedChildren } from '../utils';
-import SubMenu from './sub-menu.vue';
+import { createMenuContext, createSubMenuContext, useMenuStyle } from "../hooks";
+import { useMenuScroll } from "../hooks/use-menu-scroll";
+import { flattedChildren } from "../utils";
+import SubMenu from "./sub-menu.vue";
 
 interface Props extends MenuProps {}
 
-defineOptions({ name: 'Menu' });
+defineOptions({ name: "Menu" });
 
 const props = withDefaults(defineProps<Props>(), {
   accordion: true,
   collapse: false,
-  mode: 'vertical',
+  mode: "vertical",
   rounded: true,
-  theme: 'dark',
+  theme: "dark",
   scrollToActive: false,
 });
 
@@ -54,23 +36,21 @@ const emit = defineEmits<{
   select: [string, string[]];
 }>();
 
-const { b, is } = useNamespace('menu');
+const { b, is } = useNamespace("menu");
 const menuStyle = useMenuStyle();
-const slots: SetupContext['slots'] = useSlots();
+const slots: SetupContext["slots"] = useSlots();
 const menu = ref<HTMLUListElement>();
 const sliceIndex = ref(-1);
-const openedMenus = ref<MenuProvider['openedMenus']>(
+const openedMenus = ref<MenuProvider["openedMenus"]>(
   props.defaultOpeneds && !props.collapse ? [...props.defaultOpeneds] : [],
 );
-const activePath = ref<MenuProvider['activePath']>(props.defaultActive);
-const items = ref<MenuProvider['items']>({});
-const subMenus = ref<MenuProvider['subMenus']>({});
+const activePath = ref<MenuProvider["activePath"]>(props.defaultActive);
+const items = ref<MenuProvider["items"]>({});
+const subMenus = ref<MenuProvider["subMenus"]>({});
 const mouseInChild = ref(false);
 
-const isMenuPopup = computed<MenuProvider['isMenuPopup']>(() => {
-  return (
-    props.mode === 'horizontal' || (props.mode === 'vertical' && props.collapse)
-  );
+const isMenuPopup = computed<MenuProvider["isMenuPopup"]>(() => {
+  return props.mode === "horizontal" || (props.mode === "vertical" && props.collapse);
 });
 
 const getSlot = computed(() => {
@@ -79,12 +59,9 @@ const getSlot = computed(() => {
 
   const originalSlot = flattedChildren(defaultSlots) as VNodeArrayChildren;
   const slotDefault =
-    sliceIndex.value === -1
-      ? originalSlot
-      : originalSlot.slice(0, sliceIndex.value);
+    sliceIndex.value === -1 ? originalSlot : originalSlot.slice(0, sliceIndex.value);
 
-  const slotMore =
-    sliceIndex.value === -1 ? [] : originalSlot.slice(sliceIndex.value);
+  const slotMore = sliceIndex.value === -1 ? [] : originalSlot.slice(sliceIndex.value);
 
   return { showSlotMore: slotMore.length > 0, slotDefault, slotMore };
 });
@@ -100,17 +77,17 @@ watch(items.value, initMenu);
 
 watch(
   () => props.defaultActive,
-  (currentActive = '') => {
+  (currentActive = "") => {
     if (!items.value[currentActive]) {
-      activePath.value = '';
+      activePath.value = "";
     }
     updateActiveName(currentActive);
   },
 );
 
-let resizeStopper: UseResizeObserverReturn['stop'];
+let resizeStopper: UseResizeObserverReturn["stop"];
 watchEffect(() => {
-  if (props.mode === 'horizontal') {
+  if (props.mode === "horizontal") {
     resizeStopper = useResizeObserver(menu, handleResize).stop;
   } else {
     resizeStopper?.();
@@ -133,7 +110,7 @@ createMenuContext(
     removeMenuItem,
     removeSubMenu,
     subMenus,
-    theme: toRef(props, 'theme'),
+    theme: toRef(props, "theme"),
     items,
   }),
 );
@@ -159,8 +136,7 @@ function calcSliceIndex() {
   const items = [...(menu.value?.childNodes ?? [])].filter(
     (item) =>
       // remove comment type node #12634
-      item.nodeName !== '#comment' &&
-      (item.nodeName !== '#text' || item.nodeValue),
+      item.nodeName !== "#comment" && (item.nodeName !== "#text" || item.nodeValue),
   ) as HTMLElement[];
 
   const moreItemWidth = 46;
@@ -184,7 +160,9 @@ function calcSliceIndex() {
 function debounce(fn: () => void, wait = 33.34) {
   let timer: null | ReturnType<typeof setTimeout>;
   return () => {
-    timer && clearTimeout(timer);
+    if (timer) {
+      clearTimeout(timer);
+    }
     timer = setTimeout(() => {
       fn();
     }, wait);
@@ -204,12 +182,16 @@ function handleResize() {
   };
   callback();
   // // execute callback directly when first time resize to avoid shaking
-  isFirstTimeRender ? callback() : debounce(callback)();
+  if (isFirstTimeRender) {
+    callback();
+  } else {
+    debounce(callback)();
+  }
   isFirstTimeRender = false;
 }
 
 const enableScroll = computed(
-  () => props.scrollToActive && props.mode === 'vertical' && !props.collapse,
+  () => props.scrollToActive && props.mode === "vertical" && !props.collapse,
 );
 
 useMenuScroll(activePath, {
@@ -230,7 +212,9 @@ function initMenu() {
   // expand all subMenus of the menu item
   parentPaths.forEach((path) => {
     const subMenu = subMenus.value[path];
-    subMenu && openMenu(path, subMenu.parentPaths);
+    if (subMenu) {
+      openMenu(path, subMenu.parentPaths);
+    }
   });
 }
 
@@ -239,14 +223,14 @@ function updateActiveName(val: string) {
   const item =
     itemsInData[val] ||
     (activePath.value && itemsInData[activePath.value]) ||
-    itemsInData[props.defaultActive || ''];
+    itemsInData[props.defaultActive || ""];
 
   activePath.value = item ? item.path : val;
 }
 
 function handleMenuItemClick(data: MenuItemClicked) {
   const { collapse, mode } = props;
-  if (mode === 'horizontal' || collapse) {
+  if (mode === "horizontal" || collapse) {
     openedMenus.value = [];
   }
   const { parentPaths, path } = data;
@@ -254,7 +238,7 @@ function handleMenuItemClick(data: MenuItemClicked) {
     return;
   }
 
-  emit('select', path, parentPaths);
+  emit("select", path, parentPaths);
 }
 
 function handleSubMenuClick({ parentPaths, path }: MenuItemRegistered) {
@@ -285,7 +269,7 @@ function closeMenu(path: string, parentPaths: string[]) {
 
   close(path);
 
-  emit('close', path, parentPaths);
+  emit("close", path, parentPaths);
 }
 
 /**
@@ -301,12 +285,10 @@ function openMenu(path: string, parentPaths: string[]) {
     if (activeParentPaths.includes(path)) {
       parentPaths = activeParentPaths;
     }
-    openedMenus.value = openedMenus.value.filter((path: string) =>
-      parentPaths.includes(path),
-    );
+    openedMenus.value = openedMenus.value.filter((path: string) => parentPaths.includes(path));
   }
   openedMenus.value.push(path);
-  emit('open', path, parentPaths);
+  emit("open", path, parentPaths);
 }
 
 function addMenuItem(item: MenuItemRegistered) {
@@ -328,7 +310,7 @@ function removeMenuItem(item: MenuItemRegistered) {
 function getActivePaths() {
   const activeItem = activePath.value && items.value[activePath.value];
 
-  if (!activeItem || props.mode === 'horizontal' || props.collapse) {
+  if (!activeItem || props.mode === "horizontal" || props.collapse) {
     return [];
   }
 
@@ -386,8 +368,7 @@ $namespace: vben;
   align-items: center;
   height: var(--menu-item-height);
   padding: var(--menu-item-padding-y) var(--menu-item-padding-x);
-  margin: 0 var(--menu-item-margin-x) var(--menu-item-margin-y)
-    var(--menu-item-margin-x);
+  margin: 0 var(--menu-item-margin-x) var(--menu-item-margin-y) var(--menu-item-margin-x);
   font-size: var(--menu-font-size) !important;
   color: var(--menu-item-color);
   white-space: nowrap;
@@ -563,9 +544,7 @@ $namespace: vben;
       & .#{$namespace}-menu-item,
       & .#{$namespace}-sub-menu-content,
       & .#{$namespace}-menu-item-group__title {
-        padding-left: calc(
-          var(--menu-item-indent) + var(--menu-level) * var(--menu-item-indent)
-        );
+        padding-left: calc(var(--menu-item-indent) + var(--menu-level) * var(--menu-item-indent));
         white-space: nowrap;
       }
 
@@ -573,8 +552,7 @@ $namespace: vben;
         & > .#{$namespace}-menu {
           & > .#{$namespace}-menu-item {
             padding-left: calc(
-              0px + var(--menu-item-indent) + var(--menu-level) *
-                var(--menu-item-indent)
+              0px + var(--menu-item-indent) + var(--menu-level) * var(--menu-item-indent)
             );
           }
         }
@@ -670,10 +648,8 @@ $namespace: vben;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: var(--menu-item-collapse-padding-y)
-        var(--menu-item-collapse-padding-x);
-      margin: var(--menu-item-collapse-margin-y)
-        var(--menu-item-collapse-margin-x);
+      padding: var(--menu-item-collapse-padding-y) var(--menu-item-collapse-padding-x);
+      margin: var(--menu-item-collapse-margin-y) var(--menu-item-collapse-margin-x);
       transition: all 0.3s;
 
       &.is-active {
@@ -806,7 +782,7 @@ $namespace: vben;
   fill: var(--menu-item-color);
 
   &.is-active {
-    div[data-state='open'] > .#{$namespace}-sub-menu-content,
+    div[data-state="open"] > .#{$namespace}-sub-menu-content,
     > .#{$namespace}-sub-menu-content {
       // font-weight: 500;
       color: var(--menu-submenu-active-color);

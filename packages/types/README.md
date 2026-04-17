@@ -16,5 +16,5 @@ pnpm add @vben/types
 
 ```ts
 // 推荐加上 type
-import type { SelectOption } from '@vben/types';
+import type { SelectOption } from "@vben/types";
 ```

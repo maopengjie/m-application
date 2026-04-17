@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import SearchFilterBar from '#/components/SearchFilterBar.vue';
-import ProductList from '#/components/ProductList.vue';
-import { searchProductsApi } from '#/api/product';
-import { ElMessage } from 'element-plus';
+import type { Product } from "#/api/types";
 
-import { Page } from '@vben/common-ui';
+import { ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
-import type { Product } from '#/api/types';
+import { Page } from "@vben/common-ui";
+
+import { searchProductsApi } from "#/api/product";
+import ProductList from "#/components/ProductList.vue";
+import SearchFilterBar from "#/components/SearchFilterBar.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -21,41 +21,55 @@ interface FilterState {
   brand: string;
 }
 
-const keyword = ref((route.query.q as string) || '');
+const keyword = ref((route.query.q as string) || "");
 const activeFilters = ref<FilterState>({
-  sortBy: (route.query.sort_by as string) || 'relevance',
-  platforms: route.query.platforms ? (Array.isArray(route.query.platforms) ? (route.query.platforms as string[]) : [route.query.platforms as string]) : [],
+  sortBy: (route.query.sort_by as string) || "relevance",
+  platforms: route.query.platforms
+    ? (Array.isArray(route.query.platforms)
+      ? (route.query.platforms as string[])
+      : [route.query.platforms as string])
+    : [],
   minPrice: route.query.min_price ? Number(route.query.min_price) : undefined,
   maxPrice: route.query.max_price ? Number(route.query.max_price) : undefined,
-  brand: (route.query.brand as string) || ''
+  brand: (route.query.brand as string) || "",
 });
 const loading = ref(false);
-const error = ref<string | null>(null);
+const error = ref<null | string>(null);
 const products = ref<Product[]>([]);
+
+const normalizePlatforms = (value: unknown): string[] | undefined => {
+  if (!value) return undefined;
+  const list = Array.isArray(value) ? value : [value];
+  const normalized = list.filter(
+    (item): item is string => typeof item === "string" && item.length > 0,
+  );
+  return normalized.length > 0 ? normalized : undefined;
+};
 
 const performSearch = async () => {
   const kw = route.query.q as string;
   if (!kw) return;
-  
+
   loading.value = true;
   error.value = null;
-  
+
   // Extract filters from URL
   const searchParams = {
     q: kw,
-    sort_by: (route.query.sort_by as string) === 'relevance' ? undefined : (route.query.sort_by as string),
-    platforms: route.query.platforms ? (Array.isArray(route.query.platforms) ? route.query.platforms : [route.query.platforms]) : undefined,
+    sort_by:
+      (route.query.sort_by as string) === "relevance" ? undefined : (route.query.sort_by as string),
+    platforms: normalizePlatforms(route.query.platforms),
     min_price: route.query.min_price ? Number(route.query.min_price) : undefined,
     max_price: route.query.max_price ? Number(route.query.max_price) : undefined,
     brand: (route.query.brand as string) || undefined,
   };
-  
+
   try {
     const res = await searchProductsApi(searchParams);
     products.value = res?.items || [];
-  } catch (err: unknown) {
-    const errMsg = err instanceof Error ? err.message : '搜索请求失败，请检查网络后重试';
-    console.error('Search error:', err);
+  } catch (error_: unknown) {
+    const errMsg = error_ instanceof Error ? error_.message : "搜索请求失败，请检查网络后重试";
+    console.error("Search error:", error_);
     error.value = errMsg;
   } finally {
     loading.value = false;
@@ -65,19 +79,19 @@ const performSearch = async () => {
 const handleSearch = (newKeyword: string, newFilters?: Partial<FilterState>) => {
   const combinedFilters = {
     ...activeFilters.value,
-    ...(newFilters || {})
+    ...newFilters,
   };
-  
+
   // Just update the URL. The watch will handle the rest.
-  router.push({ 
-    query: { 
-      q: newKeyword, 
+  router.push({
+    query: {
+      q: newKeyword,
       sort_by: combinedFilters.sortBy,
       brand: combinedFilters.brand || undefined,
-      platforms: combinedFilters.platforms.length ? combinedFilters.platforms : undefined,
+      platforms: combinedFilters.platforms.length > 0 ? combinedFilters.platforms : undefined,
       min_price: combinedFilters.minPrice,
       max_price: combinedFilters.maxPrice,
-    } 
+    },
   });
 };
 
@@ -91,8 +105,8 @@ const handleFilter = (filters: FilterState) => {
 
 const handleProductClick = (product: Product) => {
   router.push({
-    name: 'CommerceDetail',
-    params: { id: product.product_id }
+    name: "CommerceDetail",
+    params: { id: product.product_id },
   });
 };
 
@@ -100,37 +114,34 @@ watch(
   () => route.query,
   (newQuery) => {
     // Sync state
-    keyword.value = (newQuery.q as string) || '';
+    keyword.value = (newQuery.q as string) || "";
     activeFilters.value = {
-      sortBy: (newQuery.sort_by as string) || 'relevance',
-      platforms: newQuery.platforms ? (Array.isArray(newQuery.platforms) ? newQuery.platforms : [newQuery.platforms]) : [],
+      sortBy: (newQuery.sort_by as string) || "relevance",
+      platforms: normalizePlatforms(newQuery.platforms) || [],
       minPrice: newQuery.min_price ? Number(newQuery.min_price) : undefined,
       maxPrice: newQuery.max_price ? Number(newQuery.max_price) : undefined,
-      brand: (newQuery.brand as string) || ''
+      brand: (newQuery.brand as string) || "",
     };
-    
+
     // Fetch data
     performSearch();
   },
-  { deep: true, immediate: true }
+  { deep: true, immediate: true },
 );
-
-onMounted(() => {
-  // performSearch handled by immediate watch
-});
 </script>
 
 <template>
   <Page title="比价搜索" description="搜索全网商品，获取最佳购买建议和价格趋势">
-    <SearchFilterBar 
-      :initial-keyword="keyword" 
+    <SearchFilterBar
+      :initial-keyword="keyword"
       :initial-filters="activeFilters"
-      @search="handleSearch" 
+      @search="handleSearch"
       @filter="handleFilter"
     />
 
     <div v-if="keyword" class="mb-4 text-sm text-gray-500 dark:text-zinc-400">
-      找到关于 <span class="text-primary font-bold">"{{ keyword }}"</span> 的 {{ products.length }} 个结果
+      找到关于 <span class="text-primary font-bold">"{{ keyword }}"</span> 的
+      {{ products.length }} 个结果
     </div>
 
     <div v-if="error && !loading" class="flex flex-col items-center justify-center py-20">

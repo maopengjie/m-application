@@ -1,23 +1,22 @@
 <script setup lang="ts">
-import type { DialogContentEmits, DialogContentProps } from 'reka-ui';
+import type { DialogContentEmits, DialogContentProps } from "reka-ui";
 
-import { computed } from 'vue';
+import { computed } from "vue";
 
-import { cn } from '@vben-core/shared/utils';
+import { cn } from "@vben-core/shared/utils";
 
-import { X } from 'lucide-vue-next';
+import { X } from "lucide-vue-next";
 import {
   DialogClose,
   DialogContent,
   DialogOverlay,
   DialogPortal,
   useForwardPropsEmits,
-} from 'reka-ui';
+} from "reka-ui";
 
-const props = withDefaults(
-  defineProps<DialogContentProps & { class?: any; zIndex?: number }>(),
-  { zIndex: 1000 },
-);
+const props = withDefaults(defineProps<DialogContentProps & { class?: any; zIndex?: number }>(), {
+  zIndex: 1000,
+});
 const emits = defineEmits<DialogContentEmits>();
 
 const delegatedProps = computed(() => {

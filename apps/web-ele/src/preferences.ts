@@ -1,4 +1,4 @@
-import { defineOverridesPreferences } from '@vben/preferences';
+import { defineOverridesPreferences } from "@vben/preferences";
 
 /**
  * @description 项目配置文件
@@ -8,7 +8,7 @@ import { defineOverridesPreferences } from '@vben/preferences';
 export const overridesPreferences = defineOverridesPreferences({
   // overrides
   app: {
-    accessMode: 'backend',
+    accessMode: "backend",
     enableRefreshToken: true,
     name: import.meta.env.VITE_APP_TITLE,
   },

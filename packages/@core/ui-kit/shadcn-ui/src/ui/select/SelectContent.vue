@@ -1,30 +1,22 @@
 <script setup lang="ts">
-import type { SelectContentEmits, SelectContentProps } from 'reka-ui';
+import type { SelectContentEmits, SelectContentProps } from "reka-ui";
 
-import { computed } from 'vue';
+import { computed } from "vue";
 
-import { cn } from '@vben-core/shared/utils';
+import { cn } from "@vben-core/shared/utils";
 
-import {
-  SelectContent,
-  SelectPortal,
-  SelectViewport,
-  useForwardPropsEmits,
-} from 'reka-ui';
+import { SelectContent, SelectPortal, SelectViewport, useForwardPropsEmits } from "reka-ui";
 
-import SelectScrollDownButton from './SelectScrollDownButton.vue';
-import SelectScrollUpButton from './SelectScrollUpButton.vue';
+import SelectScrollDownButton from "./SelectScrollDownButton.vue";
+import SelectScrollUpButton from "./SelectScrollUpButton.vue";
 
 defineOptions({
   inheritAttrs: false,
 });
 
-const props = withDefaults(
-  defineProps<SelectContentProps & { class?: any }>(),
-  {
-    position: 'popper',
-  },
-);
+const props = withDefaults(defineProps<SelectContentProps & { class?: any }>(), {
+  position: "popper",
+});
 const emits = defineEmits<SelectContentEmits>();
 
 const delegatedProps = computed(() => {

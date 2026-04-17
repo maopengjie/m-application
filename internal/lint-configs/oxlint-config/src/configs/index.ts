@@ -1,20 +1,20 @@
-import type { OxlintConfig } from 'oxlint';
+import type { OxlintConfig } from "oxlint";
 
-import { defineConfig as defineOxlintConfig } from 'oxlint';
+import { defineConfig as defineOxlintConfig } from "oxlint";
 
-import { command } from './command';
-import { comments } from './comments';
-import { ignores } from './ignores';
-import { importPluginConfig } from './import';
-import { javascript } from './javascript';
-import { node } from './node';
-import { overrides } from './overrides';
-import { plugins } from './plugins';
-import { tailwindcss } from './tailwindcss';
-import { test } from './test';
-import { typescript } from './typescript';
-import { unicorn } from './unicorn';
-import { vue } from './vue';
+import { command } from "./command";
+import { comments } from "./comments";
+import { ignores } from "./ignores";
+import { importPluginConfig } from "./import";
+import { javascript } from "./javascript";
+import { node } from "./node";
+import { overrides } from "./overrides";
+import { plugins } from "./plugins";
+import { tailwindcss } from "./tailwindcss";
+import { test } from "./test";
+import { typescript } from "./typescript";
+import { unicorn } from "./unicorn";
+import { vue } from "./vue";
 
 function mergeOxlintConfigs(...configs: OxlintConfig[]): OxlintConfig {
   const merged: OxlintConfig = {};
@@ -25,27 +25,15 @@ function mergeOxlintConfigs(...configs: OxlintConfig[]): OxlintConfig {
         ? { ...merged.categories, ...config.categories }
         : (config.categories ?? merged.categories);
     merged.env =
-      merged.env && config.env
-        ? { ...merged.env, ...config.env }
-        : (config.env ?? merged.env);
+      merged.env && config.env ? { ...merged.env, ...config.env } : (config.env ?? merged.env);
     merged.globals =
       merged.globals && config.globals
         ? { ...merged.globals, ...config.globals }
         : (config.globals ?? merged.globals);
-    merged.ignorePatterns = [
-      ...(merged.ignorePatterns ?? []),
-      ...(config.ignorePatterns ?? []),
-    ];
-    merged.jsPlugins = [
-      ...new Set([...(merged.jsPlugins ?? []), ...(config.jsPlugins ?? [])]),
-    ];
-    merged.overrides = [
-      ...(merged.overrides ?? []),
-      ...(config.overrides ?? []),
-    ];
-    merged.plugins = [
-      ...new Set([...(merged.plugins ?? []), ...(config.plugins ?? [])]),
-    ];
+    merged.ignorePatterns = [...(merged.ignorePatterns ?? []), ...(config.ignorePatterns ?? [])];
+    merged.jsPlugins = [...new Set([...(merged.jsPlugins ?? []), ...(config.jsPlugins ?? [])])];
+    merged.overrides = [...(merged.overrides ?? []), ...(config.overrides ?? [])];
+    merged.plugins = [...new Set([...(merged.plugins ?? []), ...(config.plugins ?? [])])];
     merged.rules =
       merged.rules && config.rules
         ? { ...merged.rules, ...config.rules }

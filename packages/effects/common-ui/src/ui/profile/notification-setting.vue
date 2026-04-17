@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { Recordable } from '@vben/types';
+import type { Recordable } from "@vben/types";
 
-import type { SettingProps } from './types';
+import type { SettingProps } from "./types";
 
 import {
   Form,
@@ -11,7 +11,7 @@ import {
   FormItem,
   FormLabel,
   Switch,
-} from '@vben-core/shadcn-ui';
+} from "@vben-core/shadcn-ui";
 
 withDefaults(defineProps<SettingProps>(), {
   formSchema: () => [],
@@ -22,7 +22,7 @@ const emit = defineEmits<{
 }>();
 
 function handleChange(fieldName: string, value: boolean) {
-  emit('change', { fieldName, value });
+  emit("change", { fieldName, value });
 }
 </script>
 <template>
@@ -30,9 +30,7 @@ function handleChange(fieldName: string, value: boolean) {
     <div class="space-y-4">
       <template v-for="item in formSchema" :key="item.fieldName">
         <FormField type="checkbox" :name="item.fieldName">
-          <FormItem
-            class="flex flex-row items-center justify-between rounded-lg border p-4"
-          >
+          <FormItem class="flex flex-row items-center justify-between rounded-lg border p-4">
             <div class="space-y-0.5">
               <FormLabel class="text-base"> {{ item.label }} </FormLabel>
               <FormDescription>

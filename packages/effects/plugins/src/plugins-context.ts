@@ -1,4 +1,4 @@
-import type { VbenPluginsOptions } from './types';
+import type { VbenPluginsOptions } from "./types";
 
 let globalPluginsOptions: null | VbenPluginsOptions = null;
 

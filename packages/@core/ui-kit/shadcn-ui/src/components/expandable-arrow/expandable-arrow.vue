@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { ChevronDown } from '@vben-core/icons';
-import { cn } from '@vben-core/shared/utils';
+import { ChevronDown } from "@vben-core/icons";
+import { cn } from "@vben-core/shared/utils";
 
 const props = defineProps<{
   class?: string;
@@ -19,10 +19,7 @@ const collapsed = defineModel({ default: false });
       {{ collapsed }}
       <!-- <span>{{ isExpanded ? '收起' : '展开' }}</span> -->
     </slot>
-    <div
-      :class="{ 'rotate-180': !collapsed }"
-      class="transition-transform duration-300"
-    >
+    <div :class="{ 'rotate-180': !collapsed }" class="transition-transform duration-300">
       <slot name="icon">
         <ChevronDown class="size-4" />
       </slot>

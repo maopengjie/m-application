@@ -1,29 +1,26 @@
 <script setup lang="ts">
-import type { MenuRecordRaw } from '@vben/types';
+import type { MenuRecordRaw } from "@vben/types";
 
-import { nextTick, onMounted, ref, shallowRef, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { nextTick, onMounted, ref, shallowRef, watch } from "vue";
+import { useRouter } from "vue-router";
 
-import { SearchX, X } from '@vben/icons';
-import { $t } from '@vben/locales';
-import { mapTree, traverseTreeValues, uniqueByField } from '@vben/utils';
+import { SearchX, X } from "@vben/icons";
+import { $t } from "@vben/locales";
+import { mapTree, traverseTreeValues, uniqueByField } from "@vben/utils";
 
-import { VbenIcon, VbenScrollbar } from '@vben-core/shadcn-ui';
-import { isHttpUrl } from '@vben-core/shared/utils';
+import { VbenIcon, VbenScrollbar } from "@vben-core/shadcn-ui";
+import { isHttpUrl } from "@vben-core/shared/utils";
 
-import { onKeyStroke, useLocalStorage, useThrottleFn } from '@vueuse/core';
+import { onKeyStroke, useLocalStorage, useThrottleFn } from "@vueuse/core";
 
 defineOptions({
-  name: 'SearchPanel',
+  name: "SearchPanel",
 });
 
-const props = withDefaults(
-  defineProps<{ keyword?: string; menus?: MenuRecordRaw[] }>(),
-  {
-    keyword: '',
-    menus: () => [],
-  },
-);
+const props = withDefaults(defineProps<{ keyword?: string; menus?: MenuRecordRaw[] }>(), {
+  keyword: "",
+  menus: () => [],
+});
 const emit = defineEmits<{ close: [] }>();
 
 const router = useRouter();
@@ -79,12 +76,10 @@ function search(searchKey: string) {
 // When the keyboard up and down keys move to an invisible place
 // the scroll bar needs to scroll automatically
 function scrollIntoView() {
-  const element = document.querySelector(
-    `[data-search-item="${activeIndex.value}"]`,
-  );
+  const element = document.querySelector(`[data-search-item="${activeIndex.value}"]`);
 
   if (element) {
-    element.scrollIntoView({ block: 'nearest' });
+    element.scrollIntoView({ block: "nearest" });
   }
 }
 
@@ -100,11 +95,11 @@ async function handleEnter() {
   }
   const to = result[index];
   if (to) {
-    searchHistory.value = uniqueByField([...searchHistory.value, to], 'path');
+    searchHistory.value = uniqueByField([...searchHistory.value, to], "path");
     handleClose();
     await nextTick();
     if (isHttpUrl(to.path)) {
-      window.open(to.path, '_blank');
+      window.open(to.path, "_blank");
     } else {
       router.push({ path: to.path, replace: true });
     }
@@ -138,7 +133,7 @@ function handleDown() {
 // close search modal
 function handleClose() {
   searchResults.value = [];
-  emit('close');
+  emit("close");
 }
 
 // Activate when the mouse moves to a certain line
@@ -158,22 +153,7 @@ function removeItem(index: number) {
 }
 
 // 存储所有需要转义的特殊字符
-const code = new Set([
-  '$',
-  '(',
-  ')',
-  '*',
-  '+',
-  '.',
-  '?',
-  '[',
-  '\\',
-  ']',
-  '^',
-  '{',
-  '|',
-  '}',
-]);
+const code = new Set(["$", "(", ")", "*", "+", ".", "?", "[", "\\", "]", "^", "{", "|", "}"]);
 
 // 转换函数，用于转义特殊字符
 function transform(c: string) {
@@ -187,7 +167,7 @@ function createSearchReg(key: string) {
   // 将输入的字符串拆分为单个字符
   // 对每个字符进行转义
   // 然后用'.*'连接所有字符，创建正则表达式
-  const keys = [...key].map((item) => transform(item)).join('.*');
+  const keys = [...key].map((item) => transform(item)).join(".*");
   // 返回创建的正则表达式
   return new RegExp(`.*${keys}.*`);
 }
@@ -214,12 +194,12 @@ onMounted(() => {
     searchResults.value = searchHistory.value;
   }
   // enter search
-  onKeyStroke('Enter', handleEnter);
+  onKeyStroke("Enter", handleEnter);
   // Monitor keyboard arrow keys
-  onKeyStroke('ArrowUp', handleUp);
-  onKeyStroke('ArrowDown', handleDown);
+  onKeyStroke("ArrowUp", handleUp);
+  onKeyStroke("ArrowDown", handleDown);
   // esc close
-  onKeyStroke('Escape', handleClose);
+  onKeyStroke("Escape", handleClose);
 });
 </script>
 
@@ -227,43 +207,28 @@ onMounted(() => {
   <VbenScrollbar>
     <div class="flex! h-full justify-center px-2 sm:max-h-112.5">
       <!-- 无搜索结果 -->
-      <div
-        v-if="keyword && searchResults.length === 0"
-        class="text-center text-muted-foreground"
-      >
+      <div v-if="keyword && searchResults.length === 0" class="text-center text-muted-foreground">
         <SearchX class="mx-auto mt-4 size-12" />
         <p class="mt-6 mb-10 text-xs">
-          {{ $t('ui.widgets.search.noResults') }}
-          <span class="text-sm font-medium text-foreground">
-            "{{ keyword }}"
-          </span>
+          {{ $t("ui.widgets.search.noResults") }}
+          <span class="text-sm font-medium text-foreground"> "{{ keyword }}" </span>
         </p>
       </div>
       <!-- 历史搜索记录 & 没有搜索结果 -->
-      <div
-        v-if="!keyword && searchResults.length === 0"
-        class="text-center text-muted-foreground"
-      >
+      <div v-if="!keyword && searchResults.length === 0" class="text-center text-muted-foreground">
         <p class="my-10 text-xs">
-          {{ $t('ui.widgets.search.noRecent') }}
+          {{ $t("ui.widgets.search.noRecent") }}
         </p>
       </div>
 
       <ul v-show="searchResults.length > 0" class="w-full">
-        <li
-          v-if="searchHistory.length > 0 && !keyword"
-          class="mb-2 text-xs text-muted-foreground"
-        >
-          {{ $t('ui.widgets.search.recent') }}
+        <li v-if="searchHistory.length > 0 && !keyword" class="mb-2 text-xs text-muted-foreground">
+          {{ $t("ui.widgets.search.recent") }}
         </li>
         <li
           v-for="(item, index) in uniqueByField(searchResults, 'path')"
           :key="item.path"
-          :class="
-            activeIndex === index
-              ? 'active bg-primary text-primary-foreground'
-              : ''
-          "
+          :class="activeIndex === index ? 'active bg-primary text-primary-foreground' : ''"
           :data-index="index"
           :data-search-item="index"
           class="group mb-3 flex-center w-full cursor-pointer rounded-lg bg-accent p-4"

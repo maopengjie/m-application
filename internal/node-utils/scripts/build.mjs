@@ -1,33 +1,33 @@
-import { spawnSync } from 'node:child_process';
+import { spawnSync } from "node:child_process";
 
 const pnpmCommand =
-  process.env.npm_execpath && process.env.npm_execpath.endsWith('.cjs')
+  process.env.npm_execpath && process.env.npm_execpath.endsWith(".cjs")
     ? [process.execPath, process.env.npm_execpath]
-    : ['pnpm'];
+    : ["pnpm"];
 
 const steps = [
-  ['exec', 'tsdown', '--no-dts'],
+  ["exec", "tsdown", "--no-dts"],
   [
-    'exec',
-    'tsc',
-    '-p',
-    'tsconfig.build.json',
-    '--emitDeclarationOnly',
-    '--declaration',
-    '--outDir',
-    'dist',
+    "exec",
+    "tsc",
+    "-p",
+    "tsconfig.build.json",
+    "--emitDeclarationOnly",
+    "--declaration",
+    "--outDir",
+    "dist",
   ],
 ];
 
 for (const args of steps) {
   const [command, ...commandArgs] = pnpmCommand;
   let cmd = command;
-  if (cmd.includes(' ')) {
+  if (cmd.includes(" ")) {
     cmd = `"${command}"`;
   }
   const result = spawnSync(cmd, [...commandArgs, ...args], {
     shell: true,
-    stdio: 'inherit',
+    stdio: "inherit",
   });
 
   if (result.error) {

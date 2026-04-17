@@ -1,24 +1,24 @@
-import type { SortableOptions } from 'sortablejs';
+import type { SortableOptions } from "sortablejs";
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { useSortable } from '../use-sortable';
+import { useSortable } from "../use-sortable";
 
-describe('useSortable', () => {
+describe("useSortable", () => {
   beforeEach(() => {
-    vi.mock('sortablejs/modular/sortable.complete.esm.js', () => ({
+    vi.mock("sortablejs/modular/sortable.complete.esm.js", () => ({
       default: {
         create: vi.fn(),
       },
     }));
   });
-  it('should call Sortable.create with the correct options', async () => {
+  it("should call Sortable.create with the correct options", async () => {
     // Create a mock element
-    const mockElement = document.createElement('div') as HTMLDivElement;
+    const mockElement = document.createElement("div") as HTMLDivElement;
 
     // Define custom options
     const customOptions: SortableOptions = {
-      group: 'test-group',
+      group: "test-group",
       sort: false,
     };
 
@@ -31,7 +31,7 @@ describe('useSortable', () => {
     // Import sortablejs to access the mocked create function
     const Sortable =
       // @ts-expect-error - This is a dynamic import
-      await import('sortablejs/modular/sortable.complete.esm.js');
+      await import("sortablejs/modular/sortable.complete.esm.js");
 
     // Verify that Sortable.create was called with the correct parameters
     expect(Sortable.default.create).toHaveBeenCalledTimes(1);

@@ -1,1 +1,1 @@
-declare module 'circular-dependency-scanner';
+declare module "circular-dependency-scanner";

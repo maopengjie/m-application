@@ -1,10 +1,10 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'AuthenticationFormView',
+  name: "AuthenticationFormView",
 });
 
 defineProps<{
-  dataSide?: 'bottom' | 'left' | 'right' | 'top';
+  dataSide?: "bottom" | "left" | "right" | "top";
 }>();
 </script>
 
@@ -29,9 +29,7 @@ defineProps<{
 
     <!-- Footer Copyright -->
 
-    <div
-      class="absolute bottom-3 flex text-center text-xs text-muted-foreground"
-    >
+    <div class="absolute bottom-3 flex text-center text-xs text-muted-foreground">
       <slot name="copyright"> </slot>
     </div>
   </div>

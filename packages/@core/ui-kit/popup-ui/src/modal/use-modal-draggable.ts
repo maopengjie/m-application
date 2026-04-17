@@ -3,11 +3,11 @@
  * 调整部分细节
  */
 
-import type { ComputedRef, Ref } from 'vue';
+import type { ComputedRef, Ref } from "vue";
 
-import { onBeforeUnmount, onMounted, reactive, ref, watchEffect } from 'vue';
+import { onBeforeUnmount, onMounted, reactive, ref, watchEffect } from "vue";
 
-import { unrefElement } from '@vueuse/core';
+import { unrefElement } from "@vueuse/core";
 
 export function useModalDraggable(
   targetRef: Ref<HTMLElement | undefined>,
@@ -87,25 +87,25 @@ export function useModalDraggable(
 
     const onMouseup = () => {
       dragging.value = false;
-      document.removeEventListener('mousemove', onMousemove);
-      document.removeEventListener('mouseup', onMouseup);
+      document.removeEventListener("mousemove", onMousemove);
+      document.removeEventListener("mouseup", onMouseup);
     };
 
-    document.addEventListener('mousemove', onMousemove);
-    document.addEventListener('mouseup', onMouseup);
+    document.addEventListener("mousemove", onMousemove);
+    document.addEventListener("mouseup", onMouseup);
   };
 
   const onDraggable = () => {
     const dragDom = unrefElement(dragRef);
     if (dragDom && targetRef.value) {
-      dragDom.addEventListener('mousedown', onMousedown);
+      dragDom.addEventListener("mousedown", onMousedown);
     }
   };
 
   const offDraggable = () => {
     const dragDom = unrefElement(dragRef);
     if (dragDom && targetRef.value) {
-      dragDom.removeEventListener('mousedown', onMousedown);
+      dragDom.removeEventListener("mousedown", onMousedown);
     }
   };
 
@@ -115,7 +115,7 @@ export function useModalDraggable(
 
     const target = unrefElement(targetRef);
     if (target) {
-      target.style.transform = '';
+      target.style.transform = "";
     }
   };
 

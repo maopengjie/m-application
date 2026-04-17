@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { MenuRecordRaw } from '@vben-core/typings';
+import type { MenuRecordRaw } from "@vben-core/typings";
 
-import { computed } from 'vue';
+import { computed } from "vue";
 
-import { MenuBadge, MenuItem, SubMenu as SubMenuComp } from './components';
-import SubMenu from './sub-menu.vue';
+import { MenuBadge, MenuItem, SubMenu as SubMenuComp } from "./components";
+import SubMenu from "./sub-menu.vue";
 
 interface Props {
   /**
@@ -14,7 +14,7 @@ interface Props {
 }
 
 defineOptions({
-  name: 'SubMenuUi',
+  name: "SubMenuUi",
 });
 
 const props = withDefaults(defineProps<Props>(), {});
@@ -24,9 +24,7 @@ const props = withDefaults(defineProps<Props>(), {});
  */
 const hasChildren = computed(() => {
   const { menu } = props;
-  return (
-    Reflect.has(menu, 'children') && !!menu.children && menu.children.length > 0
-  );
+  return Reflect.has(menu, "children") && !!menu.children && menu.children.length > 0;
 });
 </script>
 

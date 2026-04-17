@@ -1,47 +1,41 @@
 <script setup lang="ts">
-import type {
-  TipTapProps,
-  ToolbarAction,
-  VbenTiptapChangeEvent,
-} from './types';
+import type { TipTapProps, ToolbarAction, VbenTiptapChangeEvent } from "./types";
 
-import { computed, onBeforeUnmount, watch } from 'vue';
+import { computed, onBeforeUnmount, watch } from "vue";
 
-import { Check, ChevronDown, Eye } from '@vben/icons';
-import { $t } from '@vben/locales';
+import { Check, ChevronDown, Eye } from "@vben/icons";
+import { $t } from "@vben/locales";
 
-import { useVbenModal } from '@vben-core/popup-ui';
-import { VbenIconButton, VbenPopover } from '@vben-core/shadcn-ui';
-import { cn } from '@vben-core/shared/utils';
+import { useVbenModal } from "@vben-core/popup-ui";
+import { VbenIconButton, VbenPopover } from "@vben-core/shadcn-ui";
+import { cn } from "@vben-core/shared/utils";
 
-import { EditorContent, useEditor } from '@tiptap/vue-3';
+import { EditorContent, useEditor } from "@tiptap/vue-3";
 
-import { createDefaultTiptapExtensions } from './extensions';
-import Preview from './preview.vue';
-import { createToolbarGroups } from './toolbar';
-import { useTiptapToolbar } from './use-tiptap-toolbar';
+import { createDefaultTiptapExtensions } from "./extensions";
+import Preview from "./preview.vue";
+import { createToolbarGroups } from "./toolbar";
+import { useTiptapToolbar } from "./use-tiptap-toolbar";
 
-import './style.css';
+import "./style.css";
 const props = withDefaults(defineProps<TipTapProps>(), {
   editable: true,
   extensions: undefined,
   minHeight: 240,
-  placeholder: $t('ui.tiptap.placeholder'),
+  placeholder: $t("ui.tiptap.placeholder"),
   previewable: true,
   toolbar: true,
 });
 const emit = defineEmits<{
   change: [payload: VbenTiptapChangeEvent];
 }>();
-const modelValue = defineModel<string>({ default: '' });
+const modelValue = defineModel<string>({ default: "" });
 const contentMinHeight = computed(() =>
-  typeof props.minHeight === 'number'
-    ? `${props.minHeight}px`
-    : props.minHeight,
+  typeof props.minHeight === "number" ? `${props.minHeight}px` : props.minHeight,
 );
 const tiptapContentClass = cn(
-  'vben-tiptap-content vben-tiptap__content',
-  'min-h-(--vben-tiptap-min-height) leading-7 text-foreground outline-none',
+  "vben-tiptap-content vben-tiptap__content",
+  "min-h-(--vben-tiptap-min-height) leading-7 text-foreground outline-none",
 );
 const editor = useEditor({
   content: modelValue.value,
@@ -61,7 +55,7 @@ const editor = useEditor({
     if (html !== modelValue.value) {
       modelValue.value = html;
     }
-    emit('change', {
+    emit("change", {
       html,
       json: editor.getJSON(),
       text: editor.getText(),
@@ -71,9 +65,7 @@ const editor = useEditor({
 const toolbarGroups = computed<ToolbarAction[][]>(() => {
   return createToolbarGroups();
 });
-const previewContent = computed(
-  () => editor.value?.getHTML() ?? modelValue.value,
-);
+const previewContent = computed(() => editor.value?.getHTML() ?? modelValue.value);
 const [PreviewModal, previewModalApi] = useVbenModal({
   footer: false,
   fullscreenButton: false,
@@ -106,7 +98,7 @@ watch(
 );
 watch(
   () => modelValue.value,
-  (nextValue = '') => {
+  (nextValue = "") => {
     if (!editor.value) {
       return;
     }
@@ -156,18 +148,14 @@ onBeforeUnmount(() => {
                 <template v-if="action.triggerText">
                   <span class="text-xs font-semibold tracking-wide">
                     {{
-                      typeof action.triggerText === 'function'
+                      typeof action.triggerText === "function"
                         ? action.triggerText(editor)
                         : action.triggerText
                     }}
                   </span>
                   <ChevronDown class="size-4 opacity-70" />
                 </template>
-                <component
-                  v-else-if="action.icon"
-                  :is="action.icon"
-                  class="size-4"
-                />
+                <component v-else-if="action.icon" :is="action.icon" class="size-4" />
                 <span
                   v-if="getActionIndicatorColor(action)"
                   :style="{ backgroundColor: getActionIndicatorColor(action) }"
@@ -175,10 +163,7 @@ onBeforeUnmount(() => {
                 ></span>
               </VbenIconButton>
             </template>
-            <div
-              v-if="action.palette"
-              class="flex max-w-52 flex-wrap items-center gap-2"
-            >
+            <div v-if="action.palette" class="flex max-w-52 flex-wrap items-center gap-2">
               <button
                 v-for="color in action.palette.colors"
                 :key="color"
@@ -199,7 +184,7 @@ onBeforeUnmount(() => {
                 type="button"
                 @click="clearPaletteColor(action)"
               >
-                {{ $t('ui.tiptap.toolbar.clear') }}
+                {{ $t("ui.tiptap.toolbar.clear") }}
               </button>
             </div>
             <div v-else-if="action.menu" class="flex min-w-32 flex-col gap-1">
@@ -215,10 +200,7 @@ onBeforeUnmount(() => {
                   {{ item.shortLabel }}
                 </span>
                 <span class="flex-1">{{ item.label }}</span>
-                <Check
-                  v-if="isMenuItemActive(item)"
-                  class="size-4 text-primary"
-                />
+                <Check v-if="isMenuItemActive(item)" class="size-4 text-primary" />
               </button>
             </div>
           </VbenPopover>
@@ -239,10 +221,7 @@ onBeforeUnmount(() => {
             ></span>
           </VbenIconButton>
         </template>
-        <div
-          v-if="groupIndex < toolbarGroups.length - 1"
-          class="ml-1 h-5 w-px bg-border"
-        ></div>
+        <div v-if="groupIndex < toolbarGroups.length - 1" class="ml-1 h-5 w-px bg-border"></div>
       </div>
       <div v-if="previewable" class="ml-auto flex items-center">
         <VbenIconButton
@@ -263,19 +242,14 @@ onBeforeUnmount(() => {
       </div>
     </div>
     <EditorContent v-if="editor" :editor="editor" class="p-4" />
-    <PreviewModal
-      v-if="previewable"
-      :title="$t('ui.tiptap.toolbar.preview')"
-      class="w-4/5"
-    >
+    <PreviewModal v-if="previewable" :title="$t('ui.tiptap.toolbar.preview')" class="w-4/5">
       <Preview :content="previewContent" :min-height="320" />
     </PreviewModal>
   </div>
 </template>
 
 <style scoped>
-.vben-tiptap
-  :deep(.vben-tiptap__content p.is-editor-empty:first-child::before) {
+.vben-tiptap :deep(.vben-tiptap__content p.is-editor-empty:first-child::before) {
   float: left;
   height: 0;
   color: hsl(var(--input-placeholder));

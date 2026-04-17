@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { SwitchRootEmits, SwitchRootProps } from 'reka-ui';
+import type { SwitchRootEmits, SwitchRootProps } from "reka-ui";
 
-import { computed } from 'vue';
+import { computed } from "vue";
 
-import { cn } from '@vben-core/shared/utils';
+import { cn } from "@vben-core/shared/utils";
 
-import { SwitchRoot, SwitchThumb, useForwardPropsEmits } from 'reka-ui';
+import { SwitchRoot, SwitchThumb, useForwardPropsEmits } from "reka-ui";
 
 const props = defineProps<SwitchRootProps & { class?: any }>();
 

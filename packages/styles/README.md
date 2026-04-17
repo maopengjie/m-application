@@ -15,5 +15,5 @@ pnpm add @vben/styles
 ### 使用
 
 ```ts
-import '@vben/styles';
+import "@vben/styles";
 ```

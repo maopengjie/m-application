@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { DropdownMenuSeparatorProps } from 'reka-ui';
+import type { DropdownMenuSeparatorProps } from "reka-ui";
 
-import { computed } from 'vue';
+import { computed } from "vue";
 
-import { cn } from '@vben-core/shared/utils';
+import { cn } from "@vben-core/shared/utils";
 
-import { DropdownMenuSeparator } from 'reka-ui';
+import { DropdownMenuSeparator } from "reka-ui";
 
 const props = defineProps<
   DropdownMenuSeparatorProps & {

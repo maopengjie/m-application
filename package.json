@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "keywords": [
+    "fastapi",
     "monorepo",
     "price-monitoring",
-    "vue",
-    "fastapi"
+    "vue"
   ],
   "license": "MIT",
   "author": "maopengjie",

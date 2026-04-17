@@ -1,26 +1,23 @@
-import type { Component, VNode } from 'vue';
+import type { Component, VNode } from "vue";
 
-import type { Recordable } from '@vben-core/typings';
+import type { Recordable } from "@vben-core/typings";
 
-import type { AlertProps, BeforeCloseScope, PromptProps } from './alert';
+import type { AlertProps, BeforeCloseScope, PromptProps } from "./alert";
 
-import { h, nextTick, ref, render } from 'vue';
+import { h, nextTick, ref, render } from "vue";
 
-import { useSimpleLocale } from '@vben-core/composables';
-import { Input, VbenRenderContent } from '@vben-core/shadcn-ui';
-import { isFunction, isString } from '@vben-core/shared/utils';
+import { useSimpleLocale } from "@vben-core/composables";
+import { Input, VbenRenderContent } from "@vben-core/shadcn-ui";
+import { isFunction, isString } from "@vben-core/shared/utils";
 
-import Alert from './alert.vue';
+import Alert from "./alert.vue";
 
 const alerts = ref<Array<{ container: HTMLElement; instance: Component }>>([]);
 
 const { $t } = useSimpleLocale();
 
 export function vbenAlert(options: AlertProps): Promise<void>;
-export function vbenAlert(
-  message: string,
-  options?: Partial<AlertProps>,
-): Promise<void>;
+export function vbenAlert(message: string, options?: Partial<AlertProps>): Promise<void>;
 export function vbenAlert(
   message: string,
   title?: string,
@@ -51,7 +48,7 @@ export function vbenAlert(
       Object.assign(options, arg2);
     }
     // 创建容器元素
-    const container = document.createElement('div');
+    const container = document.createElement("div");
     document.body.append(container);
 
     // 创建一个引用，用于在回调中访问实例
@@ -73,12 +70,12 @@ export function vbenAlert(
         if (isConfirm) {
           resolve();
         } else {
-          reject(new Error('dialog cancelled'));
+          reject(new Error("dialog cancelled"));
         }
       },
       ...options,
       open: true,
-      title: options.title ?? $t.value('prompt'),
+      title: options.title ?? $t.value("prompt"),
     };
 
     // 创建Alert组件的VNode
@@ -96,10 +93,7 @@ export function vbenAlert(
 }
 
 export function vbenConfirm(options: AlertProps): Promise<void>;
-export function vbenConfirm(
-  message: string,
-  options?: Partial<AlertProps>,
-): Promise<void>;
+export function vbenConfirm(message: string, options?: Partial<AlertProps>): Promise<void>;
 export function vbenConfirm(
   message: string,
   title?: string,
@@ -115,9 +109,7 @@ export function vbenConfirm(
     showCancel: true,
   };
   if (!arg1) {
-    return isString(arg0)
-      ? vbenAlert(arg0, defaultProps)
-      : vbenAlert({ ...defaultProps, ...arg0 });
+    return isString(arg0) ? vbenAlert(arg0, defaultProps) : vbenAlert({ ...defaultProps, ...arg0 });
   } else if (!arg2) {
     return isString(arg1)
       ? vbenAlert(arg0 as string, arg1, defaultProps)
@@ -129,9 +121,7 @@ export function vbenConfirm(
   });
 }
 
-export async function vbenPrompt<T = any>(
-  options: PromptProps<T>,
-): Promise<T | undefined> {
+export async function vbenPrompt<T = any>(options: PromptProps<T>): Promise<T | undefined> {
   const {
     component: _component,
     componentProps: _componentProps,
@@ -144,11 +134,9 @@ export async function vbenPrompt<T = any>(
 
   const modelValue = ref<T | undefined>(defaultValue);
   const inputComponentRef = ref<null | VNode>(null);
-  const staticContents: Component[] = [
-    h(VbenRenderContent, { content, renderBr: true }),
-  ];
+  const staticContents: Component[] = [h(VbenRenderContent, { content, renderBr: true })];
 
-  const modelPropName = _modelPropName || 'modelValue';
+  const modelPropName = _modelPropName || "modelValue";
   const componentProps = { ..._componentProps };
 
   // 每次渲染时都会重新计算的内容函数
@@ -166,16 +154,12 @@ export async function vbenPrompt<T = any>(
     // 设置更新处理函数
 
     // 创建输入组件
-    inputComponentRef.value = h(
-      _component || Input,
-      currentProps,
-      componentSlots,
-    );
+    inputComponentRef.value = h(_component || Input, currentProps, componentSlots);
 
     // 返回包含静态内容和输入组件的数组
     return h(
-      'div',
-      { class: 'flex flex-col gap-2' },
+      "div",
+      { class: "flex flex-col gap-2" },
       { default: () => [...staticContents, inputComponentRef.value] },
     );
   };
@@ -197,23 +181,18 @@ export async function vbenPrompt<T = any>(
       await nextTick();
       const componentRef: null | VNode = inputComponentRef.value;
       if (componentRef) {
-        if (
-          componentRef.component?.exposed &&
-          isFunction(componentRef.component.exposed.focus)
-        ) {
+        if (componentRef.component?.exposed && isFunction(componentRef.component.exposed.focus)) {
           componentRef.component.exposed.focus();
         } else {
           if (componentRef.el) {
             if (
               isFunction(componentRef.el.focus) &&
-              ['BUTTON', 'INPUT', 'SELECT', 'TEXTAREA'].includes(
-                componentRef.el.tagName,
-              )
+              ["BUTTON", "INPUT", "SELECT", "TEXTAREA"].includes(componentRef.el.tagName)
             ) {
               componentRef.el.focus();
             } else if (isFunction(componentRef.el.querySelector)) {
               const focusableElement = componentRef.el.querySelector(
-                'input, select, textarea, button',
+                "input, select, textarea, button",
               );
               if (focusableElement && isFunction(focusableElement.focus)) {
                 focusableElement.focus();

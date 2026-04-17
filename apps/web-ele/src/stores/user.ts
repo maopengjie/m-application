@@ -1,8 +1,10 @@
-import { computed } from 'vue';
-import { defineStore } from 'pinia';
-import { updatePreferences, usePreferences } from '@vben/preferences';
+import { computed } from "vue";
 
-export const useUserPreferenceStore = defineStore('user-preference', () => {
+import { updatePreferences, usePreferences } from "@vben/preferences";
+
+import { defineStore } from "pinia";
+
+export const useUserPreferenceStore = defineStore("user-preference", () => {
   const { isDark } = usePreferences();
 
   const isDarkMode = computed(() => isDark.value);
@@ -10,7 +12,7 @@ export const useUserPreferenceStore = defineStore('user-preference', () => {
   function toggleTheme() {
     updatePreferences({
       theme: {
-        mode: isDark.value ? 'light' : 'dark',
+        mode: isDark.value ? "light" : "dark",
       },
     });
   }

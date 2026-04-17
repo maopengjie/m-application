@@ -15,5 +15,5 @@ pnpm add @vben/utils
 ### 使用
 
 ```ts
-import { isString } from '@vben/utils';
+import { isString } from "@vben/utils";
 ```

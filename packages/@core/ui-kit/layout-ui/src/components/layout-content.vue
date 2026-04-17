@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { CSSProperties } from 'vue';
+import type { CSSProperties } from "vue";
 
-import type { ContentCompactType } from '@vben-core/typings';
+import type { ContentCompactType } from "@vben-core/typings";
 
-import { computed } from 'vue';
+import { computed } from "vue";
 
-import { useLayoutContentStyle } from '@vben-core/composables';
-import { Slot } from '@vben-core/shadcn-ui';
+import { useLayoutContentStyle } from "@vben-core/composables";
+import { Slot } from "@vben-core/shadcn-ui";
 
 interface Props {
   /**
@@ -30,18 +30,11 @@ const props = withDefaults(defineProps<Props>(), {});
 const { contentElement, overlayStyle } = useLayoutContentStyle();
 
 const style = computed((): CSSProperties => {
-  const {
-    contentCompact,
-    padding,
-    paddingBottom,
-    paddingLeft,
-    paddingRight,
-    paddingTop,
-  } = props;
+  const { contentCompact, padding, paddingBottom, paddingLeft, paddingRight, paddingTop } = props;
 
   const compactStyle: CSSProperties =
-    contentCompact === 'compact'
-      ? { margin: '0 auto', width: `${props.contentCompactWidth}px` }
+    contentCompact === "compact"
+      ? { margin: "0 auto", width: `${props.contentCompactWidth}px` }
       : {};
   return {
     ...compactStyle,

@@ -15,5 +15,5 @@ pnpm add @vben/hooks
 ### 使用
 
 ```ts
-import { useNamespace } from '@vben/hooks';
+import { useNamespace } from "@vben/hooks";
 ```

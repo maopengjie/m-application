@@ -1,7 +1,7 @@
-import type { Component } from 'vue';
-import type { RouteRecordRaw } from 'vue-router';
+import type { Component } from "vue";
+import type { RouteRecordRaw } from "vue-router";
 
-import type { Recordable } from './helper';
+import type { Recordable } from "./helper";
 
 /**
  * 扩展路由原始对象
@@ -20,11 +20,11 @@ interface MenuRecordBadgeRaw {
   /**
    * 徽标类型
    */
-  badgeType?: 'dot' | 'normal';
+  badgeType?: "dot" | "normal";
   /**
    * 徽标颜色
    */
-  badgeVariants?: 'destructive' | 'primary' | string;
+  badgeVariants?: "destructive" | "primary" | string;
 }
 
 /**

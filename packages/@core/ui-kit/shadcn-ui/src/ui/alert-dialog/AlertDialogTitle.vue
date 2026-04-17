@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { AlertDialogTitleProps } from 'reka-ui';
+import type { AlertDialogTitleProps } from "reka-ui";
 
-import { computed } from 'vue';
+import { computed } from "vue";
 
-import { cn } from '@vben-core/shared/utils';
+import { cn } from "@vben-core/shared/utils";
 
-import { AlertDialogTitle, useForwardProps } from 'reka-ui';
+import { AlertDialogTitle, useForwardProps } from "reka-ui";
 
 const props = defineProps<AlertDialogTitleProps & { class?: any }>();
 
@@ -21,9 +21,7 @@ const forwardedProps = useForwardProps(delegatedProps);
 <template>
   <AlertDialogTitle
     v-bind="forwardedProps"
-    :class="
-      cn('text-lg leading-none font-semibold tracking-tight', props.class)
-    "
+    :class="cn('text-lg leading-none font-semibold tracking-tight', props.class)"
   >
     <slot></slot>
   </AlertDialogTitle>

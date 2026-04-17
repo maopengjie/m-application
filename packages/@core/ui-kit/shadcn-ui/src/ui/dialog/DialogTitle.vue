@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { DialogTitleProps } from 'reka-ui';
+import type { DialogTitleProps } from "reka-ui";
 
-import { computed } from 'vue';
+import { computed } from "vue";
 
-import { cn } from '@vben-core/shared/utils';
+import { cn } from "@vben-core/shared/utils";
 
-import { DialogTitle, useForwardProps } from 'reka-ui';
+import { DialogTitle, useForwardProps } from "reka-ui";
 
 const props = defineProps<DialogTitleProps & { class?: any }>();
 
@@ -21,9 +21,7 @@ const forwardedProps = useForwardProps(delegatedProps);
 <template>
   <DialogTitle
     v-bind="forwardedProps"
-    :class="
-      cn('text-lg leading-none font-semibold tracking-tight', props.class)
-    "
+    :class="cn('text-lg leading-none font-semibold tracking-tight', props.class)"
   >
     <slot></slot>
   </DialogTitle>

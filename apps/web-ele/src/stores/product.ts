@@ -1,8 +1,10 @@
-import { ref } from 'vue';
-import { defineStore } from 'pinia';
-import { getProductDetailApi, getProductListApi } from '#/api/product';
+import { ref } from "vue";
 
-export const useProductStore = defineStore('product', () => {
+import { defineStore } from "pinia";
+
+import { getProductDetailApi, getProductListApi } from "#/api/product";
+
+export const useProductStore = defineStore("product", () => {
   const currentProduct = ref<any>(null);
   const productList = ref<any[]>([]);
   const loading = ref(false);
@@ -17,7 +19,7 @@ export const useProductStore = defineStore('product', () => {
     }
   }
 
-  async function fetchProductDetail(id: string | number) {
+  async function fetchProductDetail(id: number | string) {
     try {
       loading.value = true;
       const data = await getProductDetailApi(id);

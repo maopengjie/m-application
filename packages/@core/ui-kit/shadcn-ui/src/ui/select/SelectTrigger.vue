@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { SelectTriggerProps } from 'reka-ui';
+import type { SelectTriggerProps } from "reka-ui";
 
-import { computed } from 'vue';
+import { computed } from "vue";
 
-import { cn } from '@vben-core/shared/utils';
+import { cn } from "@vben-core/shared/utils";
 
-import { ChevronDown } from 'lucide-vue-next';
-import { SelectIcon, SelectTrigger, useForwardProps } from 'reka-ui';
+import { ChevronDown } from "lucide-vue-next";
+import { SelectIcon, SelectTrigger, useForwardProps } from "reka-ui";
 
 const props = defineProps<SelectTriggerProps & { class?: any }>();
 

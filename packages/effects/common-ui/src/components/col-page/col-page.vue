@@ -1,18 +1,14 @@
 <script lang="ts" setup>
-import type { ColPageProps } from './types';
+import type { ColPageProps } from "./types";
 
-import { computed, ref, useSlots } from 'vue';
+import { computed, ref, useSlots } from "vue";
 
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from '@vben-core/shadcn-ui';
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@vben-core/shadcn-ui";
 
-import Page from '../page/page.vue';
+import Page from "../page/page.vue";
 
 defineOptions({
-  name: 'ColPage',
+  name: "ColPage",
   inheritAttrs: false,
 });
 
@@ -33,7 +29,7 @@ const delegatedSlots = computed(() => {
   const resultSlots: string[] = [];
 
   for (const key of Object.keys(slots)) {
-    if (!['default', 'left'].includes(key)) {
+    if (!["default", "left"].includes(key)) {
       resultSlots.push(key);
     }
   }
@@ -58,11 +54,7 @@ defineExpose({
 <template>
   <Page v-bind="delegatedProps">
     <!-- 继承默认的slot -->
-    <template
-      v-for="slotName in delegatedSlots"
-      :key="slotName"
-      #[slotName]="slotProps"
-    >
+    <template v-for="slotName in delegatedSlots" :key="slotName" #[slotName]="slotProps">
       <slot :name="slotName" v-bind="slotProps"></slot>
     </template>
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { CSSProperties } from 'vue';
+import type { CSSProperties } from "vue";
 
-import { computed, useSlots } from 'vue';
+import { computed, useSlots } from "vue";
 
 interface Props {
   /**

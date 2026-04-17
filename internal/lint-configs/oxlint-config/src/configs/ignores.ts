@@ -1,16 +1,16 @@
-import type { OxlintConfig } from 'oxlint';
+import type { OxlintConfig } from "oxlint";
 
 const ignores: OxlintConfig = {
   ignorePatterns: [
-    '**/dist/**',
-    '**/node_modules/**',
-    'docs/**',
-    'playground/public/**',
-    '**/*.json',
-    '**/*.md',
-    '**/*.svg',
-    '**/*.yaml',
-    '**/*.yml',
+    "**/dist/**",
+    "**/node_modules/**",
+    "docs/**",
+    "playground/public/**",
+    "**/*.json",
+    "**/*.md",
+    "**/*.svg",
+    "**/*.yaml",
+    "**/*.yml",
   ],
 };
 

@@ -1,13 +1,7 @@
 <script lang="ts" setup>
-import { CircleX } from '@vben-core/icons';
+import { CircleX } from "@vben-core/icons";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../../ui';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui";
 
 interface Props {
   allowClear?: boolean;
@@ -47,7 +41,7 @@ function handleClear() {
 </template>
 
 <style lang="scss" scoped>
-button[role='combobox'][data-placeholder] {
+button[role="combobox"][data-placeholder] {
   color: hsl(var(--muted-foreground));
 }
 

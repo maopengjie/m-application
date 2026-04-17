@@ -1,29 +1,29 @@
 <script lang="ts" setup>
-import type { VbenFormSchema } from '@vben/common-ui';
-import type { Recordable } from '@vben/types';
+import type { VbenFormSchema } from "@vben/common-ui";
+import type { Recordable } from "@vben/types";
 
-import { computed, ref } from 'vue';
+import { computed, ref } from "vue";
 
-import { AuthenticationForgetPassword, z } from '@vben/common-ui';
-import { $t } from '@vben/locales';
+import { AuthenticationForgetPassword, z } from "@vben/common-ui";
+import { $t } from "@vben/locales";
 
-defineOptions({ name: 'ForgetPassword' });
+defineOptions({ name: "ForgetPassword" });
 
 const loading = ref(false);
 
 const formSchema = computed((): VbenFormSchema[] => {
   return [
     {
-      component: 'VbenInput',
+      component: "VbenInput",
       componentProps: {
-        placeholder: 'example@example.com',
+        placeholder: "example@example.com",
       },
-      fieldName: 'email',
-      label: $t('authentication.email'),
+      fieldName: "email",
+      label: $t("authentication.email"),
       rules: z
         .string()
-        .min(1, { message: $t('authentication.emailTip') })
-        .email($t('authentication.emailValidErrorTip')),
+        .min(1, { message: $t("authentication.emailTip") })
+        .email($t("authentication.emailValidErrorTip")),
     },
   ];
 });

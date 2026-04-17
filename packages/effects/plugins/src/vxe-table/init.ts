@@ -1,8 +1,8 @@
-import type { SetupVxeTable } from './types';
+import type { SetupVxeTable } from "./types";
 
-import { defineComponent, watch } from 'vue';
+import { defineComponent, watch } from "vue";
 
-import { usePreferences } from '@vben/preferences';
+import { usePreferences } from "@vben/preferences";
 
 import {
   VxeButton,
@@ -18,19 +18,13 @@ import {
   VxeTooltip,
   VxeUI,
   VxeUpload,
-} from 'vxe-pc-ui';
-import enUS from 'vxe-pc-ui/lib/language/en-US'; // 导入默认的语言
-import zhCN from 'vxe-pc-ui/lib/language/zh-CN';
-import {
-  VxeColgroup,
-  VxeColumn,
-  VxeGrid,
-  VxeTable,
-  VxeToolbar,
-} from 'vxe-table';
+} from "vxe-pc-ui";
+import enUS from "vxe-pc-ui/lib/language/en-US"; // 导入默认的语言
+import zhCN from "vxe-pc-ui/lib/language/zh-CN";
+import { VxeColgroup, VxeColumn, VxeGrid, VxeTable, VxeToolbar } from "vxe-table";
 
-import { injectPluginsOptions } from '../plugins-context';
-import { extendsDefaultFormatter } from './extends'; // 是否加载过
+import { injectPluginsOptions } from "../plugins-context";
+import { extendsDefaultFormatter } from "./extends"; // 是否加载过
 
 // 是否加载过
 let isInit = false;
@@ -39,9 +33,7 @@ let tableFormFactory: ((...args: any[]) => any) | undefined;
 
 function normalizeVxeLocale<T extends Record<string, any>>(localeModule: T) {
   return (
-    localeModule &&
-    typeof localeModule === 'object' &&
-    'default' in localeModule
+    localeModule && typeof localeModule === "object" && "default" in localeModule
       ? localeModule.default
       : localeModule
   ) as T;
@@ -54,7 +46,7 @@ export function useTableForm(...args: any[]) {
   const factory = tableFormFactory || contextFormFactory;
   if (!factory) {
     throw new Error(
-      'useTableForm is not initialized. Please provide useVbenForm via setupVbenVxeTable() or providePluginsOptions()',
+      "useTableForm is not initialized. Please provide useVbenForm via setupVbenVxeTable() or providePluginsOptions()",
     );
   }
 
@@ -62,7 +54,7 @@ export function useTableForm(...args: any[]) {
 }
 
 // 部分组件，如果没注册，vxe-table 会报错，这里实际没用组件，只是为了不报错，同时可以减少打包体积
-const createVirtualComponent = (name = '') => {
+const createVirtualComponent = (name = "") => {
   return defineComponent({
     name,
   });
@@ -83,7 +75,7 @@ export function initVxeTable() {
   // VxeUI.component(VxeButtonGroup);
   VxeUI.component(VxeCheckbox);
   // VxeUI.component(VxeCheckboxGroup);
-  VxeUI.component(createVirtualComponent('VxeForm'));
+  VxeUI.component(createVirtualComponent("VxeForm"));
   // VxeUI.component(VxeFormGather);
   // VxeUI.component(VxeFormItem);
   VxeUI.component(VxeIcon);
@@ -120,14 +112,14 @@ export function setupVbenVxeTable(setupOptions: SetupVxeTable) {
   const { isDark, locale } = usePreferences();
 
   const localMap = {
-    'zh-CN': normalizeVxeLocale(zhCN),
-    'en-US': normalizeVxeLocale(enUS),
+    "zh-CN": normalizeVxeLocale(zhCN),
+    "en-US": normalizeVxeLocale(enUS),
   };
 
   watch(
     [() => isDark.value, () => locale.value],
     ([isDarkValue, localeValue]) => {
-      VxeUI.setTheme(isDarkValue ? 'dark' : 'light');
+      VxeUI.setTheme(isDarkValue ? "dark" : "light");
       VxeUI.setI18n(localeValue, localMap[localeValue]);
       VxeUI.setLanguage(localeValue);
     },

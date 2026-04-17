@@ -1,11 +1,11 @@
 <!-- 本组件用于获取缓存的route并保存到pinia -->
 <script setup lang="ts">
-import type { VNode } from 'vue';
-import type { RouteLocationNormalizedLoadedGeneric } from 'vue-router';
+import type { VNode } from "vue";
+import type { RouteLocationNormalizedLoadedGeneric } from "vue-router";
 
-import { watch } from 'vue';
+import { watch } from "vue";
 
-import { useTabbarStore } from '@vben/stores';
+import { useTabbarStore } from "@vben/stores";
 
 interface Props {
   component?: VNode;

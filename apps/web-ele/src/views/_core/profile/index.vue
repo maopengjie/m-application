@@ -1,34 +1,34 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref } from "vue";
 
-import { Profile } from '@vben/common-ui';
-import { useUserStore } from '@vben/stores';
+import { Profile } from "@vben/common-ui";
+import { useUserStore } from "@vben/stores";
 
-import ProfileBase from './base-setting.vue';
-import ProfileNotificationSetting from './notification-setting.vue';
-import ProfilePasswordSetting from './password-setting.vue';
-import ProfileSecuritySetting from './security-setting.vue';
+import ProfileBase from "./base-setting.vue";
+import ProfileNotificationSetting from "./notification-setting.vue";
+import ProfilePasswordSetting from "./password-setting.vue";
+import ProfileSecuritySetting from "./security-setting.vue";
 
 const userStore = useUserStore();
 
-const tabsValue = ref<string>('basic');
+const tabsValue = ref<string>("basic");
 
 const tabs = ref([
   {
-    label: '基本设置',
-    value: 'basic',
+    label: "基本设置",
+    value: "basic",
   },
   {
-    label: '安全设置',
-    value: 'security',
+    label: "安全设置",
+    value: "security",
   },
   {
-    label: '修改密码',
-    value: 'password',
+    label: "修改密码",
+    value: "password",
   },
   {
-    label: '新消息提醒',
-    value: 'notice',
+    label: "新消息提醒",
+    value: "notice",
   },
 ]);
 </script>

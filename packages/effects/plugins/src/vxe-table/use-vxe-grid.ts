@@ -1,22 +1,20 @@
-import type { VxeGridSlots, VxeGridSlotTypes } from 'vxe-table';
+import type { VxeGridSlots, VxeGridSlotTypes } from "vxe-table";
 
-import type { SlotsType } from 'vue';
+import type { SlotsType } from "vue";
 
-import type { BaseFormComponentType } from '@vben-core/form-ui';
+import type { BaseFormComponentType } from "@vben-core/form-ui";
 
-import type { ExtendedVxeGridApi, VxeGridProps } from './types';
+import type { ExtendedVxeGridApi, VxeGridProps } from "./types";
 
-import { defineComponent, h, onBeforeUnmount } from 'vue';
+import { defineComponent, h, onBeforeUnmount } from "vue";
 
-import { useStore } from '@vben-core/shared/store';
+import { useStore } from "@vben-core/shared/store";
 
-import { VxeGridApi } from './api';
-import VxeGrid from './use-vxe-grid.vue';
+import { VxeGridApi } from "./api";
+import VxeGrid from "./use-vxe-grid.vue";
 
 type FilteredSlots<T> = {
-  [K in keyof VxeGridSlots<T> as K extends 'form'
-    ? never
-    : K]: VxeGridSlots<T>[K];
+  [K in keyof VxeGridSlots<T> as K extends "form" ? never : K]: VxeGridSlots<T>[K];
 };
 
 export function useVbenVxeGrid<
@@ -26,11 +24,7 @@ export function useVbenVxeGrid<
 >(options: VxeGridProps<T, D, P>) {
   // const IS_REACTIVE = isReactive(options);
   const api = new VxeGridApi<T, D, P>(options);
-  const extendedApi: ExtendedVxeGridApi<T, D, P> = api as ExtendedVxeGridApi<
-    T,
-    D,
-    P
-  >;
+  const extendedApi: ExtendedVxeGridApi<T, D, P> = api as ExtendedVxeGridApi<T, D, P>;
   extendedApi.useStore = (selector) => {
     return useStore(api.store, selector);
   };
@@ -53,16 +47,16 @@ export function useVbenVxeGrid<
         );
     },
     {
-      name: 'VbenVxeGrid',
+      name: "VbenVxeGrid",
       inheritAttrs: false,
       slots: Object as SlotsType<
         {
           // 表格标题
-          'table-title': undefined;
+          "table-title": undefined;
           // 工具栏左侧部分
-          'toolbar-actions': VxeGridSlotTypes.DefaultSlotParams<T>;
+          "toolbar-actions": VxeGridSlotTypes.DefaultSlotParams<T>;
           // 工具栏右侧部分
-          'toolbar-tools': VxeGridSlotTypes.DefaultSlotParams<T>;
+          "toolbar-tools": VxeGridSlotTypes.DefaultSlotParams<T>;
         } & FilteredSlots<T>
       >,
     },

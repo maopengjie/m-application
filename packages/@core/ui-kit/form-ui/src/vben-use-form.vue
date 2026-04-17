@@ -1,28 +1,20 @@
 <script setup lang="ts">
-import type { Recordable } from '@vben-core/typings';
+import type { Recordable } from "@vben-core/typings";
 
-import type { ExtendedFormApi, VbenFormProps } from './types';
+import type { ExtendedFormApi, VbenFormProps } from "./types";
 
 // import { toRaw, watch } from 'vue';
-import { nextTick, onMounted, watch } from 'vue';
+import { nextTick, onMounted, watch } from "vue";
 
-import { useForwardPriorityValues } from '@vben-core/composables';
-import { cloneDeep, get, isEqual, set } from '@vben-core/shared/utils';
+import { useForwardPriorityValues } from "@vben-core/composables";
+import { cloneDeep, get, isEqual, set } from "@vben-core/shared/utils";
 
-import { useDebounceFn } from '@vueuse/core';
+import { useDebounceFn } from "@vueuse/core";
 
-import FormActions from './components/form-actions.vue';
-import {
-  COMPONENT_BIND_EVENT_MAP,
-  COMPONENT_MAP,
-  DEFAULT_FORM_COMMON_CONFIG,
-} from './config';
-import { Form } from './form-render';
-import {
-  provideComponentRefMap,
-  provideFormProps,
-  useFormInitial,
-} from './use-form-context';
+import FormActions from "./components/form-actions.vue";
+import { COMPONENT_BIND_EVENT_MAP, COMPONENT_MAP, DEFAULT_FORM_COMMON_CONFIG } from "./config";
+import { Form } from "./form-render";
+import { provideComponentRefMap, provideFormProps, useFormInitial } from "./use-form-context";
 // 通过 extends 会导致热更新卡死，所以重复写了一遍
 interface Props extends VbenFormProps {
   formApi?: ExtendedFormApi;
@@ -64,7 +56,9 @@ function handleKeyDownEnter(event: KeyboardEvent) {
 }
 
 const handleValuesChangeDebounced = useDebounceFn(async () => {
-  state?.value.submitOnChange && forward.value.formApi?.validateAndSubmitForm();
+  if (state?.value.submitOnChange) {
+    await forward.value.formApi?.validateAndSubmitForm();
+  }
 }, 300);
 
 const valuesCache: Recordable<any> = {};
@@ -118,11 +112,7 @@ onMounted(async () => {
     :form="form"
     :global-common-config="DEFAULT_FORM_COMMON_CONFIG"
   >
-    <template
-      v-for="slotName in delegatedSlots"
-      :key="slotName"
-      #[slotName]="slotProps"
-    >
+    <template v-for="slotName in delegatedSlots" :key="slotName" #[slotName]="slotProps">
       <slot :name="slotName" v-bind="slotProps"></slot>
     </template>
     <template #default="slotProps">

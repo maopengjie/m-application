@@ -1,5 +1,6 @@
-import type { Product, PriceHistoryStats } from './types';
-import { requestClient } from './request';
+import type { PriceHistoryStats, Product } from "./types";
+
+import { requestClient } from "./request";
 
 export interface SearchParams {
   q: string;
@@ -22,13 +23,13 @@ export interface SearchResponse {
  * 搜索产品
  */
 export async function searchProductsApi(params: SearchParams) {
-  return requestClient.get<SearchResponse>('/search', { params });
+  return requestClient.get<SearchResponse>("/search", { params });
 }
 
 /**
  * 获取产品详情
  */
-export async function getProductDetailApi(id: string | number) {
+export async function getProductDetailApi(id: number | string) {
   return requestClient.get<Product>(`/products/${id}`);
 }
 
@@ -36,13 +37,13 @@ export async function getProductDetailApi(id: string | number) {
  * 获取产品列表 (兼容旧调用)
  */
 export async function getProductListApi(params?: Partial<SearchParams>) {
-  return requestClient.get<Product[]>('/products', { params });
+  return requestClient.get<Product[]>("/products", { params });
 }
 
 /**
  * 获取 SKU 历史价格
  */
-export async function getSkuPriceHistoryApi(skuId: string | number, days: number = 30) {
+export async function getSkuPriceHistoryApi(skuId: number | string, days: number = 30) {
   return requestClient.get<PriceHistoryStats>(`/products/skus/${skuId}/history`, {
     params: { days },
   });

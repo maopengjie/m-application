@@ -8,6 +8,7 @@
 ### 核心目标
 
 帮助用户解决：
+
 - 买不买
 - 去哪买
 - 什么时候买
@@ -44,12 +45,14 @@
 ### 3.1 商品搜索
 
 #### 输入
-| 字段 | 类型 |
-| :--- | :--- |
+
+| 字段    | 类型   |
+| :------ | :----- |
 | keyword | string |
-| url | string |
+| url     | string |
 
 #### 输出示例
+
 ```json
 {
   "product_id": 1,
@@ -62,6 +65,7 @@
 ### 3.2 商品详情（核心）
 
 #### 返回结构
+
 ```json
 {
   "product": {},
@@ -77,6 +81,7 @@
 #### 模块拆解
 
 **① 价格对比**
+
 ```json
 {
   "platform": "JD",
@@ -86,6 +91,7 @@
 ```
 
 **② 历史价格**
+
 ```json
 {
   "date": "2025-01-01",
@@ -94,6 +100,7 @@
 ```
 
 **③ 优惠**
+
 ```json
 {
   "type": "coupon",
@@ -102,6 +109,7 @@
 ```
 
 **④ 风险**
+
 ```json
 {
   "score": 80,
@@ -110,6 +118,7 @@
 ```
 
 **⑤ 决策（核心）**
+
 ```json
 {
   "suggestion": "BUY",
@@ -119,6 +128,7 @@
 ```
 
 ### 3.3 降价提醒
+
 ```json
 {
   "sku_id": 1,
@@ -150,14 +160,14 @@ graph TD
 
 ## 3. 服务拆分（DDD）
 
-| 服务 | 职责 |
-| :--- | :--- |
-| product-service | 商品聚合 |
-| price-service | 价格历史 |
-| coupon-service | 优惠计算 |
-| risk-service | 评论分析 |
+| 服务             | 职责     |
+| :--------------- | :------- |
+| product-service  | 商品聚合 |
+| price-service    | 价格历史 |
+| coupon-service   | 优惠计算 |
+| risk-service     | 评论分析 |
 | decision-service | 决策引擎 |
-| alert-service | 提醒 |
+| alert-service    | 提醒     |
 
 ---
 
@@ -174,11 +184,11 @@ graph TD
 
 ## 5. 缓存设计（重点）
 
-| 数据 | 缓存策略 |
-| :--- | :--- |
+| 数据     | 缓存策略      |
+| :------- | :------------ |
 | 商品详情 | Redis (10min) |
-| 价格 | Redis (5min) |
-| 决策结果 | Redis (1min) |
+| 价格     | Redis (5min)  |
+| 决策结果 | Redis (1min)  |
 
 ---
 
@@ -193,6 +203,7 @@ graph TD
 # 三、数据库设计（生产级）
 
 ## 1. 商品表
+
 ```sql
 CREATE TABLE product (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -206,6 +217,7 @@ CREATE TABLE product (
 ```
 
 ## 2. SKU 表（核心）
+
 ```sql
 CREATE TABLE product_sku (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -225,6 +237,7 @@ CREATE TABLE product_sku (
 ```
 
 ## 3. 价格历史（高频）
+
 ```sql
 CREATE TABLE price_history (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -240,6 +253,7 @@ CREATE TABLE price_history (
 ---
 
 ## 4. 优惠表
+
 ```sql
 CREATE TABLE coupon (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -253,6 +267,7 @@ CREATE TABLE coupon (
 ```
 
 ## 5. 评论表
+
 ```sql
 CREATE TABLE review (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -264,6 +279,7 @@ CREATE TABLE review (
 ```
 
 ## 6. 风险评分
+
 ```sql
 CREATE TABLE risk_score (
   sku_id BIGINT PRIMARY KEY,
@@ -275,6 +291,7 @@ CREATE TABLE risk_score (
 ```
 
 ## 7. 降价提醒
+
 ```sql
 CREATE TABLE price_alert (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -290,6 +307,7 @@ CREATE TABLE price_alert (
 # 四、决策引擎（核心）
 
 ### 输入
+
 - 当前价格
 - 历史最低价
 - 优惠力度
@@ -298,10 +316,12 @@ CREATE TABLE price_alert (
 ---
 
 ### 评分模型
+
 **计算公式**：
 `score = 价格分(40%) + 历史位置(30%) + 优惠(15%) + 风险(15%)`
 
 ### 输出规则
+
 - **score > 80** → `BUY` (建议购买)
 - **50 ~ 80** → `WAIT` (等待时机)
 - **< 50** → `AVOID` (避雷)

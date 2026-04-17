@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import type { RendererElement } from 'vue';
+import type { RendererElement } from "vue";
 
 defineOptions({
-  name: 'CollapseTransition',
+  name: "CollapseTransition",
 });
 
 const reset = (el: RendererElement) => {
-  el.style.maxHeight = '';
+  el.style.maxHeight = "";
   el.style.overflow = el.dataset.oldOverflow;
   el.style.paddingTop = el.dataset.oldPaddingTop;
   el.style.paddingBottom = el.dataset.oldPaddingBottom;
@@ -14,7 +14,7 @@ const reset = (el: RendererElement) => {
 
 const on = {
   afterEnter(el: RendererElement) {
-    el.style.maxHeight = '';
+    el.style.maxHeight = "";
     el.style.overflow = el.dataset.oldOverflow;
   },
 
@@ -47,7 +47,7 @@ const on = {
     el.dataset.oldMarginBottom = el.style.marginBottom;
     el.dataset.oldOverflow = el.style.overflow;
     el.style.maxHeight = `${el.scrollHeight}px`;
-    el.style.overflow = 'hidden';
+    el.style.overflow = "hidden";
   },
 
   enter(el: RendererElement) {
@@ -65,7 +65,7 @@ const on = {
       el.style.paddingBottom = el.dataset.oldPaddingBottom;
       el.style.marginTop = el.dataset.oldMarginTop;
       el.style.marginBottom = el.dataset.oldMarginBottom;
-      el.style.overflow = 'hidden';
+      el.style.overflow = "hidden";
     });
   },
 

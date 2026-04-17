@@ -1,4 +1,4 @@
-import type { VNode } from 'vue';
+import type { VNode } from "vue";
 
 export interface IconPickerProps {
   pageSize?: number;
@@ -18,5 +18,5 @@ export interface IconPickerProps {
   modelValueProp?: string;
   /** 图标样式 */
   iconClass?: string;
-  type?: 'icon' | 'input';
+  type?: "icon" | "input";
 }

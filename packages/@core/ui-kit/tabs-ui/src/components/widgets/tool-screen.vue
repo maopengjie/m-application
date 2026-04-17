@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { Fullscreen, Minimize2 } from '@vben-core/icons';
+import { Fullscreen, Minimize2 } from "@vben-core/icons";
 
-const screen = defineModel<boolean>('screen');
+const screen = defineModel<boolean>("screen");
 
 function toggleScreen() {
   screen.value = !screen.value;

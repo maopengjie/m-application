@@ -1,8 +1,5 @@
 <script lang="ts" setup>
-import type {
-  DropdownMenuProps,
-  VbenDropdownMenuItem as IDropdownMenuItem,
-} from './interface';
+import type { DropdownMenuProps, VbenDropdownMenuItem as IDropdownMenuItem } from "./interface";
 
 import {
   DropdownMenu,
@@ -11,11 +8,11 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../../ui';
+} from "../../ui";
 
 interface Props extends DropdownMenuProps {}
 
-defineOptions({ name: 'DropdownMenu' });
+defineOptions({ name: "DropdownMenu" });
 const props = withDefaults(defineProps<Props>(), {});
 
 function handleItemClick(menu: IDropdownMenuItem) {

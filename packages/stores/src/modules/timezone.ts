@@ -1,12 +1,9 @@
-import { ref, unref } from 'vue';
+import { ref, unref } from "vue";
 
-import { DEFAULT_TIME_ZONE_OPTIONS } from '@vben-core/preferences';
-import {
-  getCurrentTimezone,
-  setCurrentTimezone,
-} from '@vben-core/shared/utils';
+import { DEFAULT_TIME_ZONE_OPTIONS } from "@vben-core/preferences";
+import { getCurrentTimezone, setCurrentTimezone } from "@vben-core/shared/utils";
 
-import { acceptHMRUpdate, defineStore } from 'pinia';
+import { acceptHMRUpdate, defineStore } from "pinia";
 
 interface TimezoneHandler {
   getTimezone?: () => Promise<null | string | undefined>;
@@ -60,7 +57,7 @@ const getTimezoneHandler = () => {
  * timezone支持模块
  */
 const useTimezoneStore = defineStore(
-  'core-timezone',
+  "core-timezone",
   () => {
     const timezoneRef = ref(getCurrentTimezone());
 
@@ -101,7 +98,7 @@ const useTimezoneStore = defineStore(
     }
 
     initTimezone().catch((error) => {
-      console.error('Failed to initialize timezone during store setup:', error);
+      console.error("Failed to initialize timezone during store setup:", error);
     });
 
     function $reset() {
@@ -118,7 +115,7 @@ const useTimezoneStore = defineStore(
   {
     persist: {
       // 持久化
-      pick: ['timezone'],
+      pick: ["timezone"],
     },
   },
 );

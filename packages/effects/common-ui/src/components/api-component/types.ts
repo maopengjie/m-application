@@ -1,6 +1,6 @@
-import type { Component } from 'vue';
+import type { Component } from "vue";
 
-import type { AnyPromiseFunction } from '@vben/types';
+import type { AnyPromiseFunction } from "@vben/types";
 
 export type ApiComponentOptionsItem = {
   [name: string]: any;
@@ -58,11 +58,11 @@ export interface ApiComponentProps {
    * - false：不自动选择(默认)
    */
   autoSelect?:
-    | 'first'
-    | 'last'
-    | 'one'
+    | "first"
+    | "last"
+    | "one"
     | ((item: ApiComponentOptionsItem[]) => ApiComponentOptionsItem)
     | false;
 }
 
-export type ApiComponentSharedProps = Omit<ApiComponentProps, 'component'>;
+export type ApiComponentSharedProps = Omit<ApiComponentProps, "component">;

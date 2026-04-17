@@ -1,22 +1,22 @@
 <script setup lang="ts">
-import type { TabDefinition } from '@vben-core/typings';
+import type { TabDefinition } from "@vben-core/typings";
 
-import type { TabConfig, TabsProps } from '../../types';
+import type { TabConfig, TabsProps } from "../../types";
 
-import { computed, ref } from 'vue';
+import { computed, ref } from "vue";
 
-import { Pin, X } from '@vben-core/icons';
-import { VbenContextMenu, VbenIcon } from '@vben-core/shadcn-ui';
+import { Pin, X } from "@vben-core/icons";
+import { VbenContextMenu, VbenIcon } from "@vben-core/shadcn-ui";
 
 interface Props extends TabsProps {}
 
 defineOptions({
-  name: 'VbenTabsChrome',
+  name: "VbenTabsChrome",
   inheritAttrs: false,
 });
 
 const props = withDefaults(defineProps<Props>(), {
-  contentClass: 'vben-tabs-content',
+  contentClass: "vben-tabs-content",
   contextMenus: () => [],
   gap: 7,
   tabs: () => [],
@@ -26,7 +26,7 @@ const emit = defineEmits<{
   close: [string];
   unpin: [TabDefinition];
 }>();
-const active = defineModel<string>('active');
+const active = defineModel<string>("active");
 
 // @ts-expect-error - unused
 const contentRef = ref();
@@ -36,7 +36,7 @@ const tabRef = ref();
 const style = computed(() => {
   const { gap } = props;
   return {
-    '--gap': `${gap}px`,
+    "--gap": `${gap}px`,
   };
 });
 
@@ -46,7 +46,7 @@ const tabsView = computed(() => {
     const { affixTab, icon, newTabTitle, tabClosable, title } = meta || {};
     return {
       affixTab: !!affixTab,
-      closable: Reflect.has(meta, 'tabClosable') ? !!tabClosable : true,
+      closable: Reflect.has(meta, "tabClosable") ? !!tabClosable : true,
       fullPath,
       icon: icon as string,
       key,
@@ -68,7 +68,7 @@ function onMouseDown(e: MouseEvent, tab: TabConfig) {
   ) {
     e.preventDefault();
     e.stopPropagation();
-    emit('close', tab.key);
+    emit("close", tab.key);
   }
 }
 </script>
@@ -99,12 +99,7 @@ function onMouseDown(e: MouseEvent, tab: TabConfig) {
         @click="active = tab.key"
         @mousedown="onMouseDown($event, tab)"
       >
-        <VbenContextMenu
-          :handler-data="tab"
-          :menus="contextMenus"
-          :modal="false"
-          item-class="pr-6"
-        >
+        <VbenContextMenu :handler-data="tab" :menus="contextMenus" :modal="false" item-class="pr-6">
           <div class="relative size-full px-1">
             <!-- divider -->
             <div
@@ -179,9 +174,7 @@ function onMouseDown(e: MouseEvent, tab: TabConfig) {
   @apply cursor-pointer;
 }
 
-.tabs-chrome__item:not(.dragging):hover:not(.is-active)
-  + .tabs-chrome__item
-  .tabs-chrome__divider {
+.tabs-chrome__item:not(.dragging):hover:not(.is-active) + .tabs-chrome__item .tabs-chrome__divider {
   @apply opacity-0;
 }
 
@@ -189,13 +182,11 @@ function onMouseDown(e: MouseEvent, tab: TabConfig) {
   @apply opacity-0;
 }
 
-.tabs-chrome__item:not(.dragging):hover:not(.is-active)
-  .tabs-chrome__background {
+.tabs-chrome__item:not(.dragging):hover:not(.is-active) .tabs-chrome__background {
   @apply pb-0.5;
 }
 
-.tabs-chrome__item:not(.dragging):hover:not(.is-active)
-  .tabs-chrome__background-content {
+.tabs-chrome__item:not(.dragging):hover:not(.is-active) .tabs-chrome__background-content {
   @apply bg-accent mx-0.5 rounded-md;
 }
 
@@ -203,9 +194,7 @@ function onMouseDown(e: MouseEvent, tab: TabConfig) {
   @apply z-[2];
 }
 
-.tabs-chrome__item:not(.dragging).is-active
-  + .tabs-chrome__item
-  .tabs-chrome__divider {
+.tabs-chrome__item:not(.dragging).is-active + .tabs-chrome__item .tabs-chrome__divider {
   @apply opacity-0!;
 }
 </style>

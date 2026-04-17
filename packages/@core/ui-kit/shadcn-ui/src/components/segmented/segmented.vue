@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { SegmentedItem } from './types';
+import type { SegmentedItem } from "./types";
 
-import { computed } from 'vue';
+import { computed } from "vue";
 
-import { TabsTrigger } from 'reka-ui';
+import { TabsTrigger } from "reka-ui";
 
-import { Tabs, TabsContent, TabsList } from '../../ui';
-import TabsIndicator from './tabs-indicator.vue';
+import { Tabs, TabsContent, TabsList } from "../../ui";
+import TabsIndicator from "./tabs-indicator.vue";
 
 interface Props {
   defaultValue?: string;
@@ -14,7 +14,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  defaultValue: '',
+  defaultValue: "",
   tabs: () => [],
 });
 
@@ -26,7 +26,7 @@ const getDefaultValue = computed(() => {
 
 const tabsStyle = computed(() => {
   return {
-    'grid-template-columns': `repeat(${props.tabs.length}, minmax(0, 1fr))`,
+    "grid-template-columns": `repeat(${props.tabs.length}, minmax(0, 1fr))`,
   };
 });
 
@@ -37,7 +37,7 @@ const tabsIndicatorStyle = computed(() => {
 });
 
 function activeClass(tab: string): string[] {
-  return tab === activeTab.value ? ['font-bold!', 'text-primary'] : [];
+  return tab === activeTab.value ? ["font-bold!", "text-primary"] : [];
 }
 </script>
 

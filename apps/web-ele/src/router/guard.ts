@@ -1,14 +1,14 @@
-import type { Router } from 'vue-router';
+import type { Router } from "vue-router";
 
-import { LOGIN_PATH } from '@vben/constants';
-import { preferences } from '@vben/preferences';
-import { useAccessStore, useUserStore } from '@vben/stores';
-import { startProgress, stopProgress } from '@vben/utils';
+import { LOGIN_PATH } from "@vben/constants";
+import { preferences } from "@vben/preferences";
+import { useAccessStore, useUserStore } from "@vben/stores";
+import { startProgress, stopProgress } from "@vben/utils";
 
-import { accessRoutes, coreRouteNames } from '#/router/routes';
-import { useAuthStore } from '#/store';
+import { accessRoutes, coreRouteNames } from "#/router/routes";
+import { useAuthStore } from "#/store";
 
-import { generateAccess } from './access';
+import { generateAccess } from "./access";
 
 /**
  * 通用守卫配置

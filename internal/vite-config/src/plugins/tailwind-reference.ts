@@ -1,4 +1,4 @@
-import type { Plugin } from 'vite';
+import type { Plugin } from "vite";
 
 const REFERENCE_LINE = '@reference "@vben/tailwind-config/theme";\n';
 
@@ -13,22 +13,22 @@ const REFERENCE_LINE = '@reference "@vben/tailwind-config/theme";\n';
  */
 export function viteTailwindReferencePlugin(): Plugin {
   return {
-    enforce: 'pre',
-    name: 'vite:tailwind-reference',
+    enforce: "pre",
+    name: "vite:tailwind-reference",
     transform(code, id) {
       // Only process Vue SFC style blocks
-      if (!id.includes('.vue')) {
+      if (!id.includes(".vue")) {
         return null;
       }
-      if (!id.includes('type=style')) {
+      if (!id.includes("type=style")) {
         return null;
       }
       // Skip if already has @reference
-      if (code.includes('@reference')) {
+      if (code.includes("@reference")) {
         return null;
       }
       // Only inject if the style block uses @apply
-      if (!code.includes('@apply')) {
+      if (!code.includes("@apply")) {
         return null;
       }
       return {

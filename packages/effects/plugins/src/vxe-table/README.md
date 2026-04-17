@@ -17,11 +17,7 @@
 ## 使用
 
 ```ts
-import {
-  setupVbenVxeTable,
-  useVbenVxeGrid,
-  VbenVxeGrid,
-} from '@vben/plugins/vxe-table';
+import { setupVbenVxeTable, useVbenVxeGrid, VbenVxeGrid } from "@vben/plugins/vxe-table";
 ```
 
 ## 初始化
@@ -29,8 +25,8 @@ import {
 在应用入口处调用：
 
 ```ts
-import { setupVbenVxeTable } from '@vben/plugins/vxe-table';
-import { useVbenForm } from '@vben-core/form-ui';
+import { setupVbenVxeTable } from "@vben/plugins/vxe-table";
+import { useVbenForm } from "@vben-core/form-ui";
 
 setupVbenVxeTable({
   configVxeTable: (vxeUI) => {
@@ -43,8 +39,5 @@ setupVbenVxeTable({
 ## 类型
 
 ```ts
-import type {
-  VxeTableGridOptions,
-  VxeGridProps,
-} from '@vben/plugins/vxe-table';
+import type { VxeTableGridOptions, VxeGridProps } from "@vben/plugins/vxe-table";
 ```

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { watch } from 'vue';
+import { watch } from "vue";
 
-import { $t } from '@vben/locales';
+import { $t } from "@vben/locales";
 
 import {
   NumberField,
@@ -9,10 +9,10 @@ import {
   NumberFieldDecrement,
   NumberFieldIncrement,
   NumberFieldInput,
-} from '@vben-core/shadcn-ui';
+} from "@vben-core/shadcn-ui";
 
 defineOptions({
-  name: 'PreferenceFontSize',
+  name: "PreferenceFontSize",
 });
 
 const modelValue = defineModel<number>({
@@ -40,13 +40,7 @@ watch(
 <template>
   <div class="flex w-full flex-col gap-4">
     <div class="flex items-center gap-2">
-      <NumberField
-        v-model="modelValue"
-        :max="max"
-        :min="min"
-        :step="step"
-        class="w-full"
-      >
+      <NumberField v-model="modelValue" :max="max" :min="min" :step="step" class="w-full">
         <NumberFieldContent>
           <NumberFieldDecrement />
           <NumberFieldInput />
@@ -56,7 +50,7 @@ watch(
       <span class="text-xs whitespace-nowrap text-muted-foreground">px</span>
     </div>
     <div class="text-xs text-muted-foreground">
-      {{ $t('preferences.theme.fontSizeTip') }}
+      {{ $t("preferences.theme.fontSizeTip") }}
     </div>
   </div>
 </template>

@@ -1,15 +1,15 @@
-import type { Component, Ref } from 'vue';
+import type { Component, Ref } from "vue";
 
-import type { ClassType, MaybePromise } from '@vben-core/typings';
+import type { ClassType, MaybePromise } from "@vben-core/typings";
 
-import type { ModalApi } from './modal-api';
+import type { ModalApi } from "./modal-api";
 
 export interface ModalProps {
   /**
    * 动画类型
    * @default 'slide'
    */
-  animationType?: 'scale' | 'slide';
+  animationType?: "scale" | "slide";
   /**
    * 是否要挂载到内容区域
    * @default false

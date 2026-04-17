@@ -1,5 +1,5 @@
-import { promises as fs } from 'node:fs';
-import { join, normalize } from 'node:path';
+import { promises as fs } from "node:fs";
+import { join, normalize } from "node:path";
 
 const rootDir = process.cwd();
 
@@ -7,7 +7,7 @@ const rootDir = process.cwd();
 const CONCURRENCY_LIMIT = 10;
 
 // 需要跳过的目录，避免进入这些目录进行清理
-const SKIP_DIRS = new Set(['.DS_Store', '.git', '.idea', '.vscode']);
+const SKIP_DIRS = new Set([".DS_Store", ".git", ".idea", ".vscode"]);
 
 /**
  * 处理单个文件/目录项
@@ -37,15 +37,13 @@ async function processItem(currentDir, item, targets, _depth) {
     return true; // 可能需要递归，由调用方决定
   } catch (error) {
     // 更详细的错误信息
-    if (error.code === 'ENOENT') {
+    if (error.code === "ENOENT") {
       // 文件不存在，可能已被删除，这是正常情况
       return false;
-    } else if (error.code === 'EPERM' || error.code === 'EACCES') {
+    } else if (error.code === "EPERM" || error.code === "EACCES") {
       console.error(`❌ Permission denied: ${item} in ${currentDir}`);
     } else {
-      console.error(
-        `❌ Error handling item ${item} in ${currentDir}: ${error.message}`,
-      );
+      console.error(`❌ Error handling item ${item} in ${currentDir}: ${error.message}`);
     }
     return false;
   }
@@ -95,9 +93,7 @@ async function cleanTargetsRecursively(currentDir, targets, depth = 0) {
     const results = await Promise.allSettled(tasks);
 
     // 检查是否有失败的任务（可选：用于调试）
-    const failedTasks = results.filter(
-      (result) => result.status === 'rejected',
-    );
+    const failedTasks = results.filter((result) => result.status === "rejected");
     if (failedTasks.length > 0) {
       console.warn(
         `${failedTasks.length} tasks failed in batch starting at index ${i} in directory: ${currentDir}`,
@@ -108,32 +104,28 @@ async function cleanTargetsRecursively(currentDir, targets, depth = 0) {
 
 (async function startCleanup() {
   // 要删除的目录及文件名称
-  const targets = ['node_modules', 'dist', '.turbo', 'dist.zip'];
-  const deleteLockFile = process.argv.includes('--del-lock');
+  const targets = ["node_modules", "dist", ".turbo", "dist.zip"];
+  const deleteLockFile = process.argv.includes("--del-lock");
   const cleanupTargets = [...targets];
 
   if (deleteLockFile) {
-    cleanupTargets.push('pnpm-lock.yaml');
+    cleanupTargets.push("pnpm-lock.yaml");
   }
 
-  console.log(
-    `🚀 Starting cleanup of targets: ${cleanupTargets.join(', ')} from root: ${rootDir}`,
-  );
+  console.log(`🚀 Starting cleanup of targets: ${cleanupTargets.join(", ")} from root: ${rootDir}`);
 
   const startTime = Date.now();
 
   try {
     // 先统计要删除的目标数量
-    console.log('📊 Scanning for cleanup targets...');
+    console.log("📊 Scanning for cleanup targets...");
 
     await cleanTargetsRecursively(rootDir, cleanupTargets);
 
     const endTime = Date.now();
     const duration = (endTime - startTime) / 1000;
 
-    console.log(
-      `✨ Cleanup process completed successfully in ${duration.toFixed(2)}s`,
-    );
+    console.log(`✨ Cleanup process completed successfully in ${duration.toFixed(2)}s`);
   } catch (error) {
     console.error(`💥 Unexpected error during cleanup: ${error.message}`);
     process.exit(1);

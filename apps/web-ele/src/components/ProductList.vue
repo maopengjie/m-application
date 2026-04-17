@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import ProductCard from './ProductCard.vue';
+import type { Product } from "#/api/types";
 
-import type { Product } from '#/api/types';
+import ProductCard from "./ProductCard.vue";
 
 defineProps<{
-  products: Product[];
   loading?: boolean;
+  products: Product[];
 }>();
 
 const emit = defineEmits<{
-  (e: 'click', product: Product): void;
+  (e: "click", product: Product): void;
 }>();
 </script>
 
@@ -32,7 +32,10 @@ const emit = defineEmits<{
       </div>
     </template>
 
-    <div v-else-if="products.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div
+      v-else-if="products.length > 0"
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+    >
       <ProductCard
         v-for="product in products"
         :key="product.id"
@@ -40,7 +43,7 @@ const emit = defineEmits<{
         @click="emit('click', product)"
       />
     </div>
-    
+
     <div v-else class="flex flex-col items-center justify-center py-20 text-gray-400">
       <el-empty description="暂无相关商品，换个关键词试试吧" />
     </div>

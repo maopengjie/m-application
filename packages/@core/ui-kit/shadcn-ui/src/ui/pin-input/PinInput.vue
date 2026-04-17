@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { PinInputRootEmits, PinInputRootProps } from 'reka-ui';
+import type { PinInputRootEmits, PinInputRootProps } from "reka-ui";
 
-import { computed } from 'vue';
+import { computed } from "vue";
 
-import { cn } from '@vben-core/shared/utils';
+import { cn } from "@vben-core/shared/utils";
 
-import { PinInputRoot, useForwardPropsEmits } from 'reka-ui';
+import { PinInputRoot, useForwardPropsEmits } from "reka-ui";
 
 const props = defineProps<PinInputRootProps & { class?: any }>();
 const emits = defineEmits<PinInputRootEmits>();
@@ -19,10 +19,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
 </script>
 
 <template>
-  <PinInputRoot
-    v-bind="forwarded"
-    :class="cn('flex items-center gap-2', props.class)"
-  >
+  <PinInputRoot v-bind="forwarded" :class="cn('flex items-center gap-2', props.class)">
     <slot></slot>
   </PinInputRoot>
 </template>

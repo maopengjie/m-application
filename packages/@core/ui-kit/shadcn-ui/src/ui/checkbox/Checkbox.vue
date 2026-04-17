@@ -1,16 +1,14 @@
 <script setup lang="ts">
-import type { CheckboxRootEmits, CheckboxRootProps } from 'reka-ui';
+import type { CheckboxRootEmits, CheckboxRootProps } from "reka-ui";
 
-import { computed } from 'vue';
+import { computed } from "vue";
 
-import { cn } from '@vben-core/shared/utils';
+import { cn } from "@vben-core/shared/utils";
 
-import { Check, Minus } from 'lucide-vue-next';
-import { CheckboxIndicator, CheckboxRoot, useForwardPropsEmits } from 'reka-ui';
+import { Check, Minus } from "lucide-vue-next";
+import { CheckboxIndicator, CheckboxRoot, useForwardPropsEmits } from "reka-ui";
 
-const props = defineProps<
-  CheckboxRootProps & { class?: any; indeterminate?: boolean }
->();
+const props = defineProps<CheckboxRootProps & { class?: any; indeterminate?: boolean }>();
 const emits = defineEmits<CheckboxRootEmits>();
 
 const delegatedProps = computed(() => {
@@ -32,9 +30,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
       )
     "
   >
-    <CheckboxIndicator
-      class="flex h-full w-full items-center justify-center text-current"
-    >
+    <CheckboxIndicator class="flex h-full w-full items-center justify-center text-current">
       <slot>
         <component :is="indeterminate ? Minus : Check" class="h-4 w-4" />
       </slot>

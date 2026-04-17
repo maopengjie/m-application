@@ -1,33 +1,24 @@
 <script setup lang="ts">
-import type { TipTapPreviewProps } from './types';
+import type { TipTapPreviewProps } from "./types";
 
-import { computed } from 'vue';
+import { computed } from "vue";
 
-import { cn } from '@vben-core/shared/utils';
+import { cn } from "@vben-core/shared/utils";
 
-import './style.css';
+import "./style.css";
 const props = withDefaults(defineProps<TipTapPreviewProps>(), {
-  content: '',
+  content: "",
   minHeight: 160,
 });
 const contentMinHeight = computed(() =>
-  typeof props.minHeight === 'number'
-    ? `${props.minHeight}px`
-    : props.minHeight,
+  typeof props.minHeight === "number" ? `${props.minHeight}px` : props.minHeight,
 );
 const previewClass = computed(() =>
-  cn(
-    'vben-tiptap-content bg-transparent p-0 leading-7 text-foreground',
-    props.class,
-  ),
+  cn("vben-tiptap-content bg-transparent p-0 leading-7 text-foreground", props.class),
 );
 </script>
 
 <template>
   <!-- eslint-disable vue/no-v-html -->
-  <div
-    :class="previewClass"
-    :style="{ minHeight: contentMinHeight }"
-    v-html="content"
-  ></div>
+  <div :class="previewClass" :style="{ minHeight: contentMinHeight }" v-html="content"></div>
 </template>

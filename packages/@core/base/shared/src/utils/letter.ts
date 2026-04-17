@@ -31,17 +31,10 @@ function toCamelCase(key: string, parentKey: string): string {
 
 function kebabToCamelCase(str: string): string {
   return str
-    .split('-')
+    .split("-")
     .filter(Boolean)
-    .map((word, index) =>
-      index === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1),
-    )
-    .join('');
+    .map((word, index) => (index === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1)))
+    .join("");
 }
 
-export {
-  capitalizeFirstLetter,
-  kebabToCamelCase,
-  toCamelCase,
-  toLowerCaseFirstLetter,
-};
+export { capitalizeFirstLetter, kebabToCamelCase, toCamelCase, toLowerCaseFirstLetter };

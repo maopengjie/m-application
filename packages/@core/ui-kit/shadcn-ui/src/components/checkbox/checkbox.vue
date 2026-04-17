@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { CheckboxRootEmits, CheckboxRootProps } from 'reka-ui';
+import type { CheckboxRootEmits, CheckboxRootProps } from "reka-ui";
 
-import { useId } from 'vue';
+import { useId } from "vue";
 
-import { useForwardPropsEmits } from 'reka-ui';
+import { useForwardPropsEmits } from "reka-ui";
 
-import { Checkbox } from '../../ui/checkbox';
+import { Checkbox } from "../../ui/checkbox";
 
 const props = defineProps<CheckboxRootProps & { indeterminate?: boolean }>();
 

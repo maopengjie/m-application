@@ -1,7 +1,7 @@
-import type { RequestClient } from '../request-client';
-import type { RequestClientConfig } from '../types';
+import type { RequestClient } from "../request-client";
+import type { RequestClientConfig } from "../types";
 
-import { isUndefined } from '@vben/utils';
+import { isUndefined } from "@vben/utils";
 
 class FileUploader {
   private client: RequestClient;
@@ -20,17 +20,21 @@ class FileUploader {
     Object.entries(data).forEach(([key, value]) => {
       if (Array.isArray(value)) {
         value.forEach((item, index) => {
-          !isUndefined(item) && formData.append(`${key}[${index}]`, item);
+          if (!isUndefined(item)) {
+            formData.append(`${key}[${index}]`, item);
+          }
         });
       } else {
-        !isUndefined(value) && formData.append(key, value);
+        if (!isUndefined(value)) {
+          formData.append(key, value);
+        }
       }
     });
 
     const finalConfig: RequestClientConfig = {
       ...config,
       headers: {
-        'Content-Type': 'multipart/form-data',
+        "Content-Type": "multipart/form-data",
         ...config?.headers,
       },
     };

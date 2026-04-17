@@ -1,6 +1,6 @@
-import { defineConfig } from '@vben/vite-config';
+import { defineConfig } from "@vben/vite-config";
 
-import ElementPlus from 'unplugin-element-plus/vite';
+import ElementPlus from "unplugin-element-plus/vite";
 
 export default defineConfig(async () => {
   return {
@@ -8,15 +8,15 @@ export default defineConfig(async () => {
     vite: {
       plugins: [
         ElementPlus({
-          format: 'esm',
+          format: "esm",
         }),
       ],
       server: {
         proxy: {
           // 所有接口统一指向 Python (FastAPI) 数据引擎
-          '/api': {
+          "/api": {
             changeOrigin: true,
-            target: 'http://localhost:8000',
+            target: "http://localhost:8000",
           },
         },
       },

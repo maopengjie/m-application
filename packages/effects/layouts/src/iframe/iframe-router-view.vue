@@ -1,15 +1,15 @@
 <script lang="ts" setup>
-import type { RouteLocationNormalized } from 'vue-router';
+import type { RouteLocationNormalized } from "vue-router";
 
-import { computed, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { computed, ref } from "vue";
+import { useRoute } from "vue-router";
 
-import { preferences } from '@vben/preferences';
-import { useTabbarStore } from '@vben/stores';
+import { preferences } from "@vben/preferences";
+import { useTabbarStore } from "@vben/stores";
 
-import { VbenSpinner } from '@vben-core/shadcn-ui';
+import { VbenSpinner } from "@vben-core/shadcn-ui";
 
-defineOptions({ name: 'IFrameRouterView' });
+defineOptions({ name: "IFrameRouterView" });
 
 const spinningList = ref<boolean[]>([]);
 const tabbarStore = useTabbarStore();
@@ -24,9 +24,7 @@ const iframeRoutes = computed(() => {
   return tabbarStore.getTabs.filter((tab) => !!tab.meta?.iframeSrc);
 });
 
-const tabNames = computed(
-  () => new Set(iframeRoutes.value.map((item) => item.name as string)),
-);
+const tabNames = computed(() => new Set(iframeRoutes.value.map((item) => item.name as string)));
 
 const showIframe = computed(() => iframeRoutes.value.length > 0);
 
@@ -46,11 +44,7 @@ function canRender(tabItem: RouteLocationNormalized) {
   }
 
   // 跟随 keepAlive 状态,与其他tab页保持一致
-  if (
-    !meta?.keepAlive &&
-    tabNames.value.has(name as string) &&
-    name !== route.name
-  ) {
+  if (!meta?.keepAlive && tabNames.value.has(name as string) && name !== route.name) {
     return false;
   }
   return tabbarStore.getTabs.some((tab) => tab.name === name);
@@ -69,11 +63,7 @@ function showSpinning(index: number) {
 <template>
   <template v-if="showIframe">
     <template v-for="(item, index) in iframeRoutes" :key="item.fullPath">
-      <div
-        v-if="canRender(item)"
-        v-show="routeShow(item)"
-        class="relative size-full"
-      >
+      <div v-if="canRender(item)" v-show="routeShow(item)" class="relative size-full">
         <VbenSpinner :spinning="showSpinning(index)" />
         <iframe
           :src="item.meta.iframeSrc as string"

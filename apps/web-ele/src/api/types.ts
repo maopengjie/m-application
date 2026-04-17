@@ -63,6 +63,7 @@ export interface Product {
   id: number;
   product_id?: number; // Backend search returns product_id
   name: string;
+  title?: string;
   brand?: string;
   category?: string;
   main_image?: string;
@@ -73,6 +74,9 @@ export interface Product {
   shop_name?: string;
   platform?: string;
   tags?: string[];
+  price?: number;
+  min_price?: number;
+  original_price?: number;
   final_price?: number;
   skus: ProductSKU[];
   created_at?: string;
@@ -115,8 +119,8 @@ export interface PriceAlert {
   created_at: string;
   sku?: ProductSKU & {
     product: {
-      name: string;
       main_image: string;
-    }
+      name: string;
+    };
   };
 }

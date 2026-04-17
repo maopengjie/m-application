@@ -1,13 +1,7 @@
 <script setup lang="ts">
-import type { WorkbenchQuickNavItem } from '../typing';
+import type { WorkbenchQuickNavItem } from "../typing";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  VbenIcon,
-} from '@vben-core/shadcn-ui';
+import { Card, CardContent, CardHeader, CardTitle, VbenIcon } from "@vben-core/shadcn-ui";
 
 interface Props {
   items?: WorkbenchQuickNavItem[];
@@ -15,14 +9,14 @@ interface Props {
 }
 
 defineOptions({
-  name: 'WorkbenchQuickNav',
+  name: "WorkbenchQuickNav",
 });
 
 withDefaults(defineProps<Props>(), {
   items: () => [],
 });
 
-defineEmits(['click']);
+defineEmits(["click"]);
 </script>
 
 <template>

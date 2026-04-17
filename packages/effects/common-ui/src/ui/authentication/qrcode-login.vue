@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 
-import { $t } from '@vben/locales';
+import { $t } from "@vben/locales";
 
-import { VbenButton } from '@vben-core/shadcn-ui';
+import { VbenButton } from "@vben-core/shadcn-ui";
 
-import { useQRCode } from '@vueuse/integrations/useQRCode';
+import { useQRCode } from "@vueuse/integrations/useQRCode";
 
-import Title from './auth-title.vue';
+import Title from "./auth-title.vue";
 
 interface Props {
   /**
@@ -42,25 +42,25 @@ interface Props {
 }
 
 defineOptions({
-  name: 'AuthenticationQrCodeLogin',
+  name: "AuthenticationQrCodeLogin",
 });
 
 const props = withDefaults(defineProps<Props>(), {
-  description: '',
+  description: "",
   loading: false,
   showBack: true,
-  loginPath: '/auth/login',
-  submitButtonText: '',
-  subTitle: '',
-  title: '',
+  loginPath: "/auth/login",
+  submitButtonText: "",
+  subTitle: "",
+  title: "",
 });
 
 const router = useRouter();
 
-const text = ref('https://vben.vvbin.cn');
+const text = ref("https://vben.vvbin.cn");
 
 const qrcode = useQRCode(text, {
-  errorCorrectionLevel: 'H',
+  errorCorrectionLevel: "H",
   margin: 4,
 });
 
@@ -72,13 +72,11 @@ function goToLogin() {
 <template>
   <div>
     <Title>
-      <slot name="title">
-        {{ title || $t('authentication.welcomeBack') }} 📱
-      </slot>
+      <slot name="title"> {{ title || $t("authentication.welcomeBack") }} 📱 </slot>
       <template #desc>
         <span class="text-muted-foreground">
           <slot name="subTitle">
-            {{ subTitle || $t('authentication.qrcodeSubtitle') }}
+            {{ subTitle || $t("authentication.qrcodeSubtitle") }}
           </slot>
         </span>
       </template>
@@ -88,18 +86,13 @@ function goToLogin() {
       <img :src="qrcode" alt="qrcode" class="w-1/2" />
       <p class="mt-4 text-sm text-muted-foreground">
         <slot name="description">
-          {{ description || $t('authentication.qrcodePrompt') }}
+          {{ description || $t("authentication.qrcodePrompt") }}
         </slot>
       </p>
     </div>
 
-    <VbenButton
-      v-if="showBack"
-      class="mt-4 w-full"
-      variant="outline"
-      @click="goToLogin()"
-    >
-      {{ $t('common.back') }}
+    <VbenButton v-if="showBack" class="mt-4 w-full" variant="outline" @click="goToLogin()">
+      {{ $t("common.back") }}
     </VbenButton>
   </div>
 </template>

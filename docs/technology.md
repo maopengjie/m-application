@@ -1,6 +1,7 @@
 # 一、技术选型确认
 
 ## 1. 前端
+
 - Vue 3
 - Vite
 - Vue Router
@@ -10,6 +11,7 @@
 - ECharts
 
 ## 2. 后端
+
 - FastAPI
 - SQLAlchemy 2.0
 - Pydantic
@@ -20,6 +22,7 @@
 - Playwright（如需动态页面采集）
 
 ## 3. 数据层
+
 - MySQL 8
 - Redis
 - Elasticsearch（商品搜索量大时再接入）
@@ -29,6 +32,7 @@
 # 二、重构后的系统架构
 
 ## 1. 总体架构
+
 ```text
 [ Vue3 + Element Plus ]
         ↓
@@ -50,7 +54,9 @@
 ## 2. 为什么这套技术栈适合你这个项目
 
 ### Vue 3 + Element Plus
+
 适合后台类、数据展示类、运营类系统，开发效率高，组件成熟，尤其适合：
+
 - 商品搜索页
 - 比价表格
 - 优惠信息列表
@@ -58,7 +64,9 @@
 - 管理后台
 
 ### FastAPI
+
 很适合这个项目，因为它同时满足：
+
 - 接口开发快
 - 数据校验清晰
 - 文档自动生成
@@ -71,6 +79,7 @@
 # 三、PRD（按该技术栈可落地）
 
 ## 1. 产品目标
+
 构建一个以比价 + 优惠 + 历史价格 + 风险识别 + 购买建议为核心的智能购物决策平台，帮助用户快速完成购买决策。
 
 ---
@@ -78,6 +87,7 @@
 ## 2. MVP 功能范围
 
 ### P0
+
 - 商品搜索
 - 商品详情
 - 多平台比价
@@ -87,12 +97,14 @@
 - 降价提醒
 
 ### P1
+
 - 评论真实性分析
 - 店铺可信度分析
 - 收藏与订阅
 - 优惠中心
 
 ### P2
+
 - AI 购买建议
 - 个性化推荐
 - 价格预测
@@ -102,6 +114,7 @@
 ## 3. 页面设计
 
 ### 3.1 商品搜索页
+
 - **功能**
   - 输入商品关键词
   - 返回商品聚合结果
@@ -117,6 +130,7 @@
 ---
 
 ### 3.2 商品详情页
+
 - **模块**
   - 商品基础信息
   - 决策卡片
@@ -134,6 +148,7 @@
 ---
 
 ### 3.3 降价提醒页
+
 - **功能**
   - 用户设置目标价格
   - 查看已订阅商品
@@ -241,6 +256,7 @@ data-engine/
 下面这版适配 FastAPI + SQLAlchemy。
 
 ## 1. product 商品主表
+
 ```sql
 CREATE TABLE product (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -256,6 +272,7 @@ CREATE TABLE product (
 ```
 
 ## 2. product_sku 平台 SKU 表
+
 ```sql
 CREATE TABLE product_sku (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -279,6 +296,7 @@ CREATE TABLE product_sku (
 ```
 
 ## 3. price_history 价格历史表
+
 ```sql
 CREATE TABLE price_history (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -291,9 +309,11 @@ CREATE TABLE price_history (
   KEY idx_sku_time (sku_id, recorded_at)
 );
 ```
+
 后期数据量大时可按月分表或按 sku_id hash 分表。
 
 ## 4. coupon 优惠表
+
 ```sql
 CREATE TABLE coupon (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -313,6 +333,7 @@ CREATE TABLE coupon (
 ```
 
 ## 5. review 评论表
+
 ```sql
 CREATE TABLE review (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -329,6 +350,7 @@ CREATE TABLE review (
 ```
 
 ## 6. risk_score 风险评分表
+
 ```sql
 CREATE TABLE risk_score (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -345,6 +367,7 @@ CREATE TABLE risk_score (
 ```
 
 ## 7. price_alert 降价提醒表
+
 ```sql
 CREATE TABLE price_alert (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -364,6 +387,7 @@ CREATE TABLE price_alert (
 # 七、FastAPI 接口设计
 
 ## 1. 搜索接口
+
 `GET /api/v1/search`
 
 - **参数**：
@@ -372,6 +396,7 @@ CREATE TABLE price_alert (
   - `page_size`
 
 - **返回**：
+
 ```json
 {
   "list": [
@@ -387,9 +412,11 @@ CREATE TABLE price_alert (
 ```
 
 ## 2. 商品详情接口
+
 `GET /api/v1/products/{product_id}`
 
 - **返回**：
+
 ```json
 {
   "product": {
@@ -425,9 +452,11 @@ CREATE TABLE price_alert (
 ```
 
 ## 3. 决策接口
+
 `GET /api/v1/decisions/{sku_id}`
 
 - **返回**：
+
 ```json
 {
   "sku_id": 1001,
@@ -441,9 +470,11 @@ CREATE TABLE price_alert (
 ```
 
 ## 4. 创建提醒接口
+
 `POST /api/v1/alerts`
 
 - **请求体**：
+
 ```json
 {
   "sku_id": 1001,
@@ -452,6 +483,7 @@ CREATE TABLE price_alert (
 ```
 
 - **返回**：
+
 ```json
 {
   "id": 1,
@@ -462,31 +494,41 @@ CREATE TABLE price_alert (
 # 八、核心后端模块职责
 
 ## 1. search_service
+
 **负责**：
+
 - 商品关键词搜索
 - 商品聚合
 - 同款商品列表
 
 ## 2. price_service
+
 **负责**：
+
 - 当前价读取
 - 历史价格统计
 - 最低价、均价计算
 
 ## 3. coupon_service
+
 **负责**：
+
 - 优惠券汇总
 - 满减规则计算
 - 最终到手价计算
 
 ## 4. risk_service
+
 **负责**：
+
 - 评论异常识别
 - 销量异常规则
 - 风险等级输出
 
 ## 5. decision_service
+
 **负责**：
+
 - 综合价格、历史、优惠、风险
 - 输出 BUY / WAIT / AVOID
 
@@ -497,31 +539,37 @@ CREATE TABLE price_alert (
 MVP 阶段不建议一开始就上机器学习，先上规则引擎。
 
 ## 评分建议
+
 `总分 = 价格分 40 + 历史分 30 + 优惠分 15 + 风险分 15`
 
 ## 示例规则
 
 ### 价格分
-- 当前到手价 <= 历史最低价 * 1.05 ：40分
+
+- 当前到手价 <= 历史最低价 \* 1.05 ：40分
 - 当前到手价 <= 30日均价：30分
 - 当前到手价 > 30日均价：15分
 
 ### 历史分
+
 - 当前价格处于30天最低区间：30分
 - 当前价格处于中位：20分
 - 当前价格偏高：10分
 
 ### 优惠分
+
 - 有大额券/满减：15分
 - 有普通优惠：8分
 - 无优惠：0分
 
 ### 风险分
+
 - 低风险：15分
 - 中风险：8分
 - 高风险：0分
 
 ## 输出
+
 - `>= 80`：BUY
 - `50 ~ 79`：WAIT
 - `< 50`：AVOID
@@ -531,11 +579,13 @@ MVP 阶段不建议一开始就上机器学习，先上规则引擎。
 # 十、前端页面组件建议
 
 ## 搜索页
+
 - SearchFilterBar
 - ProductList
 - PriceTag
 
 ## 详情页
+
 - DecisionCard
 - PriceCompareTable
 - PriceTrendChart
@@ -544,6 +594,7 @@ MVP 阶段不建议一开始就上机器学习，先上规则引擎。
 - AlertDialog
 
 ## 个人中心
+
 - AlertList
 - FavoriteList
 
@@ -552,6 +603,7 @@ MVP 阶段不建议一开始就上机器学习，先上规则引擎。
 # 十一、开发顺序建议
 
 ## 第一阶段
+
 - MySQL 表结构
 - FastAPI 基础骨架
 - Vue3 页面骨架
@@ -559,12 +611,14 @@ MVP 阶段不建议一开始就上机器学习，先上规则引擎。
 - 商品详情接口
 
 ## 第二阶段
+
 - 历史价格
 - 优惠计算
 - 决策引擎
 - 降价提醒
 
 ## 第三阶段
+
 - 风险识别
 - 评论分析
 - 定时采集
@@ -575,25 +629,30 @@ MVP 阶段不建议一开始就上机器学习，先上规则引擎。
 # 十二、你现在这套技术栈下的最佳方案
 
 如果你用的是：
+
 - Vue 3 + Element Plus
 - FastAPI
 
 那最合理的落地方式就是：
 
 ## 前端
+
 做一个偏中后台风格的 Web 应用，优先把：
+
 - 搜索
 - 详情
 - 比价
 - 决策卡片
-做出来。
+  做出来。
 
 ## 后端
+
 用 FastAPI 作为统一 API 层，把：
+
 - 接口
 - 采集
 - 决策逻辑
 - 定时任务
-尽量统一在 Python 体系里。
+  尽量统一在 Python 体系里。
 
 这样开发成本最低，后续演进也最顺。

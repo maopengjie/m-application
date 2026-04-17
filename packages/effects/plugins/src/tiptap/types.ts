@@ -1,7 +1,7 @@
-import type { Extensions, JSONContent } from '@tiptap/core';
-import type { Editor } from '@tiptap/vue-3';
+import type { Extensions, JSONContent } from "@tiptap/core";
+import type { Editor } from "@tiptap/vue-3";
 
-import type { Component } from 'vue';
+import type { Component } from "vue";
 
 export interface TipTapProps {
   editable?: boolean;

@@ -1,23 +1,18 @@
-import type { ModalApiOptions, ModalState } from './modal';
+import type { ModalApiOptions, ModalState } from "./modal";
 
-import { Store } from '@vben-core/shared/store';
-import { bindMethods, isFunction } from '@vben-core/shared/utils';
+import { Store } from "@vben-core/shared/store";
+import { bindMethods, isFunction } from "@vben-core/shared/utils";
 
 export class ModalApi {
   // 共享数据
-  public sharedData: Record<'payload', any> = {
+  public sharedData: Record<"payload", any> = {
     payload: {},
   };
   public store: Store<ModalState>;
 
   private api: Pick<
     ModalApiOptions,
-    | 'onBeforeClose'
-    | 'onCancel'
-    | 'onClosed'
-    | 'onConfirm'
-    | 'onOpenChange'
-    | 'onOpened'
+    "onBeforeClose" | "onCancel" | "onClosed" | "onConfirm" | "onOpenChange" | "onOpened"
   >;
 
   // private prevState!: ModalState;
@@ -38,29 +33,29 @@ export class ModalApi {
     const defaultState: ModalState = {
       bordered: true,
       centered: false,
-      class: '',
+      class: "",
       closeOnClickModal: true,
       closeOnPressEscape: true,
       confirmDisabled: false,
       confirmLoading: false,
-      contentClass: '',
+      contentClass: "",
       destroyOnClose: true,
       draggable: false,
       overflow: false,
       footer: true,
-      footerClass: '',
+      footerClass: "",
       fullscreen: false,
       fullscreenButton: true,
       header: true,
-      headerClass: '',
+      headerClass: "",
       isOpen: false,
       loading: false,
       modal: true,
       openAutoFocus: false,
       showCancelButton: true,
       showConfirmButton: true,
-      title: '',
-      animationType: 'slide',
+      title: "",
+      animationType: "slide",
     };
 
     this.store = new Store<ModalState>({
@@ -168,11 +163,7 @@ export class ModalApi {
     return this;
   }
 
-  setState(
-    stateOrFn:
-      | ((prev: ModalState) => Partial<ModalState>)
-      | Partial<ModalState>,
-  ) {
+  setState(stateOrFn: ((prev: ModalState) => Partial<ModalState>) | Partial<ModalState>) {
     if (isFunction(stateOrFn)) {
       this.store.setState(stateOrFn);
     } else {

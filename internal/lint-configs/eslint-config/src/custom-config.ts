@@ -1,56 +1,55 @@
-import type { Linter } from 'eslint';
+import type { Linter } from "eslint";
 
-const restrictedImportIgnores = ['**/vite.config.mts'];
+const restrictedImportIgnores = ["**/vite.config.mts"];
 
 const customConfig: Linter.Config[] = [
   // shadcn-ui 内部组件是自动生成的，不做太多限制
   {
-    files: ['packages/@core/ui-kit/shadcn-ui/**/**'],
+    files: ["packages/@core/ui-kit/shadcn-ui/**/**"],
     rules: {
-      'vue/require-default-prop': 'off',
+      "vue/require-default-prop": "off",
     },
   },
   {
     files: [
-      'apps/**/**',
-      'packages/effects/**/**',
-      'packages/utils/**/**',
-      'packages/types/**/**',
-      'packages/locales/**/**',
+      "apps/**/**",
+      "packages/effects/**/**",
+      "packages/utils/**/**",
+      "packages/types/**/**",
+      "packages/locales/**/**",
     ],
     ignores: restrictedImportIgnores,
     rules: {
-      'perfectionist/sort-interfaces': 'off',
+      "perfectionist/sort-interfaces": "off",
     },
   },
   {
     // apps内部的一些基础规则
-    files: ['apps/**/**'],
+    files: ["apps/**/**"],
     ignores: restrictedImportIgnores,
     rules: {
-      'no-restricted-imports': [
-        'error',
+      "no-restricted-imports": [
+        "error",
         {
           patterns: [
             {
-              group: ['#/api/*'],
-              message:
-                'The #/api package cannot be imported, please use the @core package itself',
+              group: ["#/api/*"],
+              message: "The #/api package cannot be imported, please use the @core package itself",
             },
             {
-              group: ['#/layouts/*'],
+              group: ["#/layouts/*"],
               message:
-                'The #/layouts package cannot be imported, please use the @core package itself',
+                "The #/layouts package cannot be imported, please use the @core package itself",
             },
             {
-              group: ['#/locales/*'],
+              group: ["#/locales/*"],
               message:
-                'The #/locales package cannot be imported, please use the @core package itself',
+                "The #/locales package cannot be imported, please use the @core package itself",
             },
             {
-              group: ['#/stores/*'],
+              group: ["#/stores/*"],
               message:
-                'The #/stores package cannot be imported, please use the @core package itself',
+                "The #/stores package cannot be imported, please use the @core package itself",
             },
           ],
         },
@@ -59,17 +58,17 @@ const customConfig: Linter.Config[] = [
   },
   {
     // @core内部组件，不能引入@vben/* 里面的包
-    files: ['packages/@core/**/**'],
+    files: ["packages/@core/**/**"],
     ignores: restrictedImportIgnores,
     rules: {
-      'no-restricted-imports': [
-        'error',
+      "no-restricted-imports": [
+        "error",
         {
           patterns: [
             {
-              group: ['@vben/*'],
+              group: ["@vben/*"],
               message:
-                'The @core package cannot import the @vben package, please use the @core package itself',
+                "The @core package cannot import the @vben package, please use the @core package itself",
             },
           ],
         },
@@ -78,17 +77,17 @@ const customConfig: Linter.Config[] = [
   },
   {
     // @core/shared内部组件，不能引入@vben/* 或者 @vben-core/* 里面的包
-    files: ['packages/@core/base/**/**'],
+    files: ["packages/@core/base/**/**"],
     ignores: restrictedImportIgnores,
     rules: {
-      'no-restricted-imports': [
-        'error',
+      "no-restricted-imports": [
+        "error",
         {
           patterns: [
             {
-              group: ['@vben/*', '@vben-core/*'],
+              group: ["@vben/*", "@vben-core/*"],
               message:
-                'The @vben-core/shared package cannot import the @vben package, please use the @core/shared package itself',
+                "The @vben-core/shared package cannot import the @vben package, please use the @core/shared package itself",
             },
           ],
         },
@@ -99,25 +98,24 @@ const customConfig: Linter.Config[] = [
   {
     // 不能引入@vben/*里面的包
     files: [
-      'packages/types/**/**',
-      'packages/utils/**/**',
-      'packages/icons/**/**',
-      'packages/constants/**/**',
-      'packages/styles/**/**',
-      'packages/stores/**/**',
-      'packages/preferences/**/**',
-      'packages/locales/**/**',
+      "packages/types/**/**",
+      "packages/utils/**/**",
+      "packages/icons/**/**",
+      "packages/constants/**/**",
+      "packages/styles/**/**",
+      "packages/stores/**/**",
+      "packages/preferences/**/**",
+      "packages/locales/**/**",
     ],
     ignores: restrictedImportIgnores,
     rules: {
-      'no-restricted-imports': [
-        'error',
+      "no-restricted-imports": [
+        "error",
         {
           patterns: [
             {
-              group: ['@vben/*'],
-              message:
-                'The @vben package cannot be imported, please use the @core package itself',
+              group: ["@vben/*"],
+              message: "The @vben package cannot be imported, please use the @core package itself",
             },
           ],
         },
@@ -126,27 +124,27 @@ const customConfig: Linter.Config[] = [
   },
   // 后端模拟代码，不需要太多规则
   {
-    files: ['apps/backend-mock/**/**', 'docs/**/**'],
+    files: ["apps/backend-mock/**/**", "docs/**/**"],
     rules: {
-      'no-console': 'off',
+      "no-console": "off",
     },
   },
   {
-    files: ['**/**/playwright.config.ts'],
+    files: ["**/**/playwright.config.ts"],
     rules: {
-      'no-console': 'off',
+      "no-console": "off",
     },
   },
   {
-    files: ['internal/**/**', 'scripts/**/**'],
+    files: ["internal/**/**", "scripts/**/**"],
     rules: {
-      'no-console': 'off',
+      "no-console": "off",
     },
   },
   {
-    files: ['packages/@core/base/shared/src/utils/inference.ts'],
+    files: ["packages/@core/base/shared/src/utils/inference.ts"],
     rules: {
-      'vue/prefer-import-from-vue': 'off',
+      "vue/prefer-import-from-vue": "off",
     },
   },
 ];

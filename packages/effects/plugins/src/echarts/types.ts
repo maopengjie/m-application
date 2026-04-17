@@ -3,7 +3,7 @@ import type {
   LineSeriesOption,
   PieSeriesOption,
   RadarSeriesOption,
-} from 'echarts/charts';
+} from "echarts/charts";
 import type {
   DatasetComponentOption,
   GridComponentOption,
@@ -11,8 +11,8 @@ import type {
   TitleComponentOption,
   ToolboxComponentOption,
   TooltipComponentOption,
-} from 'echarts/components';
-import type { ComposeOption } from 'echarts/core';
+} from "echarts/components";
+import type { ComposeOption } from "echarts/core";
 
 export type ECOption = ComposeOption<
   | BarSeriesOption

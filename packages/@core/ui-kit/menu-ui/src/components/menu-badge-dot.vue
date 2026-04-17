@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CSSProperties } from 'vue';
+import type { CSSProperties } from "vue";
 
 interface Props {
   dotClass?: string;
@@ -7,7 +7,7 @@ interface Props {
 }
 
 withDefaults(defineProps<Props>(), {
-  dotClass: '',
+  dotClass: "",
   dotStyle: () => ({}),
 });
 </script>

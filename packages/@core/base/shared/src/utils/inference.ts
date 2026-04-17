@@ -1,4 +1,4 @@
-import { isFunction, isObject, isString } from '@vue/shared';
+import { isFunction, isObject, isString } from "@vue/shared";
 
 /**
  * 检查传入的值是否为undefined。
@@ -16,7 +16,7 @@ function isUndefined(value?: unknown): value is undefined {
  * @returns 如果值是布尔值，返回true，否则返回false。
  */
 function isBoolean(value: unknown): value is boolean {
-  return typeof value === 'boolean';
+  return typeof value === "boolean";
 }
 
 /**
@@ -75,9 +75,7 @@ function isHttpUrl(url?: string): boolean {
  * @returns {boolean} 如果值是window对象，返回true，否则返回false。
  */
 function isWindow(value: any): value is Window {
-  return (
-    typeof window !== 'undefined' && value !== null && value === value.window
-  );
+  return typeof window !== "undefined" && value !== null && value === value.window;
 }
 
 /**
@@ -111,7 +109,7 @@ function isWindowsOs(): boolean {
  * @param value
  */
 function isNumber(value: any): value is number {
-  return typeof value === 'number' && Number.isFinite(value);
+  return typeof value === "number" && Number.isFinite(value);
 }
 
 /**
@@ -137,9 +135,7 @@ function isNumber(value: any): value is number {
  * // Returns undefined because all values are either null or undefined.
  * getFirstNonNullOrUndefined(undefined, null); // undefined
  */
-function getFirstNonNullOrUndefined<T>(
-  ...values: (null | T | undefined)[]
-): T | undefined {
+function getFirstNonNullOrUndefined<T>(...values: (null | T | undefined)[]): T | undefined {
   for (const value of values) {
     if (value !== undefined && value !== null) {
       return value;

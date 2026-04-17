@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { TabsTriggerProps } from 'reka-ui';
+import type { TabsTriggerProps } from "reka-ui";
 
-import { computed } from 'vue';
+import { computed } from "vue";
 
-import { cn } from '@vben-core/shared/utils';
+import { cn } from "@vben-core/shared/utils";
 
-import { TabsTrigger, useForwardProps } from 'reka-ui';
+import { TabsTrigger, useForwardProps } from "reka-ui";
 
 const props = defineProps<TabsTriggerProps & { class?: any }>();
 

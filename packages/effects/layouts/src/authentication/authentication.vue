@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import type { ToolbarType } from './types';
+import type { ToolbarType } from "./types";
 
-import { computed } from 'vue';
+import { computed } from "vue";
 
-import { preferences, usePreferences } from '@vben/preferences';
+import { preferences, usePreferences } from "@vben/preferences";
 
-import { Copyright } from '../basic/copyright';
-import AuthenticationFormView from './form.vue';
-import SloganIcon from './icons/slogan.vue';
-import Toolbar from './toolbar.vue';
+import { Copyright } from "../basic/copyright";
+import AuthenticationFormView from "./form.vue";
+import SloganIcon from "./icons/slogan.vue";
+import Toolbar from "./toolbar.vue";
 
 interface Props {
   appName?: string;
@@ -24,20 +24,19 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  appName: '',
+  appName: "",
   copyright: true,
-  logo: '',
-  logoDark: '',
-  pageDescription: '',
-  pageTitle: '',
-  sloganImage: '',
+  logo: "",
+  logoDark: "",
+  pageDescription: "",
+  pageTitle: "",
+  sloganImage: "",
   toolbar: true,
-  toolbarList: () => ['color', 'language', 'layout', 'theme'],
+  toolbarList: () => ["color", "language", "layout", "theme"],
   clickLogo: () => {},
 });
 
-const { authPanelCenter, authPanelLeft, authPanelRight, isDark } =
-  usePreferences();
+const { authPanelCenter, authPanelLeft, authPanelRight, isDark } = usePreferences();
 
 /**
  * @zh_CN 根据主题选择合适的 logo 图标
@@ -53,27 +52,17 @@ const logoSrc = computed(() => {
 </script>
 
 <template>
-  <div
-    :class="[isDark ? 'dark' : '']"
-    class="flex min-h-full flex-1 overflow-x-hidden select-none"
-  >
+  <div :class="[isDark ? 'dark' : '']" class="flex min-h-full flex-1 overflow-x-hidden select-none">
     <template v-if="toolbar">
       <slot name="toolbar">
         <Toolbar :toolbar-list="toolbarList" />
       </slot>
     </template>
     <!-- 左侧认证面板 -->
-    <AuthenticationFormView
-      v-if="authPanelLeft"
-      class="min-h-full w-2/5 flex-1"
-      data-side="left"
-    >
+    <AuthenticationFormView v-if="authPanelLeft" class="min-h-full w-2/5 flex-1" data-side="left">
       <template v-if="copyright" #copyright>
         <slot name="copyright">
-          <Copyright
-            v-if="preferences.copyright.enable"
-            v-bind="preferences.copyright"
-          />
+          <Copyright v-if="preferences.copyright.enable" v-bind="preferences.copyright" />
         </slot>
       </template>
     </AuthenticationFormView>
@@ -105,9 +94,7 @@ const logoSrc = computed(() => {
 
     <!-- 系统介绍 -->
     <div v-if="!authPanelCenter" class="relative hidden w-0 flex-1 lg:block">
-      <div
-        class="absolute inset-0 size-full bg-background-deep dark:bg-[#070709]"
-      >
+      <div class="absolute inset-0 size-full bg-background-deep dark:bg-[#070709]">
         <div class="login-background absolute top-0 left-0 size-full"></div>
         <div
           :key="authPanelLeft ? 'left' : authPanelRight ? 'right' : 'center'"
@@ -118,11 +105,7 @@ const logoSrc = computed(() => {
           }"
         >
           <template v-if="sloganImage">
-            <img
-              :alt="appName"
-              :src="sloganImage"
-              class="h-64 w-2/5 animate-float"
-            />
+            <img :alt="appName" :src="sloganImage" class="h-64 w-2/5 animate-float" />
           </template>
           <SloganIcon v-else :alt="appName" class="h-64 w-2/5 animate-float" />
           <div class="text-1xl mt-6 font-sans text-foreground lg:text-2xl">
@@ -144,27 +127,17 @@ const logoSrc = computed(() => {
       >
         <template v-if="copyright" #copyright>
           <slot name="copyright">
-            <Copyright
-              v-if="preferences.copyright.enable"
-              v-bind="preferences.copyright"
-            />
+            <Copyright v-if="preferences.copyright.enable" v-bind="preferences.copyright" />
           </slot>
         </template>
       </AuthenticationFormView>
     </div>
 
     <!-- 右侧认证面板 -->
-    <AuthenticationFormView
-      v-if="authPanelRight"
-      class="min-h-full w-2/5 flex-1"
-      data-side="right"
-    >
+    <AuthenticationFormView v-if="authPanelRight" class="min-h-full w-2/5 flex-1" data-side="right">
       <template v-if="copyright" #copyright>
         <slot name="copyright">
-          <Copyright
-            v-if="preferences.copyright.enable"
-            v-bind="preferences.copyright"
-          />
+          <Copyright v-if="preferences.copyright.enable" v-bind="preferences.copyright" />
         </slot>
       </template>
     </AuthenticationFormView>
@@ -173,12 +146,7 @@ const logoSrc = computed(() => {
 
 <style scoped>
 .login-background {
-  background: linear-gradient(
-    154deg,
-    #07070915 30%,
-    hsl(var(--primary) / 30%) 48%,
-    #07070915 64%
-  );
+  background: linear-gradient(154deg, #07070915 30%, hsl(var(--primary) / 30%) 48%, #07070915 64%);
   filter: blur(100px);
 }
 

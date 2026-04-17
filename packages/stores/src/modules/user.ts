@@ -1,4 +1,4 @@
-import { acceptHMRUpdate, defineStore } from 'pinia';
+import { acceptHMRUpdate, defineStore } from "pinia";
 
 interface BasicUserInfo {
   [key: string]: any;
@@ -38,7 +38,7 @@ interface AccessState {
 /**
  * @zh_CN 用户信息相关
  */
-export const useUserStore = defineStore('core-user', {
+export const useUserStore = defineStore("core-user", {
   actions: {
     setUserInfo(userInfo: BasicUserInfo | null) {
       // 设置用户信息

@@ -1,34 +1,24 @@
-import type {
-  NormalizedOutputOptions,
-  OutputBundle,
-  OutputChunk,
-} from 'rolldown';
-import type { PluginOption } from 'vite';
+import type { NormalizedOutputOptions, OutputBundle, OutputChunk } from "rolldown";
+import type { PluginOption } from "vite";
 
-import { EOL } from 'node:os';
+import { EOL } from "node:os";
 
-import { dateUtil, readPackageJSON } from '@vben/node-utils';
+import { dateUtil, readPackageJSON } from "@vben/node-utils";
 
 /**
  * 用于注入版权信息
  * @returns
  */
 
-async function viteLicensePlugin(
-  root = process.cwd(),
-): Promise<PluginOption | undefined> {
-  const {
-    description = '',
-    homepage = '',
-    version = '',
-  } = await readPackageJSON(root);
+async function viteLicensePlugin(root = process.cwd()): Promise<PluginOption | undefined> {
+  const { description = "", homepage = "", version = "" } = await readPackageJSON(root);
 
   return {
-    apply: 'build',
-    enforce: 'post',
+    apply: "build",
+    enforce: "post",
     generateBundle: {
       handler: (_options: NormalizedOutputOptions, bundle: OutputBundle) => {
-        const date = dateUtil().format('YYYY-MM-DD ');
+        const date = dateUtil().format("YYYY-MM-DD ");
         const copyrightText = `/*!
   * Vben Admin
   * Version: ${version}
@@ -43,7 +33,7 @@ async function viteLicensePlugin(
               `.trim();
 
         for (const [, fileContent] of Object.entries(bundle)) {
-          if (fileContent.type === 'chunk' && fileContent.isEntry) {
+          if (fileContent.type === "chunk" && fileContent.isEntry) {
             const chunkContent = fileContent as OutputChunk;
             // 插入版权信息
             const content = chunkContent.code;
@@ -54,9 +44,9 @@ async function viteLicensePlugin(
           }
         }
       },
-      order: 'post',
+      order: "post",
     },
-    name: 'vite:license',
+    name: "vite:license",
   };
 }
 

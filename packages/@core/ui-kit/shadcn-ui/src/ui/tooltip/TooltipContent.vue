@@ -1,24 +1,21 @@
 <script setup lang="ts">
-import type { TooltipContentEmits, TooltipContentProps } from 'reka-ui';
+import type { TooltipContentEmits, TooltipContentProps } from "reka-ui";
 
-import { computed } from 'vue';
+import { computed } from "vue";
 
-import { cn } from '@vben-core/shared/utils';
+import { cn } from "@vben-core/shared/utils";
 
-import { TooltipContent, TooltipPortal, useForwardPropsEmits } from 'reka-ui';
+import { TooltipContent, TooltipPortal, useForwardPropsEmits } from "reka-ui";
 
 defineOptions({
   inheritAttrs: false,
 });
 
-const props = withDefaults(
-  defineProps<TooltipContentProps & { class?: any }>(),
-  {
-    class: '',
-    side: 'right',
-    sideOffset: 5,
-  },
-);
+const props = withDefaults(defineProps<TooltipContentProps & { class?: any }>(), {
+  class: "",
+  side: "right",
+  sideOffset: 5,
+});
 
 const emits = defineEmits<TooltipContentEmits>();
 

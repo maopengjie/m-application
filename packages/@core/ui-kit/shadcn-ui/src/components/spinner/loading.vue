@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { ref, watch } from 'vue';
+import { ref, watch } from "vue";
 
-import { cn } from '@vben-core/shared/utils';
+import { cn } from "@vben-core/shared/utils";
 
 interface Props {
   class?: string;
@@ -22,12 +22,12 @@ interface Props {
 }
 
 defineOptions({
-  name: 'VbenLoading',
+  name: "VbenLoading",
 });
 
 const props = withDefaults(defineProps<Props>(), {
   minLoadingTime: 50,
-  text: '',
+  text: "",
 });
 // const startTime = ref(0);
 const showSpinner = ref(false);
@@ -39,7 +39,9 @@ watch(
   (show) => {
     if (!show) {
       showSpinner.value = false;
-      timer && clearTimeout(timer);
+      if (timer) {
+        clearTimeout(timer);
+      }
       return;
     }
 

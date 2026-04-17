@@ -1,18 +1,17 @@
 <script setup lang="ts">
-import { computed, unref, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { computed, unref, watch } from "vue";
+import { useRoute } from "vue-router";
 
-import { preferences } from '@vben/preferences';
-import { getTabKey, storeToRefs, useTabbarStore } from '@vben/stores';
+import { preferences } from "@vben/preferences";
+import { getTabKey, storeToRefs, useTabbarStore } from "@vben/stores";
 
-import { transformComponent, useLayoutHook } from '../hooks';
+import { transformComponent, useLayoutHook } from "../hooks";
 
 const route = useRoute();
 
 const tabbarStore = useTabbarStore();
 
-const { getTabs, getCachedRoutes, getExcludeCachedTabs } =
-  storeToRefs(tabbarStore);
+const { getTabs, getCachedRoutes, getExcludeCachedTabs } = storeToRefs(tabbarStore);
 const { removeCachedRoute } = tabbarStore;
 
 const { getEnabledTransition, getTransitionName } = useLayoutHook();

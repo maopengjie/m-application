@@ -1,24 +1,24 @@
 <script setup lang="ts">
-import type { TabsEmits, TabsProps } from './types';
+import type { TabsEmits, TabsProps } from "./types";
 
-import { useForwardPropsEmits } from '@vben-core/composables';
-import { ChevronsLeft, ChevronsRight } from '@vben-core/icons';
-import { VbenScrollbar } from '@vben-core/shadcn-ui';
+import { useForwardPropsEmits } from "@vben-core/composables";
+import { ChevronsLeft, ChevronsRight } from "@vben-core/icons";
+import { VbenScrollbar } from "@vben-core/shadcn-ui";
 
-import { Tabs, TabsChrome } from './components';
-import { useTabsDrag } from './use-tabs-drag';
-import { useTabsViewScroll } from './use-tabs-view-scroll';
+import { Tabs, TabsChrome } from "./components";
+import { useTabsDrag } from "./use-tabs-drag";
+import { useTabsViewScroll } from "./use-tabs-view-scroll";
 
 interface Props extends TabsProps {}
 
 defineOptions({
-  name: 'TabsView',
+  name: "TabsView",
 });
 
 const props = withDefaults(defineProps<Props>(), {
-  contentClass: 'vben-tabs-content',
+  contentClass: "vben-tabs-content",
   draggable: true,
-  styleType: 'chrome',
+  styleType: "chrome",
   wheelable: true,
 });
 
@@ -82,10 +82,7 @@ useTabsDrag(props, emit);
         @scroll-at="handleScrollAt"
         @wheel="onWheel"
       >
-        <TabsChrome
-          v-if="styleType === 'chrome'"
-          v-bind="{ ...forward, ...$attrs, ...$props }"
-        />
+        <TabsChrome v-if="styleType === 'chrome'" v-bind="{ ...forward, ...$attrs, ...$props }" />
 
         <Tabs v-else v-bind="{ ...forward, ...$attrs, ...$props }" />
       </VbenScrollbar>

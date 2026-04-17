@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { ref } from "vue";
 
 interface DragOptions {
   max: number;
@@ -37,24 +37,24 @@ export function useSidebarDrag() {
     const startWidth = target.getBoundingClientRect().width;
     const startLeft = dragBar.offsetLeft;
 
-    dragBar.classList.add('bg-primary');
-    dragBar.classList.remove('bg-primary/30');
+    dragBar.classList.add("bg-primary");
+    dragBar.classList.remove("bg-primary/30");
 
     const dragBarTransition = dragBar.style.transition;
     const targetTransition = target.style.transition;
 
-    dragBar.style.transition = 'none';
-    target.style.transition = 'none';
+    dragBar.style.transition = "none";
+    target.style.transition = "none";
 
-    dragOverlay = document.createElement('div');
-    dragOverlay.style.position = 'fixed';
-    dragOverlay.style.inset = '0';
-    dragOverlay.style.zIndex = '9999';
-    dragOverlay.style.cursor = 'col-resize';
-    dragOverlay.style.userSelect = 'none';
-    dragOverlay.style.outline = 'none';
+    dragOverlay = document.createElement("div");
+    dragOverlay.style.position = "fixed";
+    dragOverlay.style.inset = "0";
+    dragOverlay.style.zIndex = "9999";
+    dragOverlay.style.cursor = "col-resize";
+    dragOverlay.style.userSelect = "none";
+    dragOverlay.style.outline = "none";
     dragOverlay.tabIndex = -1;
-    dragOverlay.style.background = 'rgba(0,0,0,0)';
+    dragOverlay.style.background = "rgba(0,0,0,0)";
     document.body.append(dragOverlay);
 
     const onMouseMove = (moveEvent: MouseEvent) => {
@@ -75,17 +75,16 @@ export function useSidebarDrag() {
 
       const newLeft = startLeft + (currentWidth - startWidth);
 
-      if (dragOverlay)
-        dragOverlay.style.cursor = isOutOfBounds ? 'not-allowed' : 'col-resize';
+      if (dragOverlay) dragOverlay.style.cursor = isOutOfBounds ? "not-allowed" : "col-resize";
 
       dragBar.style.left = `${newLeft}px`;
 
       if (isOutOfBounds) {
-        dragBar.classList.add('bg-primary/30');
-        dragBar.classList.remove('bg-primary');
+        dragBar.classList.add("bg-primary/30");
+        dragBar.classList.remove("bg-primary");
       } else {
-        dragBar.classList.add('bg-primary');
-        dragBar.classList.remove('bg-primary/30');
+        dragBar.classList.add("bg-primary");
+        dragBar.classList.remove("bg-primary/30");
       }
     };
 
@@ -100,7 +99,7 @@ export function useSidebarDrag() {
 
       newWidth = Math.min(max, Math.max(min, newWidth));
 
-      dragBar.classList.remove('bg-primary', 'bg-primary/30');
+      dragBar.classList.remove("bg-primary", "bg-primary/30");
 
       try {
         onDrag?.(Math.round(newWidth));
@@ -109,19 +108,19 @@ export function useSidebarDrag() {
       }
     };
 
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
 
     cleanup = () => {
       if (!cleanup) return;
 
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
 
       if (dragBar) {
         dragBar.style.transition = dragBarTransition;
-        dragBar.style.left = '';
-        dragBar.classList.remove('bg-primary', 'bg-primary/30');
+        dragBar.style.left = "";
+        dragBar.classList.remove("bg-primary", "bg-primary/30");
       }
 
       if (target) {

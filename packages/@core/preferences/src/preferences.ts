@@ -1,25 +1,21 @@
-import type { DeepPartial } from '@vben-core/typings';
+import type { DeepPartial } from "@vben-core/typings";
 
-import type { InitialOptions, Preferences } from './types';
+import type { InitialOptions, Preferences } from "./types";
 
-import { markRaw, reactive, readonly, watch } from 'vue';
+import { markRaw, reactive, readonly, watch } from "vue";
 
-import { StorageManager } from '@vben-core/shared/cache';
-import { isMacOs, merge } from '@vben-core/shared/utils';
+import { StorageManager } from "@vben-core/shared/cache";
+import { isMacOs, merge } from "@vben-core/shared/utils";
 
-import {
-  breakpointsTailwind,
-  useBreakpoints,
-  useDebounceFn,
-} from '@vueuse/core';
+import { breakpointsTailwind, useBreakpoints, useDebounceFn } from "@vueuse/core";
 
-import { defaultPreferences } from './config';
-import { updateCSSVariables } from './update-css-variables';
+import { defaultPreferences } from "./config";
+import { updateCSSVariables } from "./update-css-variables";
 
 const STORAGE_KEYS = {
-  MAIN: 'preferences',
-  LOCALE: 'preferences-locale',
-  THEME: 'preferences-theme',
+  MAIN: "preferences",
+  LOCALE: "preferences-locale",
+  THEME: "preferences-theme",
 } as const;
 
 class PreferenceManager {
@@ -31,13 +27,8 @@ class PreferenceManager {
 
   constructor() {
     this.cache = new StorageManager();
-    this.state = reactive<Preferences>(
-      this.loadFromCache() || { ...defaultPreferences },
-    );
-    this.debouncedSave = useDebounceFn(
-      (preference) => this.saveToCache(preference),
-      150,
-    );
+    this.state = reactive<Preferences>(this.loadFromCache() || { ...defaultPreferences });
+    this.debouncedSave = useDebounceFn((preference) => this.saveToCache(preference), 150);
   }
 
   /**
@@ -81,11 +72,7 @@ class PreferenceManager {
 
     // 加载缓存的偏好设置并与初始配置合并
     const cachedPreferences = this.loadFromCache() || {};
-    const mergedPreference = merge(
-      {},
-      cachedPreferences,
-      this.initialPreferences,
-    );
+    const mergedPreference = merge({}, cachedPreferences, this.initialPreferences);
 
     // 更新偏好设置
     this.updatePreferences(mergedPreference);
@@ -136,17 +123,11 @@ class PreferenceManager {
   private handleUpdates(updates: DeepPartial<Preferences>) {
     const { theme, app } = updates;
 
-    if (
-      theme &&
-      (Object.keys(theme).length > 0 || Reflect.has(theme, 'fontSize'))
-    ) {
+    if (theme && (Object.keys(theme).length > 0 || Reflect.has(theme, "fontSize"))) {
       updateCSSVariables(this.state);
     }
 
-    if (
-      app &&
-      (Reflect.has(app, 'colorGrayMode') || Reflect.has(app, 'colorWeakMode'))
-    ) {
+    if (app && (Reflect.has(app, "colorGrayMode") || Reflect.has(app, "colorWeakMode"))) {
       this.updateColorMode(this.state);
     }
   }
@@ -155,7 +136,7 @@ class PreferenceManager {
    * 初始化平台标识
    */
   private initPlatform() {
-    document.documentElement.dataset.platform = isMacOs() ? 'macOs' : 'window';
+    document.documentElement.dataset.platform = isMacOs() ? "macOs" : "window";
   }
 
   /**
@@ -186,7 +167,7 @@ class PreferenceManager {
 
     // 监听断点，判断是否移动端
     const breakpoints = useBreakpoints(breakpointsTailwind);
-    const isMobile = breakpoints.smaller('md');
+    const isMobile = breakpoints.smaller("md");
 
     watch(
       () => isMobile.value,
@@ -200,17 +181,17 @@ class PreferenceManager {
 
     // 监听系统主题偏好设置变化
     window
-      .matchMedia('(prefers-color-scheme: dark)')
-      .addEventListener('change', ({ matches: isDark }) => {
+      .matchMedia("(prefers-color-scheme: dark)")
+      .addEventListener("change", ({ matches: isDark }) => {
         // 仅在自动模式下跟随系统主题
-        if (this.state.theme.mode === 'auto') {
+        if (this.state.theme.mode === "auto") {
           // 先应用实际的主题
           this.updatePreferences({
-            theme: { mode: isDark ? 'dark' : 'light' },
+            theme: { mode: isDark ? "dark" : "light" },
           });
           // 再恢复为 auto 模式，保持跟随系统的状态
           this.updatePreferences({
-            theme: { mode: 'auto' },
+            theme: { mode: "auto" },
           });
         }
       });
@@ -224,8 +205,8 @@ class PreferenceManager {
     const { colorGrayMode, colorWeakMode } = preference.app;
     const dom = document.documentElement;
 
-    dom.classList.toggle('invert-mode', colorWeakMode);
-    dom.classList.toggle('grayscale-mode', colorGrayMode);
+    dom.classList.toggle("invert-mode", colorWeakMode);
+    dom.classList.toggle("grayscale-mode", colorGrayMode);
   }
 }
 

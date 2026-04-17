@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import { computed, useSlots } from 'vue';
+import { computed, useSlots } from "vue";
 
-import { useRefresh } from '@vben/hooks';
-import { RotateCw } from '@vben/icons';
-import { preferences, usePreferences } from '@vben/preferences';
-import { useAccessStore } from '@vben/stores';
+import { useRefresh } from "@vben/hooks";
+import { RotateCw } from "@vben/icons";
+import { preferences, usePreferences } from "@vben/preferences";
+import { useAccessStore } from "@vben/stores";
 
-import { VbenFullScreen, VbenIconButton } from '@vben-core/shadcn-ui';
+import { VbenFullScreen, VbenIconButton } from "@vben-core/shadcn-ui";
 
 import {
   GlobalSearch,
@@ -14,7 +14,7 @@ import {
   PreferencesButton,
   ThemeToggle,
   TimezoneButton,
-} from '../../widgets';
+} from "../../widgets";
 
 interface Props {
   /**
@@ -24,11 +24,11 @@ interface Props {
 }
 
 defineOptions({
-  name: 'LayoutHeader',
+  name: "LayoutHeader",
 });
 
 withDefaults(defineProps<Props>(), {
-  theme: 'light',
+  theme: "light",
 });
 
 const emit = defineEmits<{ clearPreferencesAndLogout: [] }>();
@@ -41,54 +41,54 @@ const slots = useSlots();
 const { refresh } = useRefresh();
 
 const rightSlots = computed(() => {
-  const list = [{ index: REFERENCE_VALUE + 100, name: 'user-dropdown' }];
+  const list = [{ index: REFERENCE_VALUE + 100, name: "user-dropdown" }];
   if (preferences.widget.globalSearch) {
     list.push({
       index: REFERENCE_VALUE,
-      name: 'global-search',
+      name: "global-search",
     });
   }
 
   if (preferencesButtonPosition.value.header) {
     list.push({
       index: REFERENCE_VALUE + 10,
-      name: 'preferences',
+      name: "preferences",
     });
   }
   if (preferences.widget.themeToggle) {
     list.push({
       index: REFERENCE_VALUE + 20,
-      name: 'theme-toggle',
+      name: "theme-toggle",
     });
   }
   if (preferences.widget.languageToggle) {
     list.push({
       index: REFERENCE_VALUE + 30,
-      name: 'language-toggle',
+      name: "language-toggle",
     });
   }
   if (preferences.widget.timezone) {
     list.push({
       index: REFERENCE_VALUE + 40,
-      name: 'timezone',
+      name: "timezone",
     });
   }
   if (preferences.widget.fullscreen) {
     list.push({
       index: REFERENCE_VALUE + 50,
-      name: 'fullscreen',
+      name: "fullscreen",
     });
   }
   if (preferences.widget.notification) {
     list.push({
       index: REFERENCE_VALUE + 60,
-      name: 'notification',
+      name: "notification",
     });
   }
 
   Object.keys(slots).forEach((key) => {
-    const name = key.split('-');
-    if (key.startsWith('header-right')) {
+    const name = key.split("-");
+    if (key.startsWith("header-right")) {
       list.push({ index: Number(name[2]), name: key });
     }
   });
@@ -101,13 +101,13 @@ const leftSlots = computed(() => {
   if (preferences.widget.refresh) {
     list.push({
       index: 0,
-      name: 'refresh',
+      name: "refresh",
     });
   }
 
   Object.keys(slots).forEach((key) => {
-    const name = key.split('-');
-    if (key.startsWith('header-left')) {
+    const name = key.split("-");
+    if (key.startsWith("header-left")) {
       list.push({ index: Number(name[2]), name: key });
     }
   });
@@ -115,7 +115,7 @@ const leftSlots = computed(() => {
 });
 
 function clearPreferencesAndLogout() {
-  emit('clearPreferencesAndLogout');
+  emit("clearPreferencesAndLogout");
 }
 </script>
 

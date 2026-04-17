@@ -1,20 +1,20 @@
 <script setup lang="ts">
-import type { CSSProperties } from 'vue';
+import type { CSSProperties } from "vue";
 
-import type { VbenLayoutProps } from './vben-layout';
+import type { VbenLayoutProps } from "./vben-layout";
 
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch } from "vue";
 
 import {
   SCROLL_FIXED_CLASS,
   useLayoutFooterStyle,
   useLayoutHeaderStyle,
-} from '@vben-core/composables';
-import { IconifyIcon } from '@vben-core/icons';
-import { VbenIconButton } from '@vben-core/shadcn-ui';
-import { ELEMENT_ID_MAIN_CONTENT } from '@vben-core/shared/constants';
+} from "@vben-core/composables";
+import { IconifyIcon } from "@vben-core/icons";
+import { VbenIconButton } from "@vben-core/shadcn-ui";
+import { ELEMENT_ID_MAIN_CONTENT } from "@vben-core/shared/constants";
 
-import { useMouse, useScroll, useThrottleFn } from '@vueuse/core';
+import { useMouse, useScroll, useThrottleFn } from "@vueuse/core";
 
 import {
   LayoutContent,
@@ -22,17 +22,17 @@ import {
   LayoutHeader,
   LayoutSidebar,
   LayoutTabbar,
-} from './components';
-import { useLayout } from './hooks/use-layout';
+} from "./components";
+import { useLayout } from "./hooks/use-layout";
 
 interface Props extends VbenLayoutProps {}
 
 defineOptions({
-  name: 'VbenLayout',
+  name: "VbenLayout",
 });
 
 const props = withDefaults(defineProps<Props>(), {
-  contentCompact: 'wide',
+  contentCompact: "wide",
   contentCompactWidth: 1200,
   contentPadding: 0,
   contentPaddingBottom: 0,
@@ -44,19 +44,19 @@ const props = withDefaults(defineProps<Props>(), {
   footerHeight: 32,
   headerHeight: 50,
   headerHidden: false,
-  headerMode: 'fixed',
+  headerMode: "fixed",
   headerToggleSidebarButton: true,
   headerVisible: true,
   isMobile: false,
-  layout: 'sidebar-nav',
+  layout: "sidebar-nav",
   sidebarCollapsedButton: true,
   sidebarCollapseShowTitle: false,
   sidebarExtraCollapsedWidth: 60,
   sidebarFixedButton: true,
   sidebarHidden: false,
   sidebarMixedWidth: 80,
-  sidebarTheme: 'dark',
-  sidebarThemeSub: 'dark',
+  sidebarTheme: "dark",
+  sidebarThemeSub: "dark",
   sidebarWidth: 180,
   sideCollapseWidth: 60,
   tabbarEnable: true,
@@ -67,39 +67,34 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   sideMouseLeave: [];
   toggleSidebar: [];
-  'update:sidebar-width': [value: number];
+  "update:sidebar-width": [value: number];
 }>();
-const sidebarDraggable = defineModel<boolean>('sidebarDraggable', {
+const sidebarDraggable = defineModel<boolean>("sidebarDraggable", {
   default: true,
 });
-const sidebarCollapse = defineModel<boolean>('sidebarCollapse', {
+const sidebarCollapse = defineModel<boolean>("sidebarCollapse", {
   default: false,
 });
-const sidebarExtraVisible = defineModel<boolean>('sidebarExtraVisible');
-const sidebarExtraCollapse = defineModel<boolean>('sidebarExtraCollapse', {
+const sidebarExtraVisible = defineModel<boolean>("sidebarExtraVisible");
+const sidebarExtraCollapse = defineModel<boolean>("sidebarExtraCollapse", {
   default: false,
 });
-const sidebarExpandOnHover = defineModel<boolean>('sidebarExpandOnHover', {
+const sidebarExpandOnHover = defineModel<boolean>("sidebarExpandOnHover", {
   default: false,
 });
-const sidebarEnable = defineModel<boolean>('sidebarEnable', { default: true });
+const sidebarEnable = defineModel<boolean>("sidebarEnable", { default: true });
 
 // side是否处于hover状态展开菜单中
 const sidebarExpandOnHovering = ref(false);
 const headerIsHidden = ref(false);
 const contentRef = ref();
 
-const {
-  arrivedState,
-  directions,
-  isScrolling,
-  y: scrollY,
-} = useScroll(document);
+const { arrivedState, directions, isScrolling, y: scrollY } = useScroll(document);
 
 const { setLayoutHeaderHeight } = useLayoutHeaderStyle();
 const { setLayoutFooterHeight } = useLayoutFooterStyle();
 
-const { y: mouseY } = useMouse({ target: contentRef, type: 'client' });
+const { y: mouseY } = useMouse({ target: contentRef, type: "client" });
 
 const {
   currentLayout,
@@ -113,7 +108,7 @@ const {
 /**
  * 顶栏是否自动隐藏
  */
-const isHeaderAutoMode = computed(() => props.headerMode === 'auto');
+const isHeaderAutoMode = computed(() => props.headerMode === "auto");
 
 const headerWrapperHeight = computed(() => {
   let height = 0;
@@ -127,15 +122,9 @@ const headerWrapperHeight = computed(() => {
 });
 
 const getSideCollapseWidth = computed(() => {
-  const {
-    sidebarCollapseShowTitle,
-    sidebarExtraCollapsedWidth,
-    sideCollapseWidth,
-  } = props;
+  const { sidebarCollapseShowTitle, sidebarExtraCollapsedWidth, sideCollapseWidth } = props;
 
-  return sidebarCollapseShowTitle ||
-    isSidebarMixedNav.value ||
-    isHeaderMixedNav.value
+  return sidebarCollapseShowTitle || isSidebarMixedNav.value || isHeaderMixedNav.value
     ? sidebarExtraCollapsedWidth
     : sideCollapseWidth;
 });
@@ -168,10 +157,7 @@ const getSidebarWidth = computed(() => {
 
   if (
     !sidebarEnableState.value ||
-    (sidebarHidden &&
-      !isSidebarMixedNav.value &&
-      !isMixedNav.value &&
-      !isHeaderMixedNav.value)
+    (sidebarHidden && !isSidebarMixedNav.value && !isMixedNav.value && !isHeaderMixedNav.value)
   ) {
     return width;
   }
@@ -200,11 +186,11 @@ const sidebarExtraWidth = computed(() => {
  */
 const isSideMode = computed(
   () =>
-    currentLayout.value === 'mixed-nav' ||
-    currentLayout.value === 'sidebar-mixed-nav' ||
-    currentLayout.value === 'sidebar-nav' ||
-    currentLayout.value === 'header-mixed-nav' ||
-    currentLayout.value === 'header-sidebar-nav',
+    currentLayout.value === "mixed-nav" ||
+    currentLayout.value === "sidebar-mixed-nav" ||
+    currentLayout.value === "sidebar-nav" ||
+    currentLayout.value === "header-mixed-nav" ||
+    currentLayout.value === "header-sidebar-nav",
 );
 
 /**
@@ -214,9 +200,9 @@ const headerFixed = computed(() => {
   const { headerMode } = props;
   return (
     isMixedNav.value ||
-    headerMode === 'fixed' ||
-    headerMode === 'auto-scroll' ||
-    headerMode === 'auto'
+    headerMode === "fixed" ||
+    headerMode === "auto-scroll" ||
+    headerMode === "auto"
   );
 });
 
@@ -230,13 +216,13 @@ const showSidebar = computed(() => {
 const maskVisible = computed(() => !sidebarCollapse.value && props.isMobile);
 
 const mainStyle = computed(() => {
-  let width = '100%';
-  let sidebarAndExtraWidth = 'unset';
+  let width = "100%";
+  let sidebarAndExtraWidth = "unset";
   if (
     headerFixed.value &&
-    currentLayout.value !== 'header-nav' &&
-    currentLayout.value !== 'mixed-nav' &&
-    currentLayout.value !== 'header-sidebar-nav' &&
+    currentLayout.value !== "header-nav" &&
+    currentLayout.value !== "mixed-nav" &&
+    currentLayout.value !== "header-sidebar-nav" &&
     showSidebar.value &&
     !props.isMobile
   ) {
@@ -280,7 +266,7 @@ const tabbarStyle = computed((): CSSProperties => {
 
   // 如果不是混合导航，tabbar 的宽度为 100%
   if (!isMixedNav.value || props.sidebarHidden) {
-    width = '100%';
+    width = "100%";
   } else if (sidebarEnable.value) {
     // 鼠标在侧边栏上时，且侧边栏展开时的宽度
     const onHoveringWidth = sidebarExpandOnHover.value
@@ -288,15 +274,13 @@ const tabbarStyle = computed((): CSSProperties => {
       : getSideCollapseWidth.value;
 
     // 设置 marginLeft，根据侧边栏是否折叠来决定
-    marginLeft = sidebarCollapse.value
-      ? getSideCollapseWidth.value
-      : onHoveringWidth;
+    marginLeft = sidebarCollapse.value ? getSideCollapseWidth.value : onHoveringWidth;
 
     // 设置 tabbar 的宽度，计算方式为 100% 减去侧边栏的宽度
     width = `calc(100% - ${sidebarCollapse.value ? getSidebarWidth.value : onHoveringWidth}px)`;
   } else {
     // 默认情况下，tabbar 的宽度为 100%
-    width = '100%';
+    width = "100%";
   }
 
   return {
@@ -330,15 +314,12 @@ const headerZIndex = computed(() => {
 const headerWrapperStyle = computed((): CSSProperties => {
   const fixed = headerFixed.value;
   return {
-    height: isFullContent.value ? '0' : `${headerWrapperHeight.value}px`,
+    height: isFullContent.value ? "0" : `${headerWrapperHeight.value}px`,
     left: isMixedNav.value ? 0 : mainStyle.value.sidebarAndExtraWidth,
-    position: fixed ? 'fixed' : 'static',
-    top:
-      headerIsHidden.value || isFullContent.value
-        ? `-${headerWrapperHeight.value}px`
-        : 0,
+    position: fixed ? "fixed" : "static",
+    top: headerIsHidden.value || isFullContent.value ? `-${headerWrapperHeight.value}px` : 0,
     width: mainStyle.value.width,
-    'z-index': headerZIndex.value,
+    "z-index": headerZIndex.value,
   };
 });
 
@@ -358,7 +339,7 @@ const sidebarZIndex = computed(() => {
 
 const footerWidth = computed(() => {
   if (!props.footerFixed) {
-    return '100%';
+    return "100%";
   }
 
   return mainStyle.value.width;
@@ -422,15 +403,14 @@ watch(
     [() => props.headerMode, () => mouseY.value, () => headerIsHidden.value],
     () => {
       if (!isHeaderAutoMode.value || isMixedNav.value || isFullContent.value) {
-        if (props.headerMode !== 'auto-scroll') {
+        if (props.headerMode !== "auto-scroll") {
           headerIsHidden.value = false;
         }
         return;
       }
 
       const isInTriggerZone = mouseY.value <= HEADER_TRIGGER_DISTANCE;
-      const isInHeaderZone =
-        !headerIsHidden.value && mouseY.value <= headerWrapperHeight.value;
+      const isInHeaderZone = !headerIsHidden.value && mouseY.value <= headerWrapperHeight.value;
 
       headerIsHidden.value = !(isInTriggerZone || isInHeaderZone);
     },
@@ -461,19 +441,11 @@ watch(
   watch(
     () => scrollY.value,
     () => {
-      if (
-        props.headerMode !== 'auto-scroll' ||
-        isMixedNav.value ||
-        isFullContent.value
-      ) {
+      if (props.headerMode !== "auto-scroll" || isMixedNav.value || isFullContent.value) {
         return;
       }
       if (isScrolling.value) {
-        checkHeaderIsHidden(
-          directions.top,
-          directions.bottom,
-          arrivedState.top,
-        );
+        checkHeaderIsHidden(directions.top, directions.bottom, arrivedState.top);
       }
     },
   );
@@ -487,7 +459,7 @@ function handleHeaderToggle() {
   if (props.isMobile) {
     sidebarCollapse.value = false;
   } else {
-    emit('toggleSidebar');
+    emit("toggleSidebar");
   }
 }
 
@@ -583,11 +555,7 @@ const idMainContent = ELEMENT_ID_MAIN_CONTENT;
           <slot name="header"></slot>
         </LayoutHeader>
 
-        <LayoutTabbar
-          v-if="tabbarEnable"
-          :height="tabbarHeight"
-          :style="tabbarStyle"
-        >
+        <LayoutTabbar v-if="tabbarEnable" :height="tabbarHeight" :style="tabbarStyle">
           <slot name="tabbar"></slot>
         </LayoutTabbar>
       </div>

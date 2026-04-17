@@ -1,4 +1,4 @@
-type StorageType = 'localStorage' | 'sessionStorage';
+type StorageType = "localStorage" | "sessionStorage";
 
 interface StorageManagerOptions {
   prefix?: string;
@@ -14,15 +14,9 @@ class StorageManager {
   private prefix: string;
   private storage: Storage;
 
-  constructor({
-    prefix = '',
-    storageType = 'localStorage',
-  }: StorageManagerOptions = {}) {
+  constructor({ prefix = "", storageType = "localStorage" }: StorageManagerOptions = {}) {
     this.prefix = prefix;
-    this.storage =
-      storageType === 'localStorage'
-        ? window.localStorage
-        : window.sessionStorage;
+    this.storage = storageType === "localStorage" ? window.localStorage : window.sessionStorage;
   }
 
   /**
@@ -46,7 +40,7 @@ class StorageManager {
     for (let i = 0; i < this.storage.length; i++) {
       const key = this.storage.key(i);
       if (key && key.startsWith(this.prefix)) {
-        const shortKey = key.replace(this.prefix, '');
+        const shortKey = key.replace(this.prefix, "");
         this.getItem(shortKey); // 调用 getItem 方法检查并移除过期项
       }
     }

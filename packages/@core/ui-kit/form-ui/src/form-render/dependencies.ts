@@ -1,28 +1,21 @@
-import type {
-  FormItemDependencies,
-  FormSchemaRuleType,
-  MaybeComponentProps,
-} from '../types';
+import type { FormItemDependencies, FormSchemaRuleType, MaybeComponentProps } from "../types";
 
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch } from "vue";
 
-import { get, isBoolean, isFunction } from '@vben-core/shared/utils';
+import { get, isBoolean, isFunction } from "@vben-core/shared/utils";
 
-import { useFormValues } from 'vee-validate';
+import { useFormValues } from "vee-validate";
 
-import { injectRenderFormProps } from './context';
+import { injectRenderFormProps } from "./context";
 
 /**
  * 解析Nested Objects对应的字段值
  * @param values 表单值
  * @param fieldName 字段名
  */
-function resolveValueByFieldName(
-  values: Record<string, any>,
-  fieldName: string,
-) {
+function resolveValueByFieldName(values: Record<string, any>, fieldName: string) {
   // vee-validate：[] 表示禁用嵌套
-  if (fieldName.startsWith('[') && fieldName.endsWith(']')) {
+  if (fieldName.startsWith("[") && fieldName.endsWith("]")) {
     const rawKey = fieldName.slice(1, -1);
     return values[rawKey];
   }
@@ -30,20 +23,18 @@ function resolveValueByFieldName(
   return get(values, fieldName);
 }
 
-export default function useDependencies(
-  getDependencies: () => FormItemDependencies | undefined,
-) {
+export default function useDependencies(getDependencies: () => FormItemDependencies | undefined) {
   const values = useFormValues();
 
   const formRenderProps = injectRenderFormProps();
   const formApi = formRenderProps.form;
 
   if (!formApi) {
-    throw new Error('Form api is required in useDependencies');
+    throw new Error("Form api is required in useDependencies");
   }
 
   if (!values) {
-    throw new Error('useDependencies should be used within <VbenForm>');
+    throw new Error("useDependencies should be used within <VbenForm>");
   }
 
   const isIf = ref(true);
@@ -77,15 +68,7 @@ export default function useDependencies(
         return;
       }
       resetConditionState();
-      const {
-        componentProps,
-        disabled,
-        if: whenIf,
-        required,
-        rules,
-        show,
-        trigger,
-      } = dependencies;
+      const { componentProps, disabled, if: whenIf, required, rules, show, trigger } = dependencies;
 
       // 1. 优先判断if，如果if为false，则不渲染dom，后续判断也不再执行
       const formValues = values.value;

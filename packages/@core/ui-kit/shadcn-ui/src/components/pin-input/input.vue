@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { PinInputProps } from './types';
+import type { PinInputProps } from "./types";
 
-import { computed, onBeforeUnmount, ref, useId, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, useId, watch } from "vue";
 
-import { PinInput, PinInputGroup, PinInputInput } from '../../ui';
-import { VbenButton } from '../button';
+import { PinInput, PinInputGroup, PinInputInput } from "../../ui";
+import { VbenButton } from "../button";
 
 defineOptions({
   inheritAttrs: false,
@@ -43,17 +43,17 @@ const btnLoading = computed(() => {
 watch(
   () => modelValue.value,
   () => {
-    inputValue.value = modelValue.value?.split('') ?? [];
+    inputValue.value = modelValue.value?.split("") ?? [];
   },
 );
 
 watch(inputValue, (val) => {
-  modelValue.value = val.join('');
+  modelValue.value = val.join("");
 });
 
 function handleComplete(e: string[]) {
-  modelValue.value = e.join('');
-  emit('complete');
+  modelValue.value = e.join("");
+  emit("complete");
 }
 
 async function handleSend(e: Event) {
@@ -63,9 +63,9 @@ async function handleSend(e: Event) {
     countdown.value = maxTime;
     startCountdown();
   } catch (error) {
-    console.error('Failed to send code:', error);
+    console.error("Failed to send code:", error);
     // Consider emitting an error event or showing a notification
-    emit('sendError', error);
+    emit("sendError", error);
   }
 }
 
@@ -85,7 +85,7 @@ onBeforeUnmount(() => {
 
 const id = useId();
 
-const pinType = 'text' as const;
+const pinType = "text" as const;
 </script>
 
 <template>
@@ -101,11 +101,7 @@ const pinType = 'text' as const;
   >
     <div class="relative flex w-full">
       <PinInputGroup class="mr-2">
-        <PinInputInput
-          v-for="(item, index) in codeLength"
-          :key="item"
-          :index="index"
-        />
+        <PinInputInput v-for="(item, index) in codeLength" :key="item" :index="index" />
       </PinInputGroup>
       <VbenButton
         :disabled="disabled"

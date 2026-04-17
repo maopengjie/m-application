@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router';
+import { useRoute } from "vue-router";
 
-import { SvgDingDingIcon } from '@vben/icons';
-import { $t } from '@vben/locales';
+import { SvgDingDingIcon } from "@vben/icons";
+import { $t } from "@vben/locales";
 
-import { alert, useVbenModal } from '@vben-core/popup-ui';
-import { VbenIconButton } from '@vben-core/shadcn-ui';
-import { loadScript } from '@vben-core/shared/utils';
+import { alert, useVbenModal } from "@vben-core/popup-ui";
+import { VbenIconButton } from "@vben-core/shadcn-ui";
+import { loadScript } from "@vben-core/shared/utils";
 
 interface Props {
   clientId: string;
@@ -25,7 +25,7 @@ const [Modal, modalApi] = useVbenModal({
   header: false,
   footer: false,
   fullscreenButton: false,
-  class: 'size-75.5 dingding-qrcode-login-modal',
+  class: "size-75.5 dingding-qrcode-login-modal",
   onOpened() {
     handleQrCodeLogin();
   },
@@ -46,13 +46,11 @@ const handleQrCodeLogin = async () => {
   const { clientId, corpId } = props;
   if (!(window as any).DTFrameLogin) {
     // 二维码登录 加载资源
-    await loadScript(
-      'https://g.alicdn.com/dingding/h5-dingtalk-login/0.21.0/ddlogin.js',
-    );
+    await loadScript("https://g.alicdn.com/dingding/h5-dingtalk-login/0.21.0/ddlogin.js");
   }
   (window as any).DTFrameLogin(
     {
-      id: 'dingding_qrcode_login_element',
+      id: "dingding_qrcode_login_element",
       width: 300,
       height: 300,
     },
@@ -60,10 +58,10 @@ const handleQrCodeLogin = async () => {
       // 注意：redirect_uri 需为完整URL，扫码后钉钉会带code跳转到这里
       redirect_uri: encodeURIComponent(getRedirectUri()),
       client_id: clientId,
-      scope: 'openid corpid',
-      response_type: 'code',
-      state: '1',
-      prompt: 'consent',
+      scope: "openid corpid",
+      response_type: "code",
+      state: "1",
+      prompt: "consent",
       corpId,
     },
     (loginResult: any) => {

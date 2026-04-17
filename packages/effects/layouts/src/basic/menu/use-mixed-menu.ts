@@ -1,30 +1,28 @@
-import type { MenuRecordRaw } from '@vben/types';
+import type { MenuRecordRaw } from "@vben/types";
 
-import { computed, onBeforeMount, ref, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { computed, onBeforeMount, ref, watch } from "vue";
+import { useRoute } from "vue-router";
 
-import { preferences, usePreferences } from '@vben/preferences';
-import { useAccessStore } from '@vben/stores';
-import { findRootMenuByPath } from '@vben/utils';
+import { preferences, usePreferences } from "@vben/preferences";
+import { useAccessStore } from "@vben/stores";
+import { findRootMenuByPath } from "@vben/utils";
 
-import { useNavigation } from './use-navigation';
+import { useNavigation } from "./use-navigation";
 
 function useMixedMenu() {
   const { navigation, willOpenedByWindow } = useNavigation();
   const accessStore = useAccessStore();
   const route = useRoute();
   const splitSideMenus = ref<MenuRecordRaw[]>([]);
-  const rootMenuPath = ref<string>('');
-  const mixedRootMenuPath = ref<string>('');
+  const rootMenuPath = ref<string>("");
+  const mixedRootMenuPath = ref<string>("");
   const mixExtraMenus = ref<MenuRecordRaw[]>([]);
   /** 记录当前顶级菜单下哪个子菜单最后激活 */
   const defaultSubMap = new Map<string, string>();
   const { isMixedNav, isHeaderMixedNav } = usePreferences();
 
   const needSplit = computed(
-    () =>
-      (preferences.navigation.split && isMixedNav.value) ||
-      isHeaderMixedNav.value,
+    () => (preferences.navigation.split && isMixedNav.value) || isHeaderMixedNav.value,
   );
 
   const sidebarVisible = computed(() => {
@@ -85,7 +83,7 @@ function useMixedMenu() {
    * @param mode 菜单模式
    */
   const handleMenuSelect = (key: string, mode?: string) => {
-    if (!needSplit.value || mode === 'vertical') {
+    if (!needSplit.value || mode === "vertical") {
       navigation(key);
       return;
     }
@@ -93,7 +91,7 @@ function useMixedMenu() {
     const _splitSideMenus = rootMenu?.children ?? [];
 
     if (!willOpenedByWindow(key)) {
-      rootMenuPath.value = rootMenu?.path ?? '';
+      rootMenuPath.value = rootMenu?.path ?? "";
       splitSideMenus.value = _splitSideMenus;
     }
 
@@ -115,9 +113,7 @@ function useMixedMenu() {
    */
   const handleMenuOpen = (key: string, parentsPath: string[]) => {
     if (parentsPath.length <= 1 && preferences.sidebar.autoActivateChild) {
-      navigation(
-        defaultSubMap.has(key) ? (defaultSubMap.get(key) as string) : key,
-      );
+      navigation(defaultSubMap.has(key) ? (defaultSubMap.get(key) as string) : key);
     }
   };
 
@@ -131,9 +127,9 @@ function useMixedMenu() {
       rootMenu = menus.value.find((item) => item.path === path);
     }
     const result = findRootMenuByPath(rootMenu?.children || [], path, 1);
-    mixedRootMenuPath.value = result.rootMenuPath ?? '';
+    mixedRootMenuPath.value = result.rootMenuPath ?? "";
     mixExtraMenus.value = result.rootMenu?.children ?? [];
-    rootMenuPath.value = rootMenu?.path ?? '';
+    rootMenuPath.value = rootMenu?.path ?? "";
     splitSideMenus.value = rootMenu?.children ?? [];
   }
 
@@ -145,8 +141,7 @@ function useMixedMenu() {
         return;
       }
       calcSideMenus(currentPath);
-      if (rootMenuPath.value)
-        defaultSubMap.set(rootMenuPath.value, currentPath);
+      if (rootMenuPath.value) defaultSubMap.set(rootMenuPath.value, currentPath);
     },
     { immediate: true },
   );

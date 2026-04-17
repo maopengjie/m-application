@@ -1,22 +1,22 @@
 <script setup lang="ts">
-import type { MenuRecordRaw } from '@vben-core/typings';
+import type { MenuRecordRaw } from "@vben-core/typings";
 
-import type { NormalMenuProps } from './normal-menu';
+import type { NormalMenuProps } from "./normal-menu";
 
-import { useNamespace } from '@vben-core/composables';
-import { VbenIcon } from '@vben-core/shadcn-ui';
+import { useNamespace } from "@vben-core/composables";
+import { VbenIcon } from "@vben-core/shadcn-ui";
 
 interface Props extends NormalMenuProps {}
 
 defineOptions({
-  name: 'NormalMenu',
+  name: "NormalMenu",
 });
 
 const props = withDefaults(defineProps<Props>(), {
-  activePath: '',
+  activePath: "",
   collapse: false,
   menus: () => [],
-  theme: 'dark',
+  theme: "dark",
 });
 
 const emit = defineEmits<{
@@ -24,24 +24,16 @@ const emit = defineEmits<{
   select: [MenuRecordRaw];
 }>();
 
-const { b, e, is } = useNamespace('normal-menu');
+const { b, e, is } = useNamespace("normal-menu");
 
 function menuIcon(menu: MenuRecordRaw) {
-  return props.activePath === menu.path
-    ? menu.activeIcon || menu.icon
-    : menu.icon;
+  return props.activePath === menu.path ? menu.activeIcon || menu.icon : menu.icon;
 }
 </script>
 
 <template>
   <ul
-    :class="[
-      theme,
-      b(),
-      is('collapse', collapse),
-      is(theme, true),
-      is('rounded', rounded),
-    ]"
+    :class="[theme, b(), is('collapse', collapse), is(theme, true), is('rounded', rounded)]"
     class="relative"
   >
     <template v-for="menu in menus" :key="menu.path">
@@ -83,12 +75,8 @@ function menuIcon(menu: MenuRecordRaw) {
   @apply text-foreground;
 }
 
-.vben-normal-menu.is-dark
-  .vben-normal-menu__item.is-active
-  .vben-normal-menu__name,
-.vben-normal-menu.is-dark
-  .vben-normal-menu__item.is-active
-  .vben-normal-menu__icon {
+.vben-normal-menu.is-dark .vben-normal-menu__item.is-active .vben-normal-menu__name,
+.vben-normal-menu.is-dark .vben-normal-menu__item.is-active .vben-normal-menu__icon {
   @apply text-foreground;
 }
 

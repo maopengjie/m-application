@@ -1,40 +1,30 @@
 <script lang="ts" setup>
-import type { SetupContext } from 'vue';
-import type { RouteLocationNormalizedLoaded } from 'vue-router';
+import type { SetupContext } from "vue";
+import type { RouteLocationNormalizedLoaded } from "vue-router";
 
-import type { MenuRecordRaw } from '@vben/types';
+import type { MenuRecordRaw } from "@vben/types";
 
-import { computed, onMounted, useSlots, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { computed, onMounted, useSlots, watch } from "vue";
+import { useRoute } from "vue-router";
 
-import { useRefresh } from '@vben/hooks';
-import { $t, i18n } from '@vben/locales';
-import {
-  preferences,
-  updatePreferences,
-  usePreferences,
-} from '@vben/preferences';
-import { useAccessStore, useTabbarStore, useTimezoneStore } from '@vben/stores';
-import { cloneDeep, mapTree } from '@vben/utils';
+import { useRefresh } from "@vben/hooks";
+import { $t, i18n } from "@vben/locales";
+import { preferences, updatePreferences, usePreferences } from "@vben/preferences";
+import { useAccessStore, useTabbarStore, useTimezoneStore } from "@vben/stores";
+import { cloneDeep, mapTree } from "@vben/utils";
 
-import { VbenAdminLayout } from '@vben-core/layout-ui';
-import { VbenBackTop, VbenLogo } from '@vben-core/shadcn-ui';
+import { VbenAdminLayout } from "@vben-core/layout-ui";
+import { VbenBackTop, VbenLogo } from "@vben-core/shadcn-ui";
 
-import { Breadcrumb, CheckUpdates, Preferences } from '../widgets';
-import { LayoutContent, LayoutContentSpinner } from './content';
-import { Copyright } from './copyright';
-import { LayoutFooter } from './footer';
-import { LayoutHeader } from './header';
-import {
-  LayoutExtraMenu,
-  LayoutMenu,
-  LayoutMixedMenu,
-  useExtraMenu,
-  useMixedMenu,
-} from './menu';
-import { LayoutTabbar } from './tabbar';
+import { Breadcrumb, CheckUpdates, Preferences } from "../widgets";
+import { LayoutContent, LayoutContentSpinner } from "./content";
+import { Copyright } from "./copyright";
+import { LayoutFooter } from "./footer";
+import { LayoutHeader } from "./header";
+import { LayoutExtraMenu, LayoutMenu, LayoutMixedMenu, useExtraMenu, useMixedMenu } from "./menu";
+import { LayoutTabbar } from "./tabbar";
 
-defineOptions({ name: 'BasicLayout' });
+defineOptions({ name: "BasicLayout" });
 
 const emit = defineEmits<{ clearPreferencesAndLogout: []; clickLogo: [] }>();
 
@@ -57,17 +47,17 @@ const { refresh } = useRefresh();
 
 const sidebarTheme = computed(() => {
   const dark = isDark.value || preferences.theme.semiDarkSidebar;
-  return dark ? 'dark' : 'light';
+  return dark ? "dark" : "light";
 });
 
 const sidebarThemeSub = computed(() => {
   const dark = isDark.value || preferences.theme.semiDarkSidebarSub;
-  return dark ? 'dark' : 'light';
+  return dark ? "dark" : "light";
 });
 
 const headerTheme = computed(() => {
   const dark = isDark.value || preferences.theme.semiDarkHeader;
-  return dark ? 'dark' : 'light';
+  return dark ? "dark" : "light";
 });
 
 const logoClass = computed(() => {
@@ -75,18 +65,18 @@ const logoClass = computed(() => {
   const classes: string[] = [];
 
   if (collapsedShowTitle && sidebarCollapsed.value && !isMixedNav.value) {
-    classes.push('mx-auto');
+    classes.push("mx-auto");
   }
 
   if (isSideMixedNav.value) {
-    classes.push('flex-center');
+    classes.push("flex-center");
   }
 
-  return classes.join(' ');
+  return classes.join(" ");
 });
 
 const isMenuRounded = computed(() => {
-  return preferences.navigation.styleType === 'rounded';
+  return preferences.navigation.styleType === "rounded";
 });
 
 const logoCollapsed = computed(() => {
@@ -96,16 +86,11 @@ const logoCollapsed = computed(() => {
   if (isHeaderNav.value || isMixedNav.value || isHeaderSidebarNav.value) {
     return false;
   }
-  return (
-    sidebarCollapsed.value || isSideMixedNav.value || isHeaderMixedNav.value
-  );
+  return sidebarCollapsed.value || isSideMixedNav.value || isHeaderMixedNav.value;
 });
 
 const showHeaderNav = computed(() => {
-  return (
-    !isMobile.value &&
-    (isHeaderNav.value || isMixedNav.value || isHeaderMixedNav.value)
-  );
+  return !isMobile.value && (isHeaderNav.value || isMixedNav.value || isHeaderMixedNav.value);
 });
 
 const {
@@ -154,19 +139,17 @@ function toggleSidebar() {
 }
 
 function clearPreferencesAndLogout() {
-  emit('clearPreferencesAndLogout');
+  emit("clearPreferencesAndLogout");
 }
 
 function clickLogo() {
-  emit('clickLogo');
+  emit("clickLogo");
 }
 
 function autoCollapseMenuByRouteMeta(route: RouteLocationNormalizedLoaded) {
   // 只在双列模式下生效
   if (
-    ['header-mixed-nav', 'sidebar-mixed-nav'].includes(
-      preferences.app.layout,
-    ) &&
+    ["header-mixed-nav", "sidebar-mixed-nav"].includes(preferences.app.layout) &&
     route.meta &&
     route.meta.hideInMenu
   ) {
@@ -183,7 +166,7 @@ onMounted(() => {
 watch(
   () => preferences.app.layout,
   async (val) => {
-    if (val === 'sidebar-mixed-nav' && preferences.sidebar.hidden) {
+    if (val === "sidebar-mixed-nav" && preferences.sidebar.hidden) {
       updatePreferences({
         sidebar: {
           hidden: false,
@@ -202,14 +185,14 @@ function refreshAll() {
 
 // 语言更新后，刷新页面
 // i18n.global.locale会在preference.app.locale变更之后才会更新，因此watchpreference.app.locale是不合适的，刷新页面时可能语言配置尚未完全加载完成
-watch(i18n.global.locale, refreshAll, { flush: 'post' });
+watch(i18n.global.locale, refreshAll, { flush: "post" });
 
 // 时区更新后，刷新页面
-watch(() => timezoneStore.timezone, refreshAll, { flush: 'post' });
+watch(() => timezoneStore.timezone, refreshAll, { flush: "post" });
 
-const slots: SetupContext['slots'] = useSlots();
+const slots: SetupContext["slots"] = useSlots();
 const headerSlots = computed(() => {
-  return Object.keys(slots).filter((key) => key.startsWith('header-'));
+  return Object.keys(slots).filter((key) => key.startsWith("header-"));
 });
 </script>
 
@@ -257,20 +240,14 @@ const headerSlots = computed(() => {
     @update:sidebar-collapse="
       (value: boolean) => updatePreferences({ sidebar: { collapsed: value } })
     "
-    @update:sidebar-enable="
-      (value: boolean) => updatePreferences({ sidebar: { enable: value } })
-    "
+    @update:sidebar-enable="(value: boolean) => updatePreferences({ sidebar: { enable: value } })"
     @update:sidebar-expand-on-hover="
-      (value: boolean) =>
-        updatePreferences({ sidebar: { expandOnHover: value } })
+      (value: boolean) => updatePreferences({ sidebar: { expandOnHover: value } })
     "
     @update:sidebar-extra-collapse="
-      (value: boolean) =>
-        updatePreferences({ sidebar: { extraCollapse: value } })
+      (value: boolean) => updatePreferences({ sidebar: { extraCollapse: value } })
     "
-    @update:sidebar-width="
-      (value: number) => updatePreferences({ sidebar: { width: value } })
-    "
+    @update:sidebar-width="(value: number) => updatePreferences({ sidebar: { width: value } })"
   >
     <!-- logo -->
     <template #logo>
@@ -292,14 +269,8 @@ const headerSlots = computed(() => {
     </template>
     <!-- 头部区域 -->
     <template #header>
-      <LayoutHeader
-        :theme="theme"
-        @clear-preferences-and-logout="clearPreferencesAndLogout"
-      >
-        <template
-          v-if="!showHeaderNav && preferences.breadcrumb.enable"
-          #breadcrumb
-        >
+      <LayoutHeader :theme="theme" @clear-preferences-and-logout="clearPreferencesAndLogout">
+        <template v-if="!showHeaderNav && preferences.breadcrumb.enable" #breadcrumb>
           <Breadcrumb
             :hide-when-only-one="preferences.breadcrumb.hideOnlyOne"
             :show-home="preferences.breadcrumb.showHome"
@@ -401,10 +372,7 @@ const headerSlots = computed(() => {
     <!-- 页脚 -->
     <template v-if="preferences.footer.enable" #footer>
       <LayoutFooter>
-        <Copyright
-          v-if="preferences.copyright.enable"
-          v-bind="preferences.copyright"
-        />
+        <Copyright v-if="preferences.copyright.enable" v-bind="preferences.copyright" />
       </LayoutFooter>
     </template>
 

@@ -1,18 +1,11 @@
 <script setup lang="ts">
-import type { CSSProperties } from 'vue';
+import type { CSSProperties } from "vue";
 
-import {
-  computed,
-  onBeforeUnmount,
-  onMounted,
-  onUpdated,
-  ref,
-  watchEffect,
-} from 'vue';
+import { computed, onBeforeUnmount, onMounted, onUpdated, ref, watchEffect } from "vue";
 
-import { VbenTooltip } from '@vben-core/shadcn-ui';
+import { VbenTooltip } from "@vben-core/shadcn-ui";
 
-import { useElementSize } from '@vueuse/core';
+import { useElementSize } from "@vueuse/core";
 
 interface Props {
   /**
@@ -34,7 +27,7 @@ interface Props {
    * 提示框位置
    * @default 'top'
    */
-  placement?: 'bottom' | 'left' | 'right' | 'top';
+  placement?: "bottom" | "left" | "right" | "top";
   /**
    * 是否启用文本提示框
    * @default true
@@ -76,22 +69,22 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   expand: false,
   line: 1,
-  maxWidth: '100%',
-  placement: 'top',
+  maxWidth: "100%",
+  placement: "top",
   tooltip: true,
   tooltipWhenEllipsis: false,
   ellipsisThreshold: 3,
-  tooltipBackgroundColor: '',
-  tooltipColor: '',
+  tooltipBackgroundColor: "",
+  tooltipColor: "",
   tooltipFontSize: 14,
   tooltipMaxWidth: undefined,
-  tooltipOverlayStyle: () => ({ textAlign: 'justify' }),
+  tooltipOverlayStyle: () => ({ textAlign: "justify" }),
 });
 
 const emit = defineEmits<{ expandChange: [boolean] }>();
 
 const textMaxWidth = computed(() => {
-  if (typeof props.maxWidth === 'number') {
+  if (typeof props.maxWidth === "number") {
     return `${props.maxWidth}px`;
   }
   return props.maxWidth;
@@ -109,7 +102,7 @@ const checkEllipsis = () => {
 
   const element = ellipsis.value;
 
-  const originalText = element.textContent || '';
+  const originalText = element.textContent || "";
   const originalTrimmed = originalText.trim();
 
   // 对于空文本直接返回 false
@@ -123,16 +116,14 @@ const checkEllipsis = () => {
 
   // 使用足够大的差异阈值确保只有真正被截断的文本才会显示 tooltip
   isEllipsis.value =
-    props.line === 1
-      ? widthDiff > props.ellipsisThreshold
-      : heightDiff > props.ellipsisThreshold;
+    props.line === 1 ? widthDiff > props.ellipsisThreshold : heightDiff > props.ellipsisThreshold;
 };
 
 // 使用 ResizeObserver 监听尺寸变化
 let resizeObserver: null | ResizeObserver = null;
 
 onMounted(() => {
-  if (typeof ResizeObserver !== 'undefined' && props.tooltipWhenEllipsis) {
+  if (typeof ResizeObserver !== "undefined" && props.tooltipWhenEllipsis) {
     resizeObserver = new ResizeObserver(() => {
       checkEllipsis();
     });
@@ -163,23 +154,24 @@ onBeforeUnmount(() => {
 watchEffect(
   () => {
     if (props.tooltip && eleWidth.value) {
-      defaultTooltipMaxWidth.value =
-        props.tooltipMaxWidth ?? eleWidth.value + 24;
+      defaultTooltipMaxWidth.value = props.tooltipMaxWidth ?? eleWidth.value + 24;
     }
   },
-  { flush: 'post' },
+  { flush: "post" },
 );
 
 function onExpand() {
   isExpand.value = !isExpand.value;
-  emit('expandChange', isExpand.value);
+  emit("expandChange", isExpand.value);
   if (props.tooltipWhenEllipsis) {
     checkEllipsis();
   }
 }
 
 function handleExpand() {
-  props.expand && onExpand();
+  if (props.expand) {
+    onExpand();
+  }
 }
 </script>
 <template>
@@ -192,9 +184,7 @@ function handleExpand() {
         color: tooltipColor,
         backgroundColor: tooltipBackgroundColor,
       }"
-      :disabled="
-        !props.tooltip || isExpand || (props.tooltipWhenEllipsis && !isEllipsis)
-      "
+      :disabled="!props.tooltip || isExpand || (props.tooltipWhenEllipsis && !isEllipsis)"
       :side="placement"
     >
       <slot name="tooltip">

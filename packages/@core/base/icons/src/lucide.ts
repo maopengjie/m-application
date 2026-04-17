@@ -91,4 +91,4 @@ export {
   Unlink2,
   UserRoundPen,
   X,
-} from 'lucide-vue-next';
+} from "lucide-vue-next";

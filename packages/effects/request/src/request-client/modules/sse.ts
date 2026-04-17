@@ -1,7 +1,7 @@
-import type { AxiosRequestHeaders, InternalAxiosRequestConfig } from 'axios';
+import type { AxiosRequestHeaders, InternalAxiosRequestConfig } from "axios";
 
-import type { RequestClient } from '../request-client';
-import type { SseRequestOptions } from '../types';
+import type { RequestClient } from "../request-client";
+import type { SseRequestOptions } from "../types";
 
 /**
  * SSE模块
@@ -13,14 +13,10 @@ class SSE {
     this.client = client;
   }
 
-  public async postSSE(
-    url: string,
-    data?: any,
-    requestOptions?: SseRequestOptions,
-  ) {
+  public async postSSE(url: string, data?: any, requestOptions?: SseRequestOptions) {
     return this.requestSSE(url, data, {
       ...requestOptions,
-      method: 'POST',
+      method: "POST",
     });
   }
 
@@ -30,26 +26,18 @@ class SSE {
    * @param data - 请求数据
    * @param requestOptions - SSE请求选项
    */
-  public async requestSSE(
-    url: string,
-    data?: any,
-    requestOptions?: SseRequestOptions,
-  ) {
-    const baseUrl = this.client.getBaseUrl() || '';
+  public async requestSSE(url: string, data?: any, requestOptions?: SseRequestOptions) {
+    const baseUrl = this.client.getBaseUrl() || "";
 
     let axiosConfig: InternalAxiosRequestConfig<any> = {
       url,
-      method: (requestOptions?.method as any) ?? 'GET',
+      method: (requestOptions?.method as any) ?? "GET",
       headers: {} as AxiosRequestHeaders,
     };
-    const requestInterceptors = this.client.instance.interceptors
-      .request as any;
-    if (
-      requestInterceptors.handlers &&
-      requestInterceptors.handlers.length > 0
-    ) {
+    const requestInterceptors = this.client.instance.interceptors.request as any;
+    if (requestInterceptors.handlers && requestInterceptors.handlers.length > 0) {
       for (const handler of requestInterceptors.handlers) {
-        if (typeof handler?.fulfilled === 'function') {
+        if (typeof handler?.fulfilled === "function") {
           const next = await handler.fulfilled(axiosConfig as any);
           if (next) axiosConfig = next as InternalAxiosRequestConfig<any>;
         }
@@ -57,26 +45,26 @@ class SSE {
     }
 
     const merged = new Headers();
-    Object.entries(
-      (axiosConfig.headers ?? {}) as Record<string, string>,
-    ).forEach(([k, v]) => merged.set(k, String(v)));
+    Object.entries((axiosConfig.headers ?? {}) as Record<string, string>).forEach(([k, v]) =>
+      merged.set(k, String(v)),
+    );
     if (requestOptions?.headers) {
       new Headers(requestOptions.headers).forEach((v, k) => merged.set(k, v));
     }
-    if (!merged.has('accept')) {
-      merged.set('accept', 'text/event-stream');
+    if (!merged.has("accept")) {
+      merged.set("accept", "text/event-stream");
     }
 
     let bodyInit = requestOptions?.body ?? data;
-    const ct = (merged.get('content-type') || '').toLowerCase();
+    const ct = (merged.get("content-type") || "").toLowerCase();
     if (
       bodyInit &&
-      typeof bodyInit === 'object' &&
+      typeof bodyInit === "object" &&
       !ArrayBuffer.isView(bodyInit as any) &&
       !(bodyInit instanceof ArrayBuffer) &&
       !(bodyInit instanceof Blob) &&
       !(bodyInit instanceof FormData) &&
-      ct.includes('application/json')
+      ct.includes("application/json")
     ) {
       bodyInit = JSON.stringify(bodyInit);
     }
@@ -96,7 +84,7 @@ class SSE {
     const decoder = new TextDecoder();
 
     if (!reader) {
-      throw new Error('No reader');
+      throw new Error("No reader");
     }
     while (true) {
       const { done, value } = await reader.read();
@@ -128,7 +116,7 @@ function safeJoinUrl(baseUrl: string | undefined, url: string): string {
   }
 
   // 否则，当作路径拼接
-  return `${baseUrl.replace(/\/+$/, '')}/${url.replace(/^\/+/, '')}`;
+  return `${baseUrl.replace(/\/+$/, "")}/${url.replace(/^\/+/, "")}`;
 }
 
 export { SSE };

@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import { useElementPlusDesignTokens } from '@vben/hooks';
+import { useElementPlusDesignTokens } from "@vben/hooks";
 
-import { ElConfigProvider } from 'element-plus';
+import { ElConfigProvider } from "element-plus";
 
-import { elementLocale } from '#/locales';
+import { elementLocale } from "#/locales";
 
-defineOptions({ name: 'App' });
+defineOptions({ name: "App" });
 
 useElementPlusDesignTokens();
 </script>

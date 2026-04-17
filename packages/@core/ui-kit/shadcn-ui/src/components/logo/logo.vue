@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed } from "vue";
 
-import { VbenAvatar } from '../avatar';
+import { VbenAvatar } from "../avatar";
 
 interface Props {
   /**
@@ -11,7 +11,7 @@ interface Props {
   /**
    * @zh_CN Logo 图片适应方式
    */
-  fit?: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down';
+  fit?: "contain" | "cover" | "fill" | "none" | "scale-down";
   /**
    * @zh_CN Logo 跳转地址
    */
@@ -39,17 +39,17 @@ interface Props {
 }
 
 defineOptions({
-  name: 'VbenLogo',
+  name: "VbenLogo",
 });
 
 const props = withDefaults(defineProps<Props>(), {
   collapsed: false,
-  href: 'javascript:void 0',
+  href: "javascript:void 0",
   logoSize: 32,
-  src: '',
-  srcDark: '',
-  theme: 'light',
-  fit: 'cover',
+  src: "",
+  srcDark: "",
+  theme: "light",
+  fit: "cover",
 });
 
 /**
@@ -57,7 +57,7 @@ const props = withDefaults(defineProps<Props>(), {
  */
 const logoSrc = computed(() => {
   // 如果是暗色主题且提供了 srcDark，则使用暗色主题的 logo
-  if (props.theme === 'dark' && props.srcDark) {
+  if (props.theme === "dark" && props.srcDark) {
     return props.srcDark;
   }
   // 否则使用默认的 src

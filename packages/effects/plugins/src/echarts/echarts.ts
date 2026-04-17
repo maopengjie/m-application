@@ -1,4 +1,4 @@
-import { BarChart, LineChart, PieChart, RadarChart } from 'echarts/charts';
+import { BarChart, LineChart, PieChart, RadarChart } from "echarts/charts";
 import {
   DatasetComponent,
   GridComponent,
@@ -7,14 +7,10 @@ import {
   ToolboxComponent,
   TooltipComponent,
   TransformComponent,
-} from 'echarts/components';
-import * as echarts from 'echarts/core';
-import {
-  LabelLayout,
-  LegacyGridContainLabel,
-  UniversalTransition,
-} from 'echarts/features';
-import { CanvasRenderer } from 'echarts/renderers';
+} from "echarts/components";
+import * as echarts from "echarts/core";
+import { LabelLayout, LegacyGridContainLabel, UniversalTransition } from "echarts/features";
+import { CanvasRenderer } from "echarts/renderers";
 
 echarts.use([
   TitleComponent,
@@ -33,6 +29,6 @@ echarts.use([
   LegendComponent,
   ToolboxComponent,
 ]);
-export type { ECOption } from './types';
+export type { ECOption } from "./types";
 
 export default echarts;

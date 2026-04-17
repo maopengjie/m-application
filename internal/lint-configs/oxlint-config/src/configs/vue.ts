@@ -1,8 +1,8 @@
-import type { OxlintConfig } from 'oxlint';
+import type { OxlintConfig } from "oxlint";
 
 const vue: OxlintConfig = {
   rules: {
-    'vue/prefer-import-from-vue': 'error',
+    "vue/prefer-import-from-vue": "error",
   },
 };
 

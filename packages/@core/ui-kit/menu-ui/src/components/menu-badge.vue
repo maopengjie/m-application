@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { MenuRecordBadgeRaw } from '@vben-core/typings';
+import type { MenuRecordBadgeRaw } from "@vben-core/typings";
 
-import { computed } from 'vue';
+import { computed } from "vue";
 
-import { isValidColor } from '@vben-core/shared/color';
+import { isValidColor } from "@vben-core/shared/color";
 
-import BadgeDot from './menu-badge-dot.vue';
+import BadgeDot from "./menu-badge-dot.vue";
 
 interface Props extends MenuRecordBadgeRaw {
   hasChildren?: boolean;
@@ -14,14 +14,14 @@ interface Props extends MenuRecordBadgeRaw {
 const props = withDefaults(defineProps<Props>(), {});
 
 const variantsMap: Record<string, string> = {
-  default: 'bg-green-500',
-  destructive: 'bg-destructive',
-  primary: 'bg-primary',
-  success: 'bg-green-500',
-  warning: 'bg-yellow-500',
+  default: "bg-green-500",
+  destructive: "bg-destructive",
+  primary: "bg-primary",
+  success: "bg-green-500",
+  warning: "bg-yellow-500",
 };
 
-const isDot = computed(() => props.badgeType === 'dot');
+const isDot = computed(() => props.badgeType === "dot");
 
 const badgeClass = computed(() => {
   const { badgeVariants } = props;

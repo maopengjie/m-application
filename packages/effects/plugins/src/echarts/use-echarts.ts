@@ -1,10 +1,10 @@
-import type { EChartsOption } from 'echarts';
+import type { EChartsOption } from "echarts";
 
-import type { Ref } from 'vue';
+import type { Ref } from "vue";
 
-import type { Nullable } from '@vben/types';
+import type { Nullable } from "@vben/types";
 
-import type EchartsUI from './echarts-ui.vue';
+import type EchartsUI from "./echarts-ui.vue";
 
 import {
   computed,
@@ -16,9 +16,9 @@ import {
   ref,
   unref,
   watch,
-} from 'vue';
+} from "vue";
 
-import { usePreferences } from '@vben/preferences';
+import { usePreferences } from "@vben/preferences";
 
 import {
   tryOnUnmounted,
@@ -26,13 +26,13 @@ import {
   useResizeObserver,
   useTimeoutFn,
   useWindowSize,
-} from '@vueuse/core';
+} from "@vueuse/core";
 
-import echarts from './echarts';
+import echarts from "./echarts";
 
 type EchartsUIType = typeof EchartsUI | undefined;
 
-type EchartsThemeType = 'dark' | 'light' | null;
+type EchartsThemeType = "dark" | "light" | null;
 
 function useEcharts(chartRef: Ref<EchartsUIType>) {
   let chartInstance: echarts.ECharts | null = null;
@@ -70,7 +70,7 @@ function useEcharts(chartRef: Ref<EchartsUIType>) {
     }
 
     return {
-      backgroundColor: 'transparent',
+      backgroundColor: "transparent",
     };
   });
 
@@ -79,7 +79,7 @@ function useEcharts(chartRef: Ref<EchartsUIType>) {
     if (!el) {
       return;
     }
-    chartInstance = echarts.init(el, t || isDark.value ? 'dark' : null);
+    chartInstance = echarts.init(el, t || isDark.value ? "dark" : null);
 
     return chartInstance;
   };
@@ -118,7 +118,9 @@ function useEcharts(chartRef: Ref<EchartsUIType>) {
             if (!instance) return;
             chartInstance = instance;
           }
-          clear && chartInstance?.clear();
+          if (clear) {
+            chartInstance?.clear();
+          }
           chartInstance?.setOption(currentOptions);
           resolve(chartInstance);
         }, 30);
@@ -164,7 +166,7 @@ function useEcharts(chartRef: Ref<EchartsUIType>) {
     chartInstance?.resize({
       animation: {
         duration: 300,
-        easing: 'quadraticIn',
+        easing: "quadraticIn",
       },
     });
   }

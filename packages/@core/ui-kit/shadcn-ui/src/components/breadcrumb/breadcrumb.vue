@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import type { BreadcrumbProps } from './types';
+import type { BreadcrumbProps } from "./types";
 
-import { ChevronDown } from '@vben-core/icons';
+import { ChevronDown } from "@vben-core/icons";
 
 import {
   Breadcrumb,
@@ -14,12 +14,12 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '../../ui';
-import { VbenIcon } from '../icon';
+} from "../../ui";
+import { VbenIcon } from "../icon";
 
 interface Props extends BreadcrumbProps {}
 
-defineOptions({ name: 'Breadcrumb' });
+defineOptions({ name: "Breadcrumb" });
 withDefaults(defineProps<Props>(), {
   showIcon: false,
 });
@@ -30,17 +30,14 @@ function handleClick(path?: string) {
   if (!path) {
     return;
   }
-  emit('select', path);
+  emit("select", path);
 }
 </script>
 <template>
   <Breadcrumb>
     <BreadcrumbList>
       <TransitionGroup name="breadcrumb-transition">
-        <template
-          v-for="(item, index) in breadcrumbs"
-          :key="`${item.path}-${item.title}-${index}`"
-        >
+        <template v-for="(item, index) in breadcrumbs" :key="`${item.path}-${item.title}-${index}`">
           <BreadcrumbItem>
             <div v-if="item.items?.length ?? 0 > 0">
               <DropdownMenu>
@@ -50,10 +47,7 @@ function handleClick(path?: string) {
                   <ChevronDown class="size-4" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start">
-                  <template
-                    v-for="menuItem in item.items"
-                    :key="`sub-${menuItem.path}`"
-                  >
+                  <template v-for="menuItem in item.items" :key="`sub-${menuItem.path}`">
                     <DropdownMenuItem @click.stop="handleClick(menuItem.path)">
                       {{ menuItem.title }}
                     </DropdownMenuItem>
@@ -87,9 +81,7 @@ function handleClick(path?: string) {
                 {{ item.title }}
               </div>
             </BreadcrumbPage>
-            <BreadcrumbSeparator
-              v-if="index < breadcrumbs.length - 1 && !item.isHome"
-            />
+            <BreadcrumbSeparator v-if="index < breadcrumbs.length - 1 && !item.isHome" />
           </BreadcrumbItem>
         </template>
       </TransitionGroup>
