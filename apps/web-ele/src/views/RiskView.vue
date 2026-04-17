@@ -5,13 +5,18 @@ import { Page } from "@vben/common-ui";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@vben-core/shadcn-ui";
 
+import { ElButton, ElEmpty, ElMessage } from "element-plus";
 import { AlertTriangle, Info, Search, ShieldAlert, ShieldCheck } from "lucide-vue-next";
 
-import { getRisksApi } from "#/api/risk";
+import { getRisksApi, scanProductRiskApi } from "#/api/risk";
 
 const risks = ref<any[]>([]);
 const loading = ref(true);
 const error = ref<null | string>(null);
+
+// Scan state
+const scanUrl = ref("");
+const scanning = ref(false);
 
 const fetchRisks = async () => {
   loading.value = true;
@@ -23,6 +28,29 @@ const fetchRisks = async () => {
     console.error("Failed to fetch risks", error_);
   } finally {
     loading.value = false;
+  }
+};
+
+const handleScan = async () => {
+  if (!scanUrl.value) {
+    ElMessage.warning("请先粘贴商品链接");
+    return;
+  }
+
+  scanning.value = true;
+  try {
+    const result = await scanProductRiskApi(scanUrl.value);
+    risks.value.unshift(result);
+    scanUrl.value = "";
+    ElMessage.success({
+      message: "AI 智能扫描完成",
+      type: "success",
+      plain: true,
+    });
+  } catch (error_: any) {
+    ElMessage.error(error_.message || "扫描失败，请重试");
+  } finally {
+    scanning.value = false;
   }
 };
 
@@ -46,15 +74,21 @@ const getRiskStatus = (score: number) => {
       <div class="relative flex items-center max-w-2xl mx-auto">
         <Search class="absolute left-3 h-5 w-5 text-muted-foreground" />
         <input
+          v-model="scanUrl"
           type="text"
           placeholder="粘贴商品链接进行深度扫描..."
-          class="w-full h-12 pl-10 pr-24 rounded-xl border bg-background shadow-sm focus:ring-2 focus:ring-primary outline-none transition-all"
+          class="w-full h-12 pl-10 pr-24 rounded-xl border bg-background shadow-sm focus:ring-2 focus:ring-primary outline-none transition-all disabled:opacity-50"
+          :disabled="scanning"
+          @keyup.enter="handleScan"
         />
-        <button
-          class="absolute right-2 h-8 px-4 bg-primary text-primary-foreground rounded-lg text-sm font-medium"
+        <ElButton
+          type="primary"
+          class="absolute right-2 h-8 !rounded-lg font-medium shadow-lg"
+          :loading="scanning"
+          @click="handleScan"
         >
           开始扫描
-        </button>
+        </ElButton>
       </div>
     </div>
 
@@ -65,15 +99,15 @@ const getRiskStatus = (score: number) => {
     </div>
 
     <div v-else-if="error" class="flex flex-col items-center justify-center py-20">
-      <el-empty :description="error">
+      <ElEmpty :description="error">
         <template #extra>
-          <el-button type="primary" @click="fetchRisks">重试分析</el-button>
+          <ElButton type="primary" @click="fetchRisks">重试分析</ElButton>
         </template>
-      </el-empty>
+      </ElEmpty>
     </div>
 
     <div v-else-if="risks.length === 0" class="flex flex-col items-center justify-center py-20">
-      <el-empty description="暂未发现显著风险商品" />
+      <ElEmpty description="暂未发现显著风险商品" />
     </div>
     <div v-else class="grid gap-6">
       <Card
@@ -104,7 +138,9 @@ const getRiskStatus = (score: number) => {
             </div>
             <div>
               <CardTitle class="text-lg font-bold">{{ risk.sku_title }}</CardTitle>
-              <span class="text-xs font-medium uppercase text-muted-foreground">{{ risk.platform }} | 评分: {{ risk.score }}</span>
+              <span class="text-xs font-medium uppercase text-muted-foreground">
+                {{ risk.platform }} | 评分: {{ risk.score }} | 更新时间: {{ risk.updated_at }}
+              </span>
             </div>
           </div>
           <Info class="h-5 w-5 text-muted-foreground cursor-help" />

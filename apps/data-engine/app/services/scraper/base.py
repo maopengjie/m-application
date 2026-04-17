@@ -2,7 +2,9 @@ import time
 import random
 import httpx
 import logging
+from abc import ABC, abstractmethod
 from typing import Optional
+from .models import ScrapeResult
 
 logger = logging.getLogger(__name__)
 
@@ -33,3 +35,24 @@ class BaseScraper:
                     logger.error(f"Failed to fetch {url} after {self.max_retries} attempts.")
                     return None
         return None
+
+class BasePlatformScraper(ABC):
+    """
+    Abstract base interface for all platform-specific scrapers.
+    Ensures a consistent protocol for the scraper registry.
+    """
+    @abstractmethod
+    def supports(self, sku: any) -> bool:
+        """
+        Return True if this scraper instance can handle the given SKU.
+        Typically checks sku.platform or URL patterns.
+        """
+        pass
+
+    @abstractmethod
+    def scrape(self, sku: any) -> ScrapeResult:
+        """
+        Execute the scraping logic for a specific SKU.
+        Must return a ScrapeResult object.
+        """
+        pass

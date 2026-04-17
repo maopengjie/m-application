@@ -5,7 +5,7 @@ import { onMounted, ref } from "vue";
 
 import { Page } from "@vben/common-ui";
 
-import { ElMessage, ElMessageBox } from "element-plus";
+import { ElButton, ElEmpty, ElMessage, ElMessageBox, ElTag } from "element-plus";
 
 import { deletePriceAlertApi, getPriceAlertsApi } from "#/api/alert";
 
@@ -51,7 +51,8 @@ const handleDelete = (alert: PriceAlert) => {
 
 const handleImageError = (e: Event) => {
   const target = e.target as HTMLImageElement;
-  target.src = "https://via.placeholder.com/200x200?text=No+Image";
+  target.src =
+    "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiB2aWV3Qm94PSIwIDAgNDAwIDQwMCI+PHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSI0MDAiIGZpbGw9IiNmM2Y0ZjYiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9IiM5Y2EzYWYiPkltYWdlIE5vdCBGb3VuZDwvdGV4dD48L3N2Zz4=";
 };
 
 onMounted(fetchAlerts);
@@ -68,9 +69,9 @@ onMounted(fetchAlerts);
         >
           <!-- Status Tag -->
           <div class="absolute top-2 right-2">
-            <el-tag :type="alert.is_triggered ? 'success' : 'info'" size="small" effect="dark">
+            <ElTag :type="alert.is_triggered ? 'success' : 'info'" size="small" effect="dark">
               {{ alert.is_triggered ? "已触发" : "监控中" }}
-            </el-tag>
+            </ElTag>
           </div>
 
           <div class="flex gap-4">
@@ -114,27 +115,27 @@ onMounted(fetchAlerts);
 
           <div class="mt-4 pt-4 border-t dark:border-zinc-800 flex items-center justify-between">
             <span class="text-[10px] text-gray-400">设置于: {{ new Date(alert.created_at).toLocaleDateString() }}</span>
-            <el-button type="danger" link size="small" @click="handleDelete(alert)">
+            <ElButton type="danger" link size="small" @click="handleDelete(alert)">
               取消提醒
-            </el-button>
+            </ElButton>
           </div>
         </div>
       </div>
 
       <div v-else-if="error && !loading" class="flex flex-col items-center justify-center py-20">
-        <el-empty :description="error">
+        <ElEmpty :description="error">
           <template #extra>
-            <el-button type="primary" @click="handleRetry">立即重试</el-button>
+            <ElButton type="primary" @click="handleRetry">立即重试</ElButton>
           </template>
-        </el-empty>
+        </ElEmpty>
       </div>
 
       <div
         v-else-if="!loading"
         class="flex flex-col items-center justify-center py-20 text-gray-400"
       >
-        <el-empty description="暂无降价提醒，快去搜索心仪商品吧" />
-        <el-button type="primary" @click="() => $router.push('/commerce/search')">去搜索</el-button>
+        <ElEmpty description="暂无降价提醒，快去搜索心仪商品吧" />
+        <ElButton type="primary" @click="() => $router.push('/commerce/search')">去搜索</ElButton>
       </div>
     </div>
   </Page>

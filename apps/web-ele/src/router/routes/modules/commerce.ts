@@ -29,6 +29,9 @@ const routes: RouteRecordRaw[] = [
         meta: {
           icon: "lucide:search",
           title: "全网搜索",
+          // 核心：强制不按路径（含参数）区分页签，实现页签复用
+          tabByPath: false,
+          activePath: "/commerce/search",
         },
       },
       {

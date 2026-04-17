@@ -7,6 +7,7 @@ This guide outlines the emergency procedures for reverting the system to its las
 If the system is unstable after deployment, execute the following commands in order:
 
 ### A. Revert Database Schema
+
 Alembic migrations must be rolled back **before** reverting the application code to ensure DB-Code compatibility.
 
 ```bash
@@ -16,6 +17,7 @@ cd apps/data-engine
 ```
 
 ### B. Revert Application Code
+
 To revert code in a production environment, use `git revert` to create a new "undo" commit. This preserves history and is safe for shared branches.
 
 ```bash
@@ -32,6 +34,7 @@ git push origin main
 _Note: If using a containerized environment (Docker), the fastest way is often to re-deploy the previous successful image tag._
 
 ### C. Revert Configuration
+
 If `.env` was modified, restore it from the backup or `.env.example`.
 
 ```bash
@@ -42,12 +45,12 @@ cp .env.backup .env
 
 ## 2. Recovery Scenarios
 
-| Failure Scenario | Resolution Path |
-| :--- | :--- |
-| **"Invalid Column" Errors** | Run `alembic downgrade -1` once or twice until the schema matches the code. |
-| **Login / Auth Failure** | Check `.env` for `ACCESS_TOKEN_SECRET` consistency. Revert `.env` if changed. |
-| **Scheduler Duplication** | Ensure only ONE instance has the leader lock in Redis. Flush Redis if needed: `redis-cli flushall`. |
-| **500 Serialization Error** | Rollback code to the previous version immediately. |
+| Failure Scenario            | Resolution Path                                                                                     |
+| :-------------------------- | :-------------------------------------------------------------------------------------------------- |
+| **"Invalid Column" Errors** | Run `alembic downgrade -1` once or twice until the schema matches the code.                         |
+| **Login / Auth Failure**    | Check `.env` for `ACCESS_TOKEN_SECRET` consistency. Revert `.env` if changed.                       |
+| **Scheduler Duplication**   | Ensure only ONE instance has the leader lock in Redis. Flush Redis if needed: `redis-cli flushall`. |
+| **500 Serialization Error** | Rollback code to the previous version immediately.                                                  |
 
 ---
 

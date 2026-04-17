@@ -32,6 +32,7 @@ class ProductSKU(Base, TimestampMixin):
     original_price: Mapped[Optional[float]] = mapped_column(Numeric(10, 2))
     shop_name: Mapped[Optional[str]] = mapped_column(String(255))
     buy_url: Mapped[Optional[str]] = mapped_column(String(500))
+    stock_status: Mapped[str] = mapped_column(String(50), default="in_stock")
     is_official: Mapped[bool] = mapped_column(Boolean, default=False)
 
     product: Mapped["Product"] = relationship(back_populates="skus")

@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { defineAsyncComponent } from "vue";
 import { useRoute } from "vue-router";
 
 import { Page } from "@vben/common-ui";
 
 import { ElButton, ElEmpty, ElTag } from "element-plus";
 
-import { defineAsyncComponent } from "vue";
 import { useProductDetail } from "#/views/use-product-detail";
 
 const AlertDialog = defineAsyncComponent(() => import("#/components/AlertDialog.vue"));

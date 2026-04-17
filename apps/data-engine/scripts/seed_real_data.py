@@ -123,9 +123,36 @@ def seed_real_data():
         for i in range(15):
             p = 2999.0 if i < 10 else 2299.0
             db.add(PriceHistory(sku_id=sku2_jd.id, price=p, recorded_at=now - timedelta(days=15-i)))
+        # --- PRODUCT 3: Huawei Watch GT 4 ---
+        p3 = Product(
+            name="华为手表 HUAWEI WATCH GT 4 46mm 云杉绿 智能手表",
+            brand="Huawei",
+            category="智能穿戴",
+            main_image="https://img14.360buyimg.com/n1/s450x450_jfs/t1/168862/20/39324/51441/65029a1eF78a8767e/6d6d8d6d6d6d6d6d.jpg",
+            rating=4.7
+        )
+        db.add(p3); db.flush()
+
+        sku3_jd = ProductSKU(
+            product_id=p3.id,
+            platform="JD",
+            platform_sku_id="100067644265",
+            title="华为 HUAWEI WATCH GT 4 46mm 云杉绿 强劲续航/专业运动监测",
+            price=1488.00,
+            original_price=1588.00,
+            shop_name="华为京东自营官方旗舰店",
+            is_official=True,
+            buy_url="https://item.jd.com/100067644265.html"
+        )
+        db.add(sku3_jd); db.flush()
+
+        # Regular price history
+        for i in range(20):
+            p = 1588.0 if i < 10 else 1488.0
+            db.add(PriceHistory(sku_id=sku3_jd.id, price=p, recorded_at=now - timedelta(days=20-i)))
 
         db.commit()
-        print("Successfully seeded real-world data profiles.")
+        print("Successfully seeded real-world data profiles including Huawei Watch.")
 
     except Exception as e:
         db.rollback()

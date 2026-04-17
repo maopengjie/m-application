@@ -1,162 +1,185 @@
 <script setup lang="ts">
-import type { Product } from "#/api/types";
-
-import { ref, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import { Page } from "@vben/common-ui";
+
+import { ElButton, ElEmpty } from "element-plus";
 
 import { searchProductsApi } from "#/api/product";
 import ProductList from "#/components/ProductList.vue";
 import SearchFilterBar from "#/components/SearchFilterBar.vue";
 
-const router = useRouter();
-const route = useRoute();
-
 interface FilterState {
   sortBy: string;
+  brand?: string;
   platforms: string[];
   minPrice?: number;
   maxPrice?: number;
-  brand: string;
 }
 
+const router = useRouter();
+const route = useRoute();
+
+// 内部状态托管
 const keyword = ref((route.query.q as string) || "");
 const activeFilters = ref<FilterState>({
   sortBy: (route.query.sort_by as string) || "relevance",
-  platforms: route.query.platforms
-    ? (Array.isArray(route.query.platforms)
-      ? (route.query.platforms as string[])
-      : [route.query.platforms as string])
-    : [],
+  brand: (route.query.brand as string) || undefined,
+  platforms: Array.isArray(route.query.platforms)
+    ? (route.query.platforms as string[])
+    : (route.query.platforms
+      ? [route.query.platforms as string]
+      : []),
   minPrice: route.query.min_price ? Number(route.query.min_price) : undefined,
   maxPrice: route.query.max_price ? Number(route.query.max_price) : undefined,
-  brand: (route.query.brand as string) || "",
 });
+
+const products = ref<any[]>([]);
 const loading = ref(false);
 const error = ref<null | string>(null);
-const products = ref<Product[]>([]);
 
-const normalizePlatforms = (value: unknown): string[] | undefined => {
-  if (!value) return undefined;
-  const list = Array.isArray(value) ? value : [value];
-  const normalized = list.filter(
-    (item): item is string => typeof item === "string" && item.length > 0,
-  );
-  return normalized.length > 0 ? normalized : undefined;
-};
-
-const readQueryFilters = (query: typeof route.query): FilterState => ({
-  sortBy: (query.sort_by as string) || "relevance",
-  platforms: normalizePlatforms(query.platforms) || [],
-  minPrice: query.min_price ? Number(query.min_price) : undefined,
-  maxPrice: query.max_price ? Number(query.max_price) : undefined,
-  brand: (query.brand as string) || "",
-});
-
-const performSearch = async () => {
-  const kw = route.query.q as string;
-  if (!kw) return;
+// 执行搜索的核心函数
+const performFetch = async () => {
+  if (!keyword.value.trim()) {
+    products.value = [];
+    return;
+  }
 
   loading.value = true;
   error.value = null;
-
-  // Extract filters from URL
-  const searchParams = {
-    q: kw,
-    sort_by:
-      (route.query.sort_by as string) === "relevance" ? undefined : (route.query.sort_by as string),
-    platforms: normalizePlatforms(route.query.platforms),
-    min_price: route.query.min_price ? Number(route.query.min_price) : undefined,
-    max_price: route.query.max_price ? Number(route.query.max_price) : undefined,
-    brand: (route.query.brand as string) || undefined,
-  };
-
   try {
-    const res = await searchProductsApi(searchParams);
-    products.value = res?.items || [];
-  } catch (error_: unknown) {
-    const errMsg = error_ instanceof Error ? error_.message : "搜索请求失败，请检查网络后重试";
-    console.error("Search error:", error_);
-    error.value = errMsg;
+    const res = await searchProductsApi({
+      q: keyword.value,
+      sort_by: activeFilters.value.sortBy,
+      brand: activeFilters.value.brand,
+      platforms: activeFilters.value.platforms,
+      min_price: activeFilters.value.minPrice,
+      max_price: activeFilters.value.maxPrice,
+    });
+    products.value = res.items || [];
+  } catch (error_: any) {
+    error.value = error_.message || "搜索失败，请刷新重试";
   } finally {
     loading.value = false;
   }
 };
 
-const handleSearch = (newKeyword: string, newFilters?: Partial<FilterState>) => {
-  const combinedFilters = { ...activeFilters.value, ...newFilters };
+// 【核心优化】：手动同步 URL，但不触发路由导航（绝不开新页签）
+const syncUrlSilently = () => {
+  const url = new URL(window.location.href);
+  url.searchParams.set("q", keyword.value);
+  url.searchParams.set("sort_by", activeFilters.value.sortBy);
 
-  // Just update the URL. The watch will handle the rest.
+  if (activeFilters.value.brand) {
+    url.searchParams.set("brand", activeFilters.value.brand);
+  } else {
+    url.searchParams.delete("brand");
+  }
+
+  // 处理数组
+  url.searchParams.delete("platforms");
+  activeFilters.value.platforms.forEach((p) => url.searchParams.append("platforms", p));
+
+  if (activeFilters.value.minPrice)
+    url.searchParams.set("min_price", activeFilters.value.minPrice.toString());
+  else url.searchParams.delete("min_price");
+
+  if (activeFilters.value.maxPrice)
+    url.searchParams.set("max_price", activeFilters.value.maxPrice.toString());
+  else url.searchParams.delete("max_price");
+
+  // 使用 history 原生方法，绕过 Vue Router 的页签监控
+  window.history.replaceState(null, "", url.toString());
+};
+
+const handleSearch = (newKeyword: string) => {
+  keyword.value = newKeyword;
+  syncUrlSilently();
+  void performFetch();
+};
+
+const handleFilter = (filters: FilterState) => {
+  activeFilters.value = { ...filters };
+  syncUrlSilently();
+  void performFetch();
+};
+
+const handleProductClick = (product: any) => {
   router.push({
-    query: {
-      q: newKeyword,
-      sort_by: combinedFilters.sortBy,
-      brand: combinedFilters.brand || undefined,
-      platforms: combinedFilters.platforms.length > 0 ? combinedFilters.platforms : undefined,
-      min_price: combinedFilters.minPrice,
-      max_price: combinedFilters.maxPrice,
-    },
+    name: "CommerceDetail",
+    params: { id: product.product_id || product.id },
   });
 };
 
 const handleRetry = () => {
-  performSearch();
+  void performFetch();
 };
 
-const handleFilter = (filters: FilterState) => {
-  handleSearch(keyword.value, filters);
-};
-
-const handleProductClick = (product: Product) => {
-  router.push({
-    name: "CommerceDetail",
-    params: { id: product.product_id },
-  });
-};
-
+// 监听路由的变化（仅用于从外部跳转进来时同步）
 watch(
-  () => route.query,
-  (newQuery) => {
-    // Sync state
-    keyword.value = (newQuery.q as string) || "";
-    activeFilters.value = readQueryFilters(newQuery);
-
-    // Fetch data
-    performSearch();
+  () => route.query.q,
+  (newQ) => {
+    if (newQ && newQ !== keyword.value) {
+      keyword.value = newQ as string;
+      void performFetch();
+    }
   },
-  { deep: true, immediate: true },
 );
+
+onMounted(() => {
+  void performFetch();
+});
 </script>
 
 <template>
   <Page title="比价搜索" description="搜索全网商品，获取最佳购买建议和价格趋势">
-    <SearchFilterBar
-      :initial-keyword="keyword"
-      :initial-filters="activeFilters"
-      @search="handleSearch"
-      @filter="handleFilter"
-    />
+    <div class="space-y-6">
+      <!-- 搜索和过滤栏 -->
+      <SearchFilterBar
+        :initial-keyword="keyword"
+        :initial-filters="activeFilters"
+        @search="handleSearch"
+        @filter="handleFilter"
+      />
 
-    <div v-if="keyword" class="mb-4 text-sm text-gray-500 dark:text-zinc-400">
-      找到关于 <span class="text-primary font-bold">"{{ keyword }}"</span> 的
-      {{ products.length }} 个结果
-    </div>
+      <!-- 结果展示 -->
+      <div class="min-h-[400px]">
+        <div v-if="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div v-for="i in 8" :key="i" class="bg-card h-80 rounded-xl animate-pulse border"></div>
+        </div>
 
-    <div v-if="error && !loading" class="flex flex-col items-center justify-center py-20">
-      <el-empty :description="error">
-        <template #extra>
-          <el-button type="primary" @click="handleRetry">重试搜索</el-button>
+        <template v-else-if="error">
+          <div class="py-20 text-center">
+            <ElEmpty :description="error">
+              <ElButton type="primary" @click="handleRetry">重试搜索</ElButton>
+            </ElEmpty>
+          </div>
         </template>
-      </el-empty>
-    </div>
 
-    <ProductList v-else :products="products" :loading="loading" @click="handleProductClick" />
+        <template v-else-if="products.length > 0">
+          <div class="mb-4">
+            <span class="text-sm text-muted-foreground">
+              找到关于 "{{ keyword }}" 的 {{ products.length }} 个结果
+            </span>
+          </div>
+          <ProductList :products="products" @click="handleProductClick" />
+        </template>
+
+        <template v-else-if="keyword">
+          <div class="py-20 text-center">
+            <ElEmpty description="未找到相关商品，请尝试更换关键词或过滤器" />
+          </div>
+        </template>
+
+        <template v-else>
+          <div class="py-20 text-center opacity-60">
+            <div class="text-6xl mb-6">🔍</div>
+            <h3 class="text-xl font-bold">开始探索全网底价</h3>
+            <p class="text-muted-foreground mt-2">输入商品名称或粘贴链接，Decidely 为您智能研判</p>
+          </div>
+        </template>
+      </div>
+    </div>
   </Page>
 </template>
-
-<style scoped>
-.text-primary {
-  color: var(--el-color-primary);
-}
-</style>

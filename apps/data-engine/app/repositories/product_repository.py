@@ -70,13 +70,19 @@ class ProductRepository:
             )
         )
 
-        # Keyword search
-        search_filter = or_(
-            Product.name.ilike(f"%{query}%"),
-            Product.brand.ilike(f"%{query}%"),
-            Product.category.ilike(f"%{query}%"),
-        )
-        q = q.filter(search_filter)
+        # Keyword search with word splitting for better matching
+        keywords = query.split()
+        if keywords:
+            keyword_filters = []
+            for word in keywords:
+                keyword_filters.append(
+                    or_(
+                        Product.name.ilike(f"%{word}%"),
+                        Product.brand.ilike(f"%{word}%"),
+                        Product.category.ilike(f"%{word}%"),
+                    )
+                )
+            q = q.filter(*keyword_filters)
 
         # Precise filters on Product
         if category:

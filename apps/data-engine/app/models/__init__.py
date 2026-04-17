@@ -9,7 +9,8 @@ from app.models.product import (
     PriceAlert,
 )
 from app.models.task import CrawlTask
-from app.models.user import User
+from app.models.platform_health import PlatformHealth
+from app.models.scraper_alert import ScraperAlert
 
 __all__ = [
     "PriceMonitor",
@@ -22,4 +23,6 @@ __all__ = [
     "PriceAlert",
     "CrawlTask",
     "User",
+    "PlatformHealth",
+    "ScraperAlert",
 ]

@@ -3,7 +3,6 @@ import type { PriceHistoryStats } from "#/api/types";
 
 import { onMounted, onUnmounted, ref, watch } from "vue";
 
-import * as echarts from "echarts/core";
 import { LineChart } from "echarts/charts";
 import {
   DatasetComponent,
@@ -12,11 +11,15 @@ import {
   TooltipComponent,
   TransformComponent,
 } from "echarts/components";
+import * as echarts from "echarts/core";
+// Import graphic utility
+import { graphic } from "echarts/core";
 import { LabelLayout, UniversalTransition } from "echarts/features";
 import { CanvasRenderer } from "echarts/renderers";
 
-// Import graphic utility
-import { graphic } from "echarts/core";
+const props = defineProps<{
+  skuId?: number | string;
+}>();
 
 echarts.use([
   TooltipComponent,
@@ -30,11 +33,9 @@ echarts.use([
   MarkLineComponent,
 ]);
 
-import { getSkuPriceHistoryApi } from "#/api/product";
+import { ElButton } from "element-plus";
 
-const props = defineProps<{
-  skuId?: number | string;
-}>();
+import { getSkuPriceHistoryApi } from "#/api/product";
 
 const chartRef = ref<HTMLElement | null>(null);
 const activeRange = ref(30);
@@ -248,7 +249,7 @@ onUnmounted(() => {
       >
         <span class="iconify lucide--alert-circle text-red-500 text-4xl mb-2"></span>
         <p class="text-red-500 text-sm mb-3">{{ error }}</p>
-        <el-button size="small" type="primary" plain @click="fetchHistory">点击重试</el-button>
+        <ElButton size="small" type="primary" plain @click="fetchHistory">点击重试</ElButton>
       </div>
 
       <!-- No Data -->
