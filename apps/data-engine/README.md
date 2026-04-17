@@ -66,8 +66,47 @@ Search integration notes:
 - Creating or refreshing `price_monitors` will also sync documents into the `price_monitors` index.
 - When Elasticsearch is disabled, the search endpoint returns a clear disabled response instead of failing.
 
-## What is considered complete
-
-- MySQL 8 is complete when the app uses a MySQL DSN and `alembic upgrade head` succeeds.
-- Redis is complete when the app can read and write cache entries against a running Redis instance.
 - Elasticsearch is optional until search scale requires it. Keep `DATA_ENGINE_ENABLE_ELASTICSEARCH=false` until then.
+
+## Testing
+
+Backend tests use `pytest`. The configuration is stored in `pytest.ini`, so you don't need to set `PYTHONPATH` manually.
+
+### Running all tests:
+
+```bash
+cd apps/data-engine
+./scripts/test.sh
+```
+
+### Running specific test files:
+
+```bash
+./scripts/test.sh tests/test_product.py
+```
+
+### Test Databases:
+
+Tests use local SQLite databases (e.g., `test_product.db`, `test_auth.db`) and automatically apply migrations/seed data for each run.
+
+## Permission Model
+
+The system uses a role-based access control (RBAC) model mapping roles to specific **Access Codes (AC)**.
+
+### Role to Access Code Mapping:
+
+| Role      | Access Codes                                       | Description                                          |
+| :-------- | :------------------------------------------------- | :--------------------------------------------------- |
+| **super** | `AC_100100`, `AC_100110`, `AC_100120`, `AC_100010` | Full system access                                   |
+| **admin** | `AC_100010`, `AC_100020`, `AC_100030`              | Operational management (Crawler, Product management) |
+| **user**  | `AC_1000001`, `AC_1000002`                         | Regular user (Search, Alerting)                      |
+
+### Key Access Codes:
+
+- `AC_100010`: Required for sensitive operations like triggering crawlers, deleting products, or unlocking users.
+
+### Demo Accounts:
+
+- **vben** (Role: `super`): Use this for full platform demonstration.
+- **admin** (Role: `admin`): Use this for operational management scenarios.
+- **jack** (Role: `user`): Use this for standard consumer scenarios.

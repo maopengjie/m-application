@@ -9,6 +9,7 @@ export const overridesPreferences = defineOverridesPreferences({
   // overrides
   app: {
     accessMode: "backend",
+    defaultHomePath: "/commerce/home",
     enableRefreshToken: true,
     name: import.meta.env.VITE_APP_TITLE,
   },

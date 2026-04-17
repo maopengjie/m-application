@@ -145,6 +145,22 @@ def seed_data():
             is_official=True
         ))
 
+        # 8. More products for variety
+        gpu = Product(name="RTX 4090", brand="NVIDIA", category="GPU", main_image="https://img14.360buyimg.com/n1/jfs/t1/139265/29/42557/74039/65796c9dF53d9e802/52775f0a6311de6e.jpg")
+        db.add(gpu)
+        db.flush()
+        db.add(ProductSKU(product_id=gpu.id, platform="JD", platform_sku_id="gpu_001", title="NVIDIA GeForce RTX 4090 Founders Edition", price=15999.00, original_price=15999.00, shop_name="JD Store"))
+        
+        audio = Product(name="Sony WH-1000XM5", brand="Sony", category="Audio", main_image="https://img14.360buyimg.com/n1/jfs/t1/133036/20/38944/32688/65c490a6Fd6e915f1/3d3d1f435ce08709.jpg")
+        db.add(audio)
+        db.flush()
+        db.add(ProductSKU(product_id=audio.id, platform="Tmall", platform_sku_id="audio_001", title="Sony WH-1000XM5 Wireless Noise Cancelling Headphones", price=2499.00, original_price=2999.00, shop_name="Sony Official"))
+
+        # 9. Add Crawl Tasks for the task monitor view
+        from app.models.task import CrawlTask
+        db.add(CrawlTask(task_type="price_update", status="success", total_count=100, success_count=98, failed_count=2, start_time=datetime.now() - timedelta(hours=2), end_time=datetime.now() - timedelta(hours=1)))
+        db.add(CrawlTask(task_type="product_discovery", status="running", total_count=50, success_count=12, failed_count=0, start_time=datetime.now() - timedelta(minutes=15)))
+
         db.commit()
         print("Successfully seeded database with mock data.")
 

@@ -125,14 +125,14 @@ def test_product_cache_data_parity(client, db):
         # 3. First call: Cold Path (triggers cache write)
         resp_cold = client.get(f"/api/v1/products/{p.id}")
         assert resp_cold.status_code == 200
-        data_cold = resp_cold.json()
+        data_cold = resp_cold.json()["data"]
         assert "sku_888" in str(data_cold)
         assert mock_redis.setex.called
 
         # 4. Second call: Hot Path (triggers cache read)
         resp_hot = client.get(f"/api/v1/products/{p.id}")
         assert resp_hot.status_code == 200
-        data_hot = resp_hot.json()
+        data_hot = resp_hot.json()["data"]
 
         # 5. Assert Field-for-Field Parity
         assert data_cold == data_hot

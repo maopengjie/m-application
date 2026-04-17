@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from app.schemas.crawler import CrawlerStartPayload, CrawlPreviewPayload
+from app.schemas.crawler import CrawlerStartPayload, CrawlPreviewPayload, CrawlTaskResponse
 from app.services.crawler_service import CrawlerService
 from app.services.collector_service import CollectorService
 from app.utils.responses import response_success
@@ -27,8 +27,20 @@ async def start_crawler(
     return response_success(result, "Crawler task started")
 
 
+@router.get("/tasks")
+async def get_tasks(
+    skip: int = 0,
+    limit: int = 20,
+    db: Session = Depends(get_db)
+):
+    from app.models.task import CrawlTask
+    tasks = db.query(CrawlTask).order_by(CrawlTask.start_time.desc()).offset(skip).limit(limit).all()
+    data = [CrawlTaskResponse.model_validate(t) for t in tasks]
+    return response_success(data)
+
+
 @router.post("/trigger-update")
 async def trigger_update(db: Session = Depends(get_db)):
     service = CollectorService()
     count = service.run_collection(db)
-    return {"message": "Price update task completed", "updates_count": count}
+    return response_success({"updates_count": count}, "Price update task completed")

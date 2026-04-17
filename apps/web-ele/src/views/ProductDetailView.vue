@@ -1,231 +1,46 @@
 <script setup lang="ts">
-import type { DecisionResult, Product, ProductSKU } from "#/api/types";
-
-import { computed, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 
 import { Page } from "@vben/common-ui";
 
-import { ElButton, ElEmpty, ElMessage, ElTag } from "element-plus";
+import { ElButton, ElEmpty, ElTag } from "element-plus";
 
-import { createPriceAlertApi } from "#/api/alert";
-import { getSkuDecisionApi } from "#/api/decision";
-import { getProductDetailApi } from "#/api/product";
 import AlertDialog from "#/components/AlertDialog.vue";
 import CouponPanel from "#/components/CouponPanel.vue";
 import DecisionCard from "#/components/DecisionCard.vue";
 import PriceCompareTable from "#/components/PriceCompareTable.vue";
 import PriceTrendChart from "#/components/PriceTrendChart.vue";
 import RiskPanel from "#/components/RiskPanel.vue";
+import { useProductDetail } from "#/views/use-product-detail";
 
 const route = useRoute();
 const productId = route.params.id as string;
 
-const loading = ref(true);
-const error = ref<null | string>(null);
-const product = ref<null | Product>(null);
-const decision = ref<DecisionResult | null>(null);
-const alertDialogVisible = ref(false);
-interface AlertProduct {
-  id: number;
-  name?: string;
-  image?: string;
-  title?: string;
-  price?: number;
-  min_price?: number;
-  final_price?: number;
-}
-const selectedShop = ref<AlertProduct | null>(null);
-const selectedSkuId = ref<null | number>(null);
-
-const selectedSku = computed<null | ProductSKU>(() => {
-  if (!product.value) return null;
-  if (!selectedSkuId.value) return product.value.skus[0] || null;
-  return (
-    product.value.skus.find((s: ProductSKU) => s.id === selectedSkuId.value) ||
-    product.value.skus[0] ||
-    null
-  );
-});
-
-const riskLevel = computed(() => {
-  const score = selectedSku.value?.risk_score?.score;
-  if (score === undefined) return "low";
-  if (score < 40) return "high";
-  if (score < 70) return "medium";
-  return "low";
-});
-
-const risksList = computed(() => {
-  const rs = selectedSku.value?.risk_score;
-  const list: string[] = [];
-  if (!rs) return list;
-
-  if (rs.comment_abnormal) list.push("评价内容疑似异常 (AI 识别)");
-  if (rs.sales_abnormal) list.push("销量波动显著异常");
-  if (rs.price_abnormal) list.push("近期价格剧烈跳变");
-  if (rs.rating_low) list.push("商家整体评分偏低");
-
-  // Add detailed reasons if present
-  if (rs.details && rs.details.length > 0) {
-    list.push(...rs.details);
-  }
-
-  return list;
-});
-
-const priceComparisonText = computed(() => {
-  if (!product.value || !selectedSku.value) return "分析中...";
-  const prices = product.value.skus.map((s: ProductSKU) => s.final_price || s.price);
-  const minPrice = Math.min(...prices);
-  const maxPrice = Math.max(...prices);
-  const currentPrice = selectedSku.value.final_price || selectedSku.value.price;
-
-  if (currentPrice <= minPrice) return "全网最低";
-  if (maxPrice === minPrice) return "均价水平";
-
-  // Real percentile calculation: where does this price stand?
-  const rank = (maxPrice - currentPrice) / (maxPrice - minPrice);
-  return "优于 " + (rank * 100).toFixed(0) + "% 平台";
-});
-
-const priceTrendText = computed(() => {
-  if (!decision.value) return "分析中...";
-  if (decision.value.history_score >= 90) return "历史低价";
-  if (decision.value.history_score >= 70) return "近期较优";
-  if (decision.value.history_score >= 40) return "阶段平台";
-  return "价格上行";
-});
-
-const ratingText = computed(() => {
-  // Use real rating from product data if available
-  if (product.value?.rating) {
-    return (product.value.rating * 20).toFixed(0) + "%";
-  }
-  if (!decision.value) return "96%";
-  return Math.max(90, Math.min(100, decision.value.risk_score + 8)) + "%";
-});
-
-const decisionLoading = ref(false);
-const decisionError = ref<null | string>(null);
-
-const fetchDecision = async (skuId: number) => {
-  decisionLoading.value = true;
-  decisionError.value = null;
-  try {
-    const dRes = await getSkuDecisionApi(skuId);
-    decision.value = dRes;
-  } catch (error_: unknown) {
-    const errMsg = error_ instanceof Error ? error_.message : "决策分析请求失败";
-    console.error("Failed to fetch decision:", error_);
-    decisionError.value = errMsg;
-    decision.value = null;
-  } finally {
-    decisionLoading.value = false;
-  }
-};
-
-const handleRetryDecision = () => {
-  if (selectedSkuId.value) {
-    fetchDecision(selectedSkuId.value);
-  }
-};
-
-const handleSelectSku = (sku: ProductSKU) => {
-  selectedSkuId.value = sku.id;
-  fetchDecision(sku.id);
-};
-
-const fetchDetail = async () => {
-  if (!productId) return;
-
-  loading.value = true;
-  error.value = null;
-  try {
-    const res = await getProductDetailApi(productId);
-    product.value = res;
-
-    // Initialize with first SKU if none selected
-    const initialSku = res.skus?.[0];
-    if (initialSku) {
-      if (!selectedSkuId.value) {
-        selectedSkuId.value = initialSku.id;
-      }
-      if (selectedSkuId.value) {
-        await fetchDecision(selectedSkuId.value);
-      }
-    }
-  } catch (error_: unknown) {
-    const errMsg = error_ instanceof Error ? error_.message : "网络请求失败，请尝试刷新重试";
-    console.error("Fetch detail error:", error_);
-    error.value = errMsg;
-  } finally {
-    loading.value = false;
-  }
-};
-
-const handleRetry = () => {
-  fetchDetail();
-};
-
-const handleCreateAlert = (shop: ProductSKU) => {
-  selectedShop.value = {
-    id: shop.id,
-    name: product.value?.name,
-    image: product.value?.main_image,
-    title: product.value?.name,
-    price: shop.price,
-    min_price: shop.price,
-    final_price: shop.final_price,
-  };
-  alertDialogVisible.value = true;
-};
-
-const handleCreateAlertForSelectedSku = () => {
-  if (selectedSku.value) {
-    handleCreateAlert(selectedSku.value);
-  }
-};
-
-interface AlertSubmitData {
-  sku_id?: number;
-  targetPrice: number;
-  notifyMethods: string[];
-  email: string;
-  phone: string;
-}
-
-const handleAlertSubmit = async (data: AlertSubmitData) => {
-  try {
-    await createPriceAlertApi({
-      sku_id: data.sku_id || selectedSku.value?.id || 0,
-      target_price: data.targetPrice,
-      notify_methods: data.notifyMethods?.join(","),
-      email: data.email,
-      phone: data.phone,
-    });
-    ElMessage.success("提醒设置成功！当价格降至 ¥" + data.targetPrice + " 时将通知您");
-  } catch (error_: unknown) {
-    const errMsg = error_ instanceof Error ? error_.message : "设置提醒失败";
-    ElMessage.error(errMsg);
-  }
-};
-
-const handleBuy = () => {
-  const url = selectedSku.value?.buy_url;
-  if (url) {
-    window.open(url, "_blank");
-  } else {
-    ElMessage.warning("购买链接暂不可用");
-  }
-};
-
-const handleImageError = (e: Event) => {
-  const target = e.target as HTMLImageElement;
-  target.src = "https://via.placeholder.com/600x600?text=Image+Not+Found";
-};
-
-onMounted(fetchDetail);
+const {
+  alertDialogVisible,
+  decision,
+  decisionError,
+  decisionLoading,
+  error,
+  handleAlertSubmit,
+  handleBuy,
+  handleCreateAlert,
+  handleCreateAlertForSelectedSku,
+  handleImageError,
+  handleRetry,
+  handleRetryDecision,
+  handleSelectSku,
+  loading,
+  priceComparisonText,
+  priceTrendText,
+  product,
+  ratingText,
+  riskLevel,
+  risksList,
+  selectedShop,
+  selectedSku,
+  selectedSkuId,
+} = useProductDetail(productId);
 </script>
 
 <template>

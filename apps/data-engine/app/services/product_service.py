@@ -56,6 +56,7 @@ class ProductService:
                 pydantic_product = ProductSchema.model_validate(product)
                 self.redis.setex(cache_key, 3600, pydantic_product.model_dump_json())
                 self.logger.info(f"Cache write for product:{product_id}")
+                return pydantic_product
             except Exception as e:
                 self.logger.warning(f"Redis write error: {e}")
             

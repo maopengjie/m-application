@@ -11,11 +11,15 @@ from app.api.v1.endpoints import (
     search,
     system,
     users,
+    menu,
+    coupon,
+    risk,
 )
 
 api_router = APIRouter()
 api_router.include_router(system.router)
 api_router.include_router(auth.router)
+api_router.include_router(menu.router)
 api_router.include_router(users.router)
 api_router.include_router(crawler.router)
 api_router.include_router(analysis.router)
@@ -24,3 +28,5 @@ api_router.include_router(product.router)
 api_router.include_router(search.router)
 api_router.include_router(decision.router)
 api_router.include_router(alert.router)
+api_router.include_router(coupon.router)
+api_router.include_router(risk.router)

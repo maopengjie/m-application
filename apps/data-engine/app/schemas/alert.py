@@ -18,6 +18,8 @@ class AlertProductInfo(BaseModel):
     name: str
     main_image: Optional[str] = None
     brand: Optional[str] = None
+    
+    model_config = ConfigDict(from_attributes=True)
 
 
 class AlertSkuInfo(BaseModel):
@@ -26,6 +28,8 @@ class AlertSkuInfo(BaseModel):
     price: float
     shop_name: Optional[str] = None
     product: AlertProductInfo
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PriceAlertResponse(PriceAlertCreate):

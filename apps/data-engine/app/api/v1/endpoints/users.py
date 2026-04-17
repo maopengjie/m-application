@@ -32,3 +32,10 @@ def unlock_user(
     db.commit()
     
     return response_success({"message": "User successfully unlocked"}, "User unlocked")
+
+
+@router.post("/update")
+async def update_user(data: dict, user: dict = Depends(get_current_user)):
+    """Update current user info."""
+    # Mock update logic
+    return response_success({"message": "User updated successfully", "data": data})

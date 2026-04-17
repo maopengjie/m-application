@@ -6,6 +6,7 @@ from app.core.database import get_db
 from app.schemas.search import SearchResponse, ProductSearchResult
 from app.services.product_service import ProductService
 from app.api.v1.deps import get_current_user
+from app.utils.responses import response_success
 
 router = APIRouter(
     prefix="/search", 
@@ -15,7 +16,7 @@ router = APIRouter(
 product_service = ProductService()
 
 
-@router.get("", response_model=SearchResponse)
+@router.get("")
 def search_products(
     q: str = Query(..., min_length=1),
     sort_by: Optional[str] = Query(None), # price_asc, price_desc
@@ -66,19 +67,23 @@ def search_products(
         # Find the SKU that has the lowest final price among the valid SKUs
         min_price_sku = min(valid_skus, key=lambda s: s.final_price) if valid_skus else None
 
-        items.append(ProductSearchResult(
-            product_id=p.id,
-            name=p.name,
-            image=p.main_image,
-            brand=p.brand,
-            category=p.category,
-            platform=list(platforms_found)[0] if len(platforms_found) == 1 else None,
-            min_price=current_min_price,
-            final_price=final_min_price,
-            shop_name=min_price_sku.shop_name if min_price_sku else None,
-            platform_count=len(platforms_found),
-            comments_count=sum([len(sku.reviews) for sku in valid_skus]),
-            tags=tags
-        ))
+        # Using dict instead of pydantic model for simplicity in response_success
+        items.append({
+            "product_id": p.id,
+            "name": p.name,
+            "image": p.main_image,
+            "brand": p.brand,
+            "category": p.category,
+            "platform": list(platforms_found)[0] if len(platforms_found) == 1 else None,
+            "min_price": float(current_min_price),
+            "final_price": float(final_min_price),
+            "shop_name": min_price_sku.shop_name if min_price_sku else None,
+            "platform_count": len(platforms_found),
+            "comments_count": sum([len(sku.reviews) for sku in valid_skus]),
+            "tags": tags
+        })
         
-    return SearchResponse(items=items, total=total_count)
+    return response_success({
+        "items": items,
+        "total": total_count
+    })

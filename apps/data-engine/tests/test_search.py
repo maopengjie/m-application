@@ -95,16 +95,16 @@ def test_search_pagination_and_sorting(client):
     assert resp.status_code == 200
     data = resp.json()
     
-    assert data["total"] == 2
-    assert len(data["items"]) == 2
-    assert data["items"][0]["product_id"] == 2 # P2
-    assert data["items"][1]["product_id"] == 1 # P1
+    assert data["data"]["total"] == 2
+    assert len(data["data"]["items"]) == 2
+    assert data["data"]["items"][0]["product_id"] == 2 # P2
+    assert data["data"]["items"][1]["product_id"] == 1 # P1
     
     # Descending order: P1 first, P2 second
     resp_desc = client.get("/api/v1/search?q=MacBook&sort_by=price_desc", headers=headers)
     data_desc = resp_desc.json()
-    assert data_desc["items"][0]["product_id"] == 1
-    assert data_desc["items"][1]["product_id"] == 2
+    assert data_desc["data"]["items"][0]["product_id"] == 1
+    assert data_desc["data"]["items"][1]["product_id"] == 2
 
 
 def test_search_platform_filtering_metadata(client):
@@ -113,7 +113,7 @@ def test_search_platform_filtering_metadata(client):
     # Search only JD
     resp = client.get("/api/v1/search?q=MacBook&platforms=JD&sort_by=price_asc", headers=headers)
     assert resp.status_code == 200
-    data = resp.json()
+    data = resp.json()["data"]
     
     # For P1 (MacBook Pro), total reviews across all platforms is 3 (1 from JD, 2 from Taobao)
     # Total platforms is 2 (JD, Taobao)

@@ -46,6 +46,14 @@ const normalizePlatforms = (value: unknown): string[] | undefined => {
   return normalized.length > 0 ? normalized : undefined;
 };
 
+const readQueryFilters = (query: typeof route.query): FilterState => ({
+  sortBy: (query.sort_by as string) || "relevance",
+  platforms: normalizePlatforms(query.platforms) || [],
+  minPrice: query.min_price ? Number(query.min_price) : undefined,
+  maxPrice: query.max_price ? Number(query.max_price) : undefined,
+  brand: (query.brand as string) || "",
+});
+
 const performSearch = async () => {
   const kw = route.query.q as string;
   if (!kw) return;
@@ -77,10 +85,7 @@ const performSearch = async () => {
 };
 
 const handleSearch = (newKeyword: string, newFilters?: Partial<FilterState>) => {
-  const combinedFilters = {
-    ...activeFilters.value,
-    ...newFilters,
-  };
+  const combinedFilters = { ...activeFilters.value, ...newFilters };
 
   // Just update the URL. The watch will handle the rest.
   router.push({
@@ -115,13 +120,7 @@ watch(
   (newQuery) => {
     // Sync state
     keyword.value = (newQuery.q as string) || "";
-    activeFilters.value = {
-      sortBy: (newQuery.sort_by as string) || "relevance",
-      platforms: normalizePlatforms(newQuery.platforms) || [],
-      minPrice: newQuery.min_price ? Number(newQuery.min_price) : undefined,
-      maxPrice: newQuery.max_price ? Number(newQuery.max_price) : undefined,
-      brand: (newQuery.brand as string) || "",
-    };
+    activeFilters.value = readQueryFilters(newQuery);
 
     // Fetch data
     performSearch();

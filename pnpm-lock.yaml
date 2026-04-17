@@ -606,6 +606,9 @@ importers:
 
   apps/web-ele:
     dependencies:
+      '@vben-core/shadcn-ui':
+        specifier: workspace:*
+        version: link:../../packages/@core/ui-kit/shadcn-ui
       '@vben/access':
         specifier: workspace:*
         version: link:../../packages/effects/access
@@ -660,15 +663,15 @@ importers:
       element-plus:
         specifier: 'catalog:'
         version: 2.13.6(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2))
+      lucide-vue-next:
+        specifier: 'catalog:'
+        version: 0.577.0(vue@3.5.32(typescript@6.0.2))
       pinia:
         specifier: ^3.0.4
         version: 3.0.4(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2))
       vue:
         specifier: ^3.5.32
         version: 3.5.32(typescript@6.0.2)
-      vue-i18n:
-        specifier: 'catalog:'
-        version: 11.3.0(vue@3.5.32(typescript@6.0.2))
       vue-router:
         specifier: 'catalog:'
         version: 5.0.4(@vue/compiler-sfc@3.5.32)(pinia@3.0.4(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2)))(vue@3.5.32(typescript@6.0.2))

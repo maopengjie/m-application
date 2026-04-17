@@ -7,6 +7,8 @@ from app.schemas.decision import DecisionResponse
 from app.services.decision_service import DecisionService
 from app.api.v1.deps import get_current_user
 
+from app.utils.responses import response_success
+
 router = APIRouter(
     prefix="/decisions", 
     tags=["decisions"],
@@ -15,7 +17,7 @@ router = APIRouter(
 decision_service = DecisionService()
 
 
-@router.get("/{sku_id}", response_model=DecisionResponse)
+@router.get("/{sku_id}")
 def get_decision(
     sku_id: int,
     db: Session = Depends(get_db),
@@ -24,4 +26,4 @@ def get_decision(
     decision = decision_service.get_decision(db, sku_id)
     if not decision:
         raise HTTPException(status_code=404, detail="SKU not found")
-    return decision
+    return response_success(decision)

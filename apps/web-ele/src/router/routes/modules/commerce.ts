@@ -7,7 +7,7 @@ const routes: RouteRecordRaw[] = [
     component: BasicLayout,
     meta: {
       icon: "lucide:shopping-cart",
-      order: 1,
+      order: -1,
       title: "购物决策中心",
     },
     name: "SmartCommerce",
@@ -19,7 +19,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import("#/views/HomeView.vue"),
         meta: {
           icon: "lucide:home",
-          title: "推荐主页",
+          title: "首页",
         },
       },
       {
@@ -48,6 +48,33 @@ const routes: RouteRecordRaw[] = [
         meta: {
           icon: "lucide:bell",
           title: "降价提醒",
+        },
+      },
+      {
+        name: "CommerceCoupons",
+        path: "coupons",
+        component: () => import("#/views/CouponView.vue"),
+        meta: {
+          icon: "lucide:ticket-percent",
+          title: "优惠计算",
+        },
+      },
+      {
+        name: "CommerceRisk",
+        path: "risk-analysis",
+        component: () => import("#/views/RiskView.vue"),
+        meta: {
+          icon: "lucide:shield-alert",
+          title: "避雷分析",
+        },
+      },
+      {
+        name: "CommerceTasks",
+        path: "crawler-tasks",
+        component: () => import("#/views/tools/tasks/index.vue"),
+        meta: {
+          icon: "lucide:server",
+          title: "爬虫任务",
         },
       },
     ],
