@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional
-from sqlalchemy import String, Numeric, Boolean, DateTime, ForeignKey, Text, Integer
+from sqlalchemy import String, Numeric, Boolean, DateTime, ForeignKey, Text, Integer, JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -16,6 +16,9 @@ class Product(Base, TimestampMixin):
     category: Mapped[Optional[str]] = mapped_column(String(100))
     main_image: Mapped[Optional[str]] = mapped_column(String(500))
     rating: Mapped[Optional[float]] = mapped_column(Numeric(3, 1), default=4.5)
+    
+    # AI extracted structured attributes (e.g. {"CPU": "M3", "RAM": "16GB"})
+    ai_attributes: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
 
     skus: Mapped[list["ProductSKU"]] = relationship(back_populates="product", cascade="all, delete-orphan")
 
@@ -34,9 +37,14 @@ class ProductSKU(Base, TimestampMixin):
     buy_url: Mapped[Optional[str]] = mapped_column(String(500))
     stock_status: Mapped[str] = mapped_column(String(50), default="in_stock")
     is_official: Mapped[bool] = mapped_column(Boolean, default=False)
+    
+    # Visual monitoring fields
+    visual_hash: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
+    last_screenshot: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
 
     product: Mapped["Product"] = relationship(back_populates="skus")
     price_history: Mapped[list["PriceHistory"]] = relationship(back_populates="sku", cascade="all, delete-orphan")
+    stock_history: Mapped[list["StockHistory"]] = relationship(back_populates="sku", cascade="all, delete-orphan")
     coupons: Mapped[list["Coupon"]] = relationship(back_populates="sku", cascade="all, delete-orphan")
     reviews: Mapped[list["Review"]] = relationship(back_populates="sku", cascade="all, delete-orphan")
     risk_score: Mapped[Optional["RiskScore"]] = relationship(back_populates="sku", cascade="all, delete-orphan")
@@ -52,6 +60,18 @@ class PriceHistory(Base):
     recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now, index=True)
 
     sku: Mapped["ProductSKU"] = relationship(back_populates="price_history")
+
+
+class StockHistory(Base):
+    __tablename__ = "stock_history"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    sku_id: Mapped[int] = mapped_column(ForeignKey("product_skus.id"), index=True)
+    stock_level: Mapped[int] = mapped_column(Integer, default=0)
+    status: Mapped[str] = mapped_column(String(50)) # in_stock, out_of_stock
+    recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now, index=True)
+
+    sku: Mapped["ProductSKU"] = relationship(back_populates="stock_history")
 
 
 class Coupon(Base):
@@ -77,6 +97,11 @@ class Review(Base):
     sku_id: Mapped[int] = mapped_column(ForeignKey("product_skus.id"), index=True)
     rating: Mapped[int] = mapped_column(Integer)
     content: Mapped[Optional[str]] = mapped_column(Text)
+    
+    # Sentiment analysis results
+    sentiment_score: Mapped[Optional[float]] = mapped_column(Numeric(3, 2), nullable=True)
+    sentiment_label: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+    
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now)
 
     sku: Mapped["ProductSKU"] = relationship(back_populates="reviews")
@@ -126,4 +151,3 @@ class UserFollow(Base, TimestampMixin):
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), index=True)
 
     product: Mapped["Product"] = relationship()
-

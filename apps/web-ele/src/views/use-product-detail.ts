@@ -2,13 +2,20 @@ import type { ComputedRef, Ref } from "vue";
 
 import type { DecisionResult, Product, ProductSKU, RiskScore } from "#/api/types";
 
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 
 import { ElMessage } from "element-plus";
 
 import { createPriceAlertApi } from "#/api/alert";
 import { AnalyticsEvents, logAnalyticsEventApi } from "#/api/analytics";
 import { getSkuDecisionApi } from "#/api/decision";
+import {
+  analyzeReviewsApi,
+  extractProductSpecsApi,
+  getInventoryAnalysisApi,
+  getPricingAdviceApi,
+  getProductInsightApi,
+} from "#/api/intelligence";
 import {
   followProductApi,
   getAlternativesApi,
@@ -70,6 +77,15 @@ interface UseProductDetailResult {
   }>;
   handleFollow: () => Promise<void>;
   handleUnfollow: () => Promise<void>;
+  // Intelligence Features
+  intelligenceLoading: Ref<boolean>;
+  pricingAdvice: Ref<any | null>;
+  inventoryAnalysis: Ref<any | null>;
+  productInsight: Ref<null | string>;
+  handleExtractSpecs: () => Promise<void>;
+  handleAnalyzeReviews: () => Promise<void>;
+  fetchPricingAdvice: () => Promise<void>;
+  generateInsight: () => Promise<void>;
 }
 
 export function useProductDetail(productId: string): UseProductDetailResult {
@@ -83,6 +99,12 @@ export function useProductDetail(productId: string): UseProductDetailResult {
   const isFollowed = ref(false);
   const isAlertSet = ref(false);
   const revisitSummary = ref<any | null>(null);
+
+  // Intelligence State
+  const intelligenceLoading = ref(false);
+  const pricingAdvice = ref<any | null>(null);
+  const inventoryAnalysis = ref<any | null>(null);
+  const productInsight = ref<null | string>(null);
 
   const selectedSku = computed<null | ProductSKU>(() => {
     if (!product.value) return null;
@@ -112,8 +134,8 @@ export function useProductDetail(productId: string): UseProductDetailResult {
     if (riskScore.price_abnormal) list.push("近期价格剧烈跳变");
     if (riskScore.rating_low) list.push("商家整体评分偏低");
 
-    if (riskScore.details && riskScore.details.length > 0) {
-      list.push(...riskScore.details);
+    if (riskScore.details && (riskScore.details as any).length > 0) {
+      list.push(...(riskScore.details as any));
     }
 
     return list;
@@ -176,6 +198,68 @@ export function useProductDetail(productId: string): UseProductDetailResult {
     }
   };
 
+  const fetchPricingAdvice = async () => {
+    if (!productId) return;
+    try {
+      const res = await getPricingAdviceApi(Number(productId));
+      pricingAdvice.value = res.data;
+    } catch (error_) {
+      console.error("Failed to fetch pricing advice:", error_);
+    }
+  };
+
+  const fetchInventoryAnalysis = async (skuId: number) => {
+    try {
+      const res = await getInventoryAnalysisApi(skuId);
+      inventoryAnalysis.value = res.data;
+    } catch (error_) {
+      console.error("Failed to fetch inventory analysis:", error_);
+    }
+  };
+
+  const generateInsight = async () => {
+    if (!productId) return;
+    intelligenceLoading.value = true;
+    try {
+      const res = await getProductInsightApi(Number(productId));
+      productInsight.value = res.data.synthesized_insight;
+    } catch (error_) {
+      console.error("Failed to generate insight:", error_);
+    } finally {
+      intelligenceLoading.value = false;
+    }
+  };
+
+  const handleExtractSpecs = async () => {
+    if (!product.value || !selectedSku.value) return;
+    intelligenceLoading.value = true;
+    try {
+      const url = selectedSku.value.buy_url;
+      if (!url) throw new Error("无购买链接，无法抓取");
+      await extractProductSpecsApi(product.value.id, url);
+      ElMessage.success("AI 规格提取成功，正在刷新页面...");
+      void fetchDetail();
+    } catch (error_: any) {
+      ElMessage.error(error_.message || "提取失败");
+    } finally {
+      intelligenceLoading.value = false;
+    }
+  };
+
+  const handleAnalyzeReviews = async () => {
+    if (!selectedSku.value) return;
+    intelligenceLoading.value = true;
+    try {
+      await analyzeReviewsApi(selectedSku.value.id);
+      ElMessage.success("情感分析任务已启动");
+      void fetchDetail();
+    } catch (error_: any) {
+      ElMessage.error(error_.message || "分析启动失败");
+    } finally {
+      intelligenceLoading.value = false;
+    }
+  };
+
   const handleRetryDecision = () => {
     if (selectedSkuId.value) {
       void fetchDecision(selectedSkuId.value);
@@ -207,11 +291,14 @@ export function useProductDetail(productId: string): UseProductDetailResult {
         }
         if (selectedSkuId.value) {
           await fetchDecision(selectedSkuId.value);
+          await fetchInventoryAnalysis(selectedSkuId.value);
         }
       }
 
-      // Fetch alternatives (A1-03)
+      // Fetch additional intelligence data
       void fetchAlternatives(productId);
+      void fetchPricingAdvice();
+      void generateInsight(); // Auto-generate insight on load
 
       // M1-01 Tracking
       void logAnalyticsEventApi(AnalyticsEvents.PRODUCT_DETAIL_VIEW, {
@@ -226,6 +313,12 @@ export function useProductDetail(productId: string): UseProductDetailResult {
       loading.value = false;
     }
   };
+
+  watch(selectedSkuId, (newId) => {
+    if (newId) {
+      void fetchInventoryAnalysis(newId);
+    }
+  });
 
   const handleRetry = () => {
     void fetchDetail();
@@ -360,5 +453,14 @@ export function useProductDetail(productId: string): UseProductDetailResult {
     revisitSummary,
     handleFollow,
     handleUnfollow,
+    // Intelligence
+    intelligenceLoading,
+    pricingAdvice,
+    inventoryAnalysis,
+    productInsight,
+    handleExtractSpecs,
+    handleAnalyzeReviews,
+    fetchPricingAdvice,
+    generateInsight,
   };
 }

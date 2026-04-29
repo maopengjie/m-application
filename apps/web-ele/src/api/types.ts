@@ -16,6 +16,8 @@ export interface Review {
   id: number;
   rating: number;
   content: string;
+  sentiment_score?: number;
+  sentiment_label?: string;
   created_at: string;
 }
 
@@ -52,6 +54,8 @@ export interface ProductSKU {
   buy_url?: string;
   is_official: boolean;
   final_price?: number;
+  visual_hash?: string;
+  last_screenshot?: string;
   promotions?: Promotion[];
   price_history?: PriceHistoryItem[];
   coupons?: Coupon[];
@@ -78,6 +82,7 @@ export interface Product {
   min_price?: number;
   original_price?: number;
   final_price?: number;
+  ai_attributes?: Record<string, any>;
   skus: ProductSKU[];
   created_at?: string;
   updated_at?: string;

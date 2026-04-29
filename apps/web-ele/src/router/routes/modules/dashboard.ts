@@ -21,6 +21,15 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
+        name: "CrawlerHealth",
+        path: "/crawler-health",
+        component: () => import("#/views/dashboard/crawler/index.vue"),
+        meta: {
+          icon: "lucide:activity",
+          title: "爬虫治理看板",
+        },
+      },
+      {
         name: "Workspace",
         path: "/workspace",
         component: () => import("#/views/dashboard/workspace/index.vue"),

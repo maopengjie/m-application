@@ -160,3 +160,22 @@ async def get_smoke_status(db: Session = Depends(get_db)):
     }
     
     return response_success(summary)
+
+
+@router.post("/preview")
+async def crawl_preview(
+    payload: CrawlPreviewPayload
+):
+    """
+    Returns a live preview of the target URL using Crawl4AI.
+    Useful for testing selectors or seeing Markdown output.
+    """
+    try:
+        result = crawler_service.fetch_page(
+            payload.target_url, 
+            selector=payload.selector, 
+            dynamic=payload.dynamic
+        )
+        return response_success(result)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

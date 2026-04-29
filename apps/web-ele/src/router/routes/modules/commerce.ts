@@ -16,15 +16,14 @@ const routes: RouteRecordRaw[] = [
       {
         name: "CommerceInsights",
         path: "insights",
-        component: () => import("#/views/InsightView.vue"),
+        component: () => import("#/views/commerce/insights/index.vue"),
         meta: {
           icon: "lucide:sparkles",
-          title: "今日异动",
+          title: "智能市场快报",
         },
       },
       {
         name: "CommerceHome",
-
         path: "home",
         component: () => import("#/views/HomeView.vue"),
         meta: {

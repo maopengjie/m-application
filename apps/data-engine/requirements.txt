@@ -16,3 +16,4 @@ apscheduler
 pymysql
 cryptography
 elasticsearch
+crawl4ai

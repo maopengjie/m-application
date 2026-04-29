@@ -39,6 +39,10 @@ const coreRoutes: RouteRecordRaw[] = [
     children: [],
   },
   {
+    path: "/dashboard",
+    redirect: "/",
+  },
+  {
     component: AuthPageLayout,
     meta: {
       hideInTab: true,

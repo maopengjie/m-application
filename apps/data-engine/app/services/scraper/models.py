@@ -17,7 +17,12 @@ class ScrapeResult(BaseModel):
     title: Optional[str] = None
     shop_name: Optional[str] = None
     stock_status: Optional[str] = None  # in_stock, out_of_stock, pre_order
+    stock_level: Optional[int] = None   # Numeric stock level if available
     buy_url: Optional[str] = None
+    
+    # Tracking
+    visual_hash: Optional[str] = None
+    screenshot_url: Optional[str] = None
     
     # Audit & Debugging
     raw_payload: Optional[Any] = None  # Original HTML or JSON for debugging

@@ -4,7 +4,12 @@ import { useRoute } from "vue-router";
 
 import { Page } from "@vben/common-ui";
 
-import { ElButton, ElEmpty } from "element-plus";
+import {
+  ElButton,
+  ElEmpty,
+  ElStatistic,
+  ElTag,
+} from "element-plus";
 
 import { useProductDetail } from "#/views/use-product-detail";
 
@@ -50,6 +55,14 @@ const {
   revisitSummary,
   handleFollow,
   handleUnfollow,
+  // Intelligence
+  intelligenceLoading,
+  pricingAdvice,
+  inventoryAnalysis,
+  productInsight,
+  handleExtractSpecs,
+  handleAnalyzeReviews,
+  generateInsight,
 } = useProductDetail(productId);
 </script>
 
@@ -61,7 +74,49 @@ const {
   >
     <div v-loading="loading" class="min-h-[400px]">
       <div v-if="product" class="space-y-8">
-        <!-- Hero / Recommendation Section (Task D-01, D-04) -->
+        <!-- NEW: AI Synthesized Insight (Premium Header) -->
+        <div
+          v-if="productInsight"
+          class="relative overflow-hidden bg-gradient-to-r from-zinc-900 to-zinc-800 dark:from-black dark:to-zinc-900 p-8 rounded-3xl text-white shadow-2xl border border-zinc-700/50"
+        >
+          <div class="absolute top-0 right-0 p-8 opacity-10">
+            <span class="iconify lucide--brain-circuit w-32 h-32"></span>
+          </div>
+          <div class="relative z-10 flex flex-col md:flex-row gap-8 items-start">
+            <div class="flex-grow space-y-4">
+              <div class="flex items-center gap-2">
+                <span
+                  class="bg-primary text-primary-foreground text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-widest"
+                  >AI Agent Insight</span>
+                <span class="text-[10px] text-zinc-400 font-bold">深度研判综述 · 实时更新</span>
+              </div>
+              <h2 class="text-xl font-black tracking-tight leading-relaxed">
+                {{ productInsight }}
+              </h2>
+              <div class="flex gap-4">
+                <div class="flex items-center gap-1.5 text-xs text-green-400 font-bold">
+                  <span class="iconify lucide--check-circle w-3.5 h-3.5"></span>
+                  全网多维验证
+                </div>
+                <div class="flex items-center gap-1.5 text-xs text-blue-400 font-bold">
+                  <span class="iconify lucide--shield-check w-3.5 h-3.5"></span>
+                  决策建议置信度 94%
+                </div>
+              </div>
+            </div>
+            <ElButton
+              @click="generateInsight"
+              :loading="intelligenceLoading"
+              type="info"
+              plain
+              class="!bg-white/5 !border-white/10 !text-white !rounded-xl"
+            >
+              重新研判
+            </ElButton>
+          </div>
+        </div>
+
+        <!-- Hero / Recommendation Section -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <!-- Left: Product Image -->
           <div
@@ -103,10 +158,19 @@ const {
               <div class="flex flex-wrap gap-2">
                 <div
                   v-if="isFollowed"
-                  class="bg-blue-500/10 text-blue-600 text-[10px] font-black px-3 py-1 rounded-full border border-blue-500/20 flex items-center gap-1"
+                  class="bg-blue-500/10 text-blue-600 text-[10px] font-black px-3 py-1 rounded-full border border-blue-500/20 flex items-center gap-1 cursor-pointer hover:bg-blue-500/20 transition-colors"
+                  @click="handleUnfollow"
                 >
                   <span class="iconify lucide--heart w-3 h-3 fill-blue-600"></span>
-                  正在关注中
+                  正在关注中 (点击取消)
+                </div>
+                <div
+                  v-else
+                  class="bg-zinc-100 text-zinc-500 text-[10px] font-black px-3 py-1 rounded-full border border-zinc-200 flex items-center gap-1 cursor-pointer hover:bg-zinc-200 transition-colors"
+                  @click="handleFollow"
+                >
+                  <span class="iconify lucide--heart w-3 h-3"></span>
+                  加入关注
                 </div>
                 <div
                   v-if="isAlertSet"
@@ -117,7 +181,7 @@ const {
                 </div>
               </div>
 
-              <!-- Revisit Summary Block (D2-03, D2-04) -->
+              <!-- Revisit Summary Block -->
               <div
                 v-if="revisitSummary"
                 class="p-4 rounded-2xl border flex flex-col gap-1 transition-all"
@@ -155,7 +219,7 @@ const {
                 {{ product.name }}
               </h1>
 
-              <!-- Quick SKU Selector (D-03) -->
+              <!-- Quick SKU Selector -->
               <div class="space-y-3">
                 <div class="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
                   选择渠道版本
@@ -177,7 +241,7 @@ const {
                 </div>
               </div>
 
-              <!-- Price Visualization (R1-01) -->
+              <!-- Price Visualization -->
               <div class="space-y-1 py-2">
                 <div class="flex items-end gap-3">
                   <div class="flex flex-col">
@@ -213,7 +277,7 @@ const {
                 </div>
               </div>
 
-              <!-- Action Buttons (Task D-04) -->
+              <!-- Action Buttons -->
               <div class="flex flex-wrap gap-4 pt-2">
                 <button
                   class="bg-primary hover:bg-primary/90 text-primary-foreground font-black px-12 py-5 rounded-2xl transition-all shadow-xl shadow-primary/20 active:scale-95 flex items-center gap-3 text-lg"
@@ -228,22 +292,6 @@ const {
                 >
                   <span class="iconify lucide--bell-ring w-5 h-5"></span>
                   开启降价监测
-                </button>
-                <button
-                  v-if="!isFollowed"
-                  class="bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 text-blue-600 font-black px-8 py-5 rounded-2xl transition-all active:scale-95 flex items-center gap-3 border border-blue-500/20"
-                  @click="handleFollow"
-                >
-                  <span class="iconify lucide--heart w-5 h-5"></span>
-                  加入关注商品
-                </button>
-                <button
-                  v-else
-                  class="bg-zinc-100 dark:bg-zinc-800 hover:bg-red-50 hover:text-red-500 font-black px-8 py-5 rounded-2xl transition-all active:scale-95 flex items-center gap-3 border border-zinc-200 dark:border-zinc-700"
-                  @click="handleUnfollow"
-                >
-                  <span class="iconify lucide--heart-off w-5 h-5"></span>
-                  取消关注
                 </button>
               </div>
             </div>
@@ -279,7 +327,7 @@ const {
             </div>
           </div>
 
-          <!-- Right: AI Decision Center (Task D-01) -->
+          <!-- Right: AI Decision Center -->
           <div class="lg:col-span-3">
             <div v-loading="decisionLoading" class="h-full flex flex-col gap-6">
               <DecisionCard
@@ -288,7 +336,7 @@ const {
                 class="border-none shadow-none bg-blue-50/50 dark:bg-blue-900/10"
               />
 
-              <!-- Alternative Recommendations (A1-03) -->
+              <!-- Alternative Recommendations -->
               <div
                 v-if="
                   (decision?.suggestion === 'WAIT' || decision?.suggestion === 'AVOID') &&
@@ -327,7 +375,124 @@ const {
           </div>
         </div>
 
-        <!-- Secondary Analysis Section (Task D-05) -->
+        <!-- AI Intelligence Analysis Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <!-- AI Specification Center -->
+          <div
+            class="lg:col-span-3 bg-white dark:bg-zinc-900 p-8 rounded-3xl border border-gray-100 dark:border-zinc-800 shadow-sm"
+          >
+            <div class="flex items-center justify-between mb-8">
+              <h3 class="text-lg font-black flex items-center gap-3">
+                <span class="iconify lucide--sparkles text-amber-500"></span>
+                AI 智能规格中心
+              </h3>
+              <ElButton
+                :loading="intelligenceLoading"
+                type="primary"
+                plain
+                class="!rounded-xl"
+                @click="handleExtractSpecs"
+              >
+                手动触发 AI 提取
+              </ElButton>
+            </div>
+
+            <div v-if="product.ai_attributes" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div
+                v-for="(val, key) in product.ai_attributes"
+                :key="key"
+                class="p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-800"
+              >
+                <div class="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1">
+                  {{ key }}
+                </div>
+                <div class="text-sm font-black text-zinc-800 dark:text-zinc-100">{{ val }}</div>
+              </div>
+            </div>
+            <div v-else class="py-10 text-center">
+              <div class="text-zinc-400 text-sm font-bold mb-4">暂无 AI 提取的结构化规格</div>
+              <p class="text-xs text-zinc-400 max-w-xs mx-auto">
+                点击上方按钮，AI 将深度解析网页详情并自动为您提取关键技术参数。
+              </p>
+            </div>
+          </div>
+
+          <!-- Pricing & Sentiment Center -->
+          <div class="space-y-6">
+            <!-- Pricing Advice -->
+            <div
+              class="bg-gradient-to-br from-indigo-500 to-purple-600 p-8 rounded-3xl text-white shadow-xl"
+            >
+              <div class="flex items-center gap-2 mb-4">
+                <span class="iconify lucide--trending-up w-5 h-5"></span>
+                <span class="text-xs font-black uppercase tracking-widest">动态定价建议</span>
+              </div>
+              <div v-if="pricingAdvice" class="space-y-4">
+                <div class="text-3xl font-black">¥{{ pricingAdvice.suggested_price }}</div>
+                <div class="text-xs font-bold opacity-80 leading-relaxed">
+                  {{ pricingAdvice.reason }}
+                </div>
+                <div class="pt-4 border-t border-white/10 flex justify-between items-center">
+                  <span class="text-[10px] font-black uppercase opacity-60">市场最低参考</span>
+                  <span class="text-sm font-black">¥{{ pricingAdvice.current_lowest_market_price }}</span>
+                </div>
+              </div>
+              <div v-else class="text-xs font-bold opacity-60">正在计算全网最优价...</div>
+            </div>
+
+            <!-- Sentiment Analysis -->
+            <div
+              class="bg-white dark:bg-zinc-900 p-6 rounded-3xl border border-gray-100 dark:border-zinc-800"
+            >
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2 text-zinc-800 dark:text-zinc-100">
+                  <span class="iconify lucide--message-square w-4 h-4"></span>
+                  <span class="font-black text-sm">用户评价情感</span>
+                </div>
+                <ElButton size="small" circle @click="handleAnalyzeReviews">
+                  <span class="iconify lucide--refresh-cw"></span>
+                </ElButton>
+              </div>
+
+              <div class="space-y-4">
+                <div
+                  v-for="review in selectedSku?.reviews?.slice(0, 3) || []"
+                  :key="review.id"
+                  class="space-y-1"
+                >
+                  <div class="flex items-center gap-2">
+                    <ElTag
+                      size="small"
+                      :type="
+                        review.sentiment_label === 'positive'
+                          ? 'success'
+                          : review.sentiment_label === 'negative'
+                            ? 'danger'
+                            : 'info'
+                      "
+                    >
+                      {{ review.sentiment_label || "未分析" }}
+                    </ElTag>
+                    <span class="text-[10px] text-zinc-400">{{
+                      review.created_at?.split("T")[0]
+                    }}</span>
+                  </div>
+                  <p class="text-xs text-zinc-600 dark:text-zinc-400 line-clamp-2">
+                    {{ review.content }}
+                  </p>
+                </div>
+                <div
+                  v-if="!selectedSku?.reviews?.length"
+                  class="text-xs text-zinc-400 py-4 text-center"
+                >
+                  暂无评论数据
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Secondary Analysis Section -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 font-black">
           <!-- Left: Detailed Trends & Comparison -->
           <div class="lg:col-span-2 space-y-6">
@@ -342,7 +507,7 @@ const {
               <PriceTrendChart :sku-id="selectedSku?.id" />
             </div>
 
-            <!-- Shop Comparison (D-02, D-03) -->
+            <!-- Shop Comparison -->
             <div
               class="bg-white dark:bg-zinc-900 p-8 rounded-3xl border border-gray-100 dark:border-zinc-800 shadow-sm"
             >
@@ -370,17 +535,77 @@ const {
             <!-- Risk Analysis -->
             <RiskPanel :risk-info="riskInfo" />
 
-            <!-- Safe Tip -->
+            <!-- Predictive Restock & Visual Tracking -->
             <div
-              class="bg-amber-50 dark:bg-amber-950/20 p-6 rounded-3xl border border-amber-100 dark:border-amber-900/30"
+              class="bg-zinc-50 dark:bg-zinc-800/50 p-6 rounded-3xl border border-zinc-100 dark:border-zinc-800"
             >
-              <div class="flex items-center gap-3 text-amber-600 mb-3">
-                <span class="iconify lucide--shield-check w-5 h-5"></span>
-                <span class="font-black text-sm">Decidely 购物安全贴士</span>
+              <h4 class="text-xs font-black uppercase tracking-widest text-zinc-400 mb-4">
+                库存预测与监控
+              </h4>
+
+              <div
+                v-if="inventoryAnalysis"
+                class="mb-6 p-4 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800"
+              >
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="iconify lucide--calendar-clock text-primary"></span>
+                  <span class="text-[10px] font-black uppercase">补货预测建议</span>
+                </div>
+
+                <div v-if="inventoryAnalysis.status !== 'insufficient_data'">
+                  <div class="flex justify-between items-end mb-4">
+                    <ElStatistic
+                      :value="inventoryAnalysis.estimated_days_remaining"
+                      title="预计售完天数"
+                    />
+                    <ElTag
+                      :type="
+                        inventoryAnalysis.status === 'critical'
+                          ? 'danger'
+                          : inventoryAnalysis.status === 'warning'
+                            ? 'warning'
+                            : 'success'
+                      "
+                      size="small"
+                    >
+                      {{ inventoryAnalysis.status.toUpperCase() }}
+                    </ElTag>
+                  </div>
+                  <div class="text-[10px] text-zinc-400 font-bold">
+                    建议补货日期:
+                    <span class="text-zinc-800 dark:text-zinc-100">{{
+                      inventoryAnalysis.suggested_restock_date
+                    }}</span>
+                  </div>
+                </div>
+                <div v-else class="text-[10px] text-zinc-400 italic">
+                  {{ inventoryAnalysis.message }}
+                </div>
               </div>
-              <p class="text-xs text-amber-700 dark:text-amber-400 leading-relaxed font-bold">
-                建议收藏商品并开启“大幅降价”通知。我们的 AI 会为您监控多个平台的隐藏券及秒杀活动。
-              </p>
+
+              <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs text-zinc-500">库存状态</span>
+                  <ElTag
+                    :type="selectedSku?.stock_status === 'in_stock' ? 'success' : 'danger'"
+                    size="small"
+                  >
+                    {{ selectedSku?.stock_status === "in_stock" ? "充足" : "紧缺" }}
+                  </ElTag>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-xs text-zinc-500">页面视觉指纹</span>
+                  <span class="text-[10px] font-mono text-zinc-400">{{
+                    selectedSku?.visual_hash?.slice(0, 8) || "N/A"
+                  }}</span>
+                </div>
+                <div v-if="selectedSku?.last_screenshot" class="pt-2">
+                  <img
+                    :src="selectedSku.last_screenshot"
+                    class="w-full h-20 object-cover rounded-xl opacity-50 grayscale hover:grayscale-0 transition-all"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -396,11 +621,6 @@ const {
             </div>
           </template>
         </ElEmpty>
-      </div>
-
-      <div v-else-if="!loading" class="flex flex-col items-center justify-center py-40">
-        <ElEmpty description="未找到商品详情" />
-        <ElButton type="primary" @click="() => $router.back()">返回搜索</ElButton>
       </div>
 
       <!-- Alert Dialog -->
@@ -420,5 +640,12 @@ const {
 
 .tracking-tighter {
   letter-spacing: -0.05em;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 </style>

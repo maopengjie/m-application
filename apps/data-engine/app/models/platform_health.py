@@ -22,6 +22,9 @@ class PlatformHealth(Base):
     
     # Calculated status: healthy, degraded, critical
     status = Column(String(20), default="healthy")
+    
+    # Adaptive governance fields
+    current_interval = Column(Float, default=1.0)
 
     # Metadata for the batch that generated this snapshot
     task_id = Column(Integer, nullable=True)

@@ -16,6 +16,7 @@ from app.api.v1.endpoints import (
     risk,
     analytics,
     insight,
+    intelligence,
 )
 
 api_router = APIRouter()
@@ -34,4 +35,4 @@ api_router.include_router(coupon.router)
 api_router.include_router(risk.router)
 api_router.include_router(analytics.router)
 api_router.include_router(insight.router)
-
+api_router.include_router(intelligence.router)
