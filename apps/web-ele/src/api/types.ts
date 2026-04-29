@@ -98,6 +98,15 @@ export interface DecisionResult {
   recommendation?: string;
   pros?: string[];
   cons?: string[];
+  evidence_text?: string;
+  evidence_delta_percent?: number;
+  risk_text?: string;
+  action_label?: string;
+  action_type?: string;
+  original_price?: number;
+  final_price?: number;
+  total_discount?: number;
+  discount_details?: string[];
 }
 
 export interface PriceHistoryStats {
@@ -116,11 +125,69 @@ export interface PriceAlert {
   status: string;
   triggered_at?: string;
   triggered_price?: number;
+  current_price?: number;
+  trigger_reason?: string;
   created_at: string;
   sku?: ProductSKU & {
     product: {
       main_image: string;
       name: string;
     };
+    product_id: number;
   };
+}
+
+export interface ProductDetailResponse {
+  product: Product;
+  is_followed: boolean;
+  is_alert_set: boolean;
+  active_alert_count: number;
+  revisit_summary?: {
+    content: string;
+    icon?: string;
+    title: string;
+    type: "info" | "success" | "warning";
+  };
+}
+
+export interface UserFollow {
+  id: number;
+  user_id: number;
+  product_id: number;
+  product: Product;
+  created_at: string;
+  price_change_percent?: number;
+  risk_status?: string;
+  is_near_low?: boolean;
+  current_status_text?: string;
+}
+
+export interface InsightEvent {
+  id: string;
+  product_id: number;
+  sku_id?: number;
+  event_type:
+    | "ALERT_HIT"
+    | "HIST_LOW"
+    | "NEAR_TARGET"
+    | "NEW_COUPON"
+    | "PRICE_DROP"
+    | "RISK_CHANGE";
+  priority: number;
+  title: string;
+  description: string;
+  current_price: number;
+  original_price?: number;
+  diff_amount?: number;
+  diff_percent?: number;
+  image?: string;
+  platform?: string;
+  timestamp: string;
+  metadata: Record<string, any>;
+}
+
+export interface InsightResponse {
+  events: InsightEvent[];
+  total: number;
+  summary: string;
 }

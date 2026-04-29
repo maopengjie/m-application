@@ -17,7 +17,22 @@ class AlertService:
         self.promo_service = PromotionService()
 
     def list_alerts(self, db: Session, user_id: int) -> list[PriceAlert]:
-        return self.repo.list_alerts(db, user_id)
+        alerts = self.repo.list_alerts(db, user_id)
+        for alert in alerts:
+            if alert.sku:
+                promo = self.promo_service.calculate_final_price(alert.sku)
+                alert.current_price = promo["final_price"]
+            
+            # Populate trigger_reason for response
+            if alert.status == "triggered":
+                alert.trigger_reason = f"低价捕获：已低于目标价 ¥{alert.target_price}"
+            elif alert.status == "monitoring":
+                if hasattr(alert, "current_price") and alert.current_price and alert.target_price:
+                    diff_pct = (float(alert.current_price) - float(alert.target_price)) / float(alert.current_price)
+                    if 0 < diff_pct <= 0.05:
+                        alert.trigger_reason = "即将触发：距离目标价已不足 5%"
+        return alerts
+
 
     def create_alert(self, db: Session, alert_in: dict) -> PriceAlert:
         # 1. Validate SKU existence
@@ -28,15 +43,21 @@ class AlertService:
         
         # 2. Check for duplicate active subscriptions for the same user + SKU
         existing = self.repo.get_alert_by_user_and_sku(db, alert_in["user_id"], alert_in["sku_id"])
+        
         if existing:
-            from fastapi import HTTPException
-            raise HTTPException(
-                status_code=400, 
-                detail=f"Active alert already exists for this product (ID: {existing.id})"
-            )
+            # Update existing alert instead of failing
+            logger.info(f"Targeting existing alert ID {existing.id} for update (User {alert_in['user_id']}, SKU {alert_in['sku_id']})")
+            existing.target_price = alert_in["target_price"]
+            existing.notify_methods = alert_in.get("notify_methods", existing.notify_methods)
+            existing.email = alert_in.get("email", existing.email)
+            existing.phone = alert_in.get("phone", existing.phone)
+            existing.status = "monitoring" # Reactivate in monitoring state
+            db.commit()
+            db.refresh(existing)
+            return existing
 
         # Default status for new alerts
-        alert_in.setdefault("status", "active")
+        alert_in.setdefault("status", "monitoring")
         alert_in.setdefault("is_triggered", False)
         alert = self.repo.create_alert(db, alert_in)
         logger.info(f"Created price alert ID {alert.id} for SKU {alert.sku_id} (Target: {alert.target_price})")

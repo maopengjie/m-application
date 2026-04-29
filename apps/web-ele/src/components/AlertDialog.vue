@@ -34,7 +34,7 @@ const emit = defineEmits<{
 }>();
 
 interface AlertSubmitData {
-  productId?: number;
+  skuId?: number;
   targetPrice: number;
   notifyMethods: string[];
   email: string;
@@ -125,7 +125,7 @@ const handleSubmit = async () => {
       submitting.value = true;
       try {
         await emit("submit", {
-          productId: props.product?.id,
+          skuId: props.product?.id,
           ...form.value,
         });
         visible.value = false;

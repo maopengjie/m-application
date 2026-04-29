@@ -116,3 +116,14 @@ class PriceAlert(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now)
 
     sku: Mapped["ProductSKU"] = relationship(back_populates="alerts")
+
+
+class UserFollow(Base, TimestampMixin):
+    __tablename__ = "user_follows"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(Integer, index=True)
+    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), index=True)
+
+    product: Mapped["Product"] = relationship()
+

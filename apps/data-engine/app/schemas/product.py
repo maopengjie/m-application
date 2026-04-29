@@ -99,6 +99,8 @@ class Product(ProductBase):
     created_at: datetime
     updated_at: datetime
     skus: List[ProductSKU] = []
+    min_price: Optional[float] = None
+    final_price: Optional[float] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -109,3 +111,58 @@ class PriceHistoryStats(BaseModel):
     max_price: float
     avg_price: float
     current_price: float
+
+
+class ProductFollowCreate(BaseModel):
+    product_id: int
+
+
+class ProductFollow(BaseModel):
+    id: int
+    user_id: int
+    product_id: int
+    product: Product
+    created_at: datetime
+    price_change_percent: Optional[float] = None
+    risk_status: Optional[str] = None
+    is_near_low: bool = False
+    current_status_text: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ProductDetailResponse(BaseModel):
+    product: Product
+    is_followed: bool = False
+    is_alert_set: bool = False
+    active_alert_count: int = 0
+    revisit_summary: Optional[Dict[str, Any]] = None  # { "title": "...", "content": "...", "type": "info/warning/success" }
+    
+    model_config = ConfigDict(from_attributes=True)
+
+
+
+class InsightEvent(BaseModel):
+    id: str  # Generated ID like "follow_123" or "alert_456"
+    product_id: int
+    sku_id: Optional[int] = None
+    event_type: str  # PRICE_DROP, ALERT_HIT, NEAR_TARGET, HIST_LOW, RISK_CHANGE, NEW_COUPON
+    priority: int  # 0-10, 10 is highest
+    title: str
+    description: str
+    current_price: float
+    original_price: Optional[float] = None
+    diff_amount: Optional[float] = None
+    diff_percent: Optional[float] = None
+    image: Optional[str] = None
+    platform: Optional[str] = None
+    timestamp: datetime
+    metadata: Dict[str, Any] = {}
+
+
+class InsightResponse(BaseModel):
+    events: List[InsightEvent]
+    total: int
+    summary: str  # "Today you have 3 critical updates"
+
+

@@ -24,9 +24,11 @@ class AlertProductInfo(BaseModel):
 
 class AlertSkuInfo(BaseModel):
     id: int
+    product_id: int
     platform: str
     price: float
     shop_name: Optional[str] = None
+    buy_url: Optional[str] = None
     product: AlertProductInfo
 
     model_config = ConfigDict(from_attributes=True)
@@ -38,7 +40,10 @@ class PriceAlertResponse(PriceAlertCreate):
     status: str
     triggered_at: Optional[datetime] = None
     triggered_price: Optional[float] = None
+    current_price: Optional[float] = None
+    trigger_reason: Optional[str] = None
     created_at: datetime
     sku: Optional[AlertSkuInfo] = None
     
     model_config = ConfigDict(from_attributes=True)
+

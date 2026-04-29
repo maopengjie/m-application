@@ -6,7 +6,7 @@ const routes: RouteRecordRaw[] = [
   {
     component: BasicLayout,
     meta: {
-      icon: "lucide:shopping-cart",
+      icon: "lucide:shopping-bag",
       order: -1,
       title: "购物决策中心",
     },
@@ -14,7 +14,17 @@ const routes: RouteRecordRaw[] = [
     path: "/commerce",
     children: [
       {
+        name: "CommerceInsights",
+        path: "insights",
+        component: () => import("#/views/InsightView.vue"),
+        meta: {
+          icon: "lucide:sparkles",
+          title: "今日异动",
+        },
+      },
+      {
         name: "CommerceHome",
+
         path: "home",
         component: () => import("#/views/HomeView.vue"),
         meta: {
@@ -29,7 +39,6 @@ const routes: RouteRecordRaw[] = [
         meta: {
           icon: "lucide:search",
           title: "全网搜索",
-          // 核心：强制不按路径（含参数）区分页签，实现页签复用
           tabByPath: false,
           activePath: "/commerce/search",
         },
@@ -54,30 +63,52 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
-        name: "CommerceCoupons",
+        name: "CommerceFollows",
+        path: "follows",
+        component: () => import("#/views/FollowView.vue"),
+        meta: {
+          icon: "lucide:heart",
+          title: "关注商品",
+        },
+      },
+    ],
+  },
+  {
+    component: BasicLayout,
+    meta: {
+      icon: "lucide:database",
+      order: 10,
+      title: "数据运营中心",
+      authority: ["admin"],
+    },
+    name: "AdminSystems",
+    path: "/admin",
+    children: [
+      {
+        name: "AdminTasks",
+        path: "crawler",
+        component: () => import("#/views/tools/tasks/index.vue"),
+        meta: {
+          icon: "lucide:server",
+          title: "爬虫任务管理",
+        },
+      },
+      {
+        name: "AdminCoupons",
         path: "coupons",
         component: () => import("#/views/CouponView.vue"),
         meta: {
           icon: "lucide:ticket-percent",
-          title: "优惠计算",
+          title: "优惠策略分析",
         },
       },
       {
-        name: "CommerceRisk",
-        path: "risk-analysis",
+        name: "AdminRisk",
+        path: "risk",
         component: () => import("#/views/RiskView.vue"),
         meta: {
           icon: "lucide:shield-alert",
-          title: "避雷分析",
-        },
-      },
-      {
-        name: "CommerceTasks",
-        path: "crawler-tasks",
-        component: () => import("#/views/tools/tasks/index.vue"),
-        meta: {
-          icon: "lucide:server",
-          title: "爬虫任务",
+          title: "风险评估后台",
         },
       },
     ],

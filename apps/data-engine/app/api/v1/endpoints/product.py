@@ -3,9 +3,10 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.schemas.product import Product as ProductSchema, ProductCreate, PriceHistoryStats
+from app.schemas.product import Product as ProductSchema, ProductCreate, PriceHistoryStats, ProductDetailResponse, ProductFollow
 from app.services.product_service import ProductService
-from app.api.v1.deps import PermissionChecker
+from app.api.v1.deps import PermissionChecker, get_current_user
+
 
 from app.utils.responses import response_success
 
@@ -37,18 +38,55 @@ def create_product(
     return response_success(product)
 
 
+@router.get("/follows")
+def list_followed_products(
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+) -> Any:
+    """List products followed by the current user."""
+    follows = product_service.list_followed_products(db, current_user["id"])
+    data = [ProductFollow.model_validate(f) for f in follows]
+    return response_success(data)
+
+
 @router.get("/{product_id}")
 def get_product(
     *,
     db: Session = Depends(get_db),
     product_id: int,
+    current_user: dict = Depends(get_current_user),
 ) -> Any:
-    """Get a specific product by ID, including full details (SKUs, history, etc.)."""
-    product = product_service.get_product(db, product_id)
-    if not product:
+    """Get a specific product by ID, including user-specific follow status and alerts."""
+    detail = product_service.get_product_detail(db, product_id, current_user["id"])
+    if not detail["product"]:
         raise HTTPException(status_code=404, detail="Product not found")
-    # Validate with the schema to ensure proper serialization of nested models (skus, coupons, etc.)
-    return response_success(ProductSchema.model_validate(product))
+    return response_success(ProductDetailResponse.model_validate(detail))
+
+
+@router.post("/{product_id}/follow")
+def follow_product(
+    *,
+    db: Session = Depends(get_db),
+    product_id: int,
+    current_user: dict = Depends(get_current_user),
+) -> Any:
+    """Follow a product."""
+    follow = product_service.follow_product(db, current_user["id"], product_id)
+    return response_success(ProductFollow.model_validate(follow))
+
+
+@router.delete("/{product_id}/follow")
+def unfollow_product(
+    *,
+    db: Session = Depends(get_db),
+    product_id: int,
+    current_user: dict = Depends(get_current_user),
+) -> Any:
+    """Unfollow a product."""
+    success = product_service.unfollow_product(db, current_user["id"], product_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Follow relationship not found")
+    return response_success(None, "Unfollowed successfully")
 
 
 @router.delete("/{product_id}", dependencies=[Depends(PermissionChecker(["AC_100010"]))])
@@ -74,3 +112,16 @@ def get_sku_price_history(
     """Get price history and stats for a specific SKU."""
     history = product_service.get_price_history(db, sku_id, days)
     return response_success(history)
+
+
+@router.get("/{product_id}/alternatives")
+def get_product_alternatives(
+    *,
+    db: Session = Depends(get_db),
+    product_id: int,
+    limit: int = Query(5, ge=1, le=20),
+) -> Any:
+    """Get alternative products in the same category."""
+    products = product_service.get_alternatives(db, product_id, limit=limit)
+    data = [ProductSchema.model_validate(p) for p in products]
+    return response_success(data)

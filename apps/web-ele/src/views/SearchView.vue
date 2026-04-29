@@ -6,6 +6,7 @@ import { Page } from "@vben/common-ui";
 
 import { ElButton, ElEmpty } from "element-plus";
 
+import { AnalyticsEvents, logAnalyticsEventApi } from "#/api/analytics";
 import { searchProductsApi } from "#/api/product";
 import ProductList from "#/components/ProductList.vue";
 import SearchFilterBar from "#/components/SearchFilterBar.vue";
@@ -96,6 +97,7 @@ const syncUrlSilently = () => {
 const handleSearch = (newKeyword: string) => {
   keyword.value = newKeyword;
   syncUrlSilently();
+  void logAnalyticsEventApi(AnalyticsEvents.SEARCH_TRIGGERED, { q: newKeyword });
   void performFetch();
 };
 
@@ -106,6 +108,11 @@ const handleFilter = (filters: FilterState) => {
 };
 
 const handleProductClick = (product: any) => {
+  void logAnalyticsEventApi(AnalyticsEvents.SEARCH_RESULT_CLICK, {
+    id: product.id,
+    name: product.name,
+    keyword: keyword.value,
+  });
   router.push({
     name: "CommerceDetail",
     params: { id: product.product_id || product.id },

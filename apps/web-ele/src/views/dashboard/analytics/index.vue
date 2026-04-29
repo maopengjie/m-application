@@ -1,95 +1,176 @@
+<script setup lang="ts">
+import { onMounted, ref } from "vue";
+
+import { ElButton, ElProgress, ElRadioButton, ElRadioGroup } from "element-plus";
+
+import { getAnalyticsDashboardApi } from "#/api/analytics";
+
+const loading = ref(true);
+const stats = ref<any>(null);
+const days = ref(7);
+
+const clampPercentage = (value: number) => {
+  if (!Number.isFinite(value)) return 0;
+  return Math.max(0, Math.min(100, value));
+};
+
+const fetchData = async () => {
+  loading.value = true;
+  try {
+    const res = await getAnalyticsDashboardApi(days.value);
+    stats.value = res;
+  } catch (error) {
+    console.error("Dashboard fetch error:", error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+onMounted(fetchData);
+</script>
+
 <template>
-  <div class="analytics-container p-6 bg-gray-50 dark:bg-zinc-950 min-h-screen">
-    <div class="max-w-7xl mx-auto space-y-6">
+  <div class="analytics-container p-6 bg-zinc-50 dark:bg-zinc-950 min-h-screen">
+    <div class="max-w-7xl mx-auto space-y-8">
+      <!-- Header -->
       <div
-        class="flex justify-between items-center bg-white dark:bg-zinc-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-zinc-800 transition-all hover:shadow-md"
+        class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-zinc-900/50 backdrop-blur-xl p-8 rounded-3xl border border-zinc-200/50 dark:border-zinc-800/50 shadow-xl shadow-black/5"
       >
         <div>
-          <h1 class="text-3xl font-bold text-gray-900 dark:text-zinc-50 tracking-tight">
-            数据分析看板
-          </h1>
-          <p class="mt-1 text-gray-500 dark:text-zinc-400">
-            Real-time data insights and performance metrics
-          </p>
-        </div>
-        <div class="flex gap-3">
-          <button
-            class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-all shadow-[0_4px_14px_0_rgba(37,99,235,0.39)]"
+          <h1
+            class="text-3xl font-black text-zinc-900 dark:text-zinc-50 tracking-tight flex items-center gap-3"
           >
-            Export Report
-          </button>
+            <span class="iconify lucide--bar-chart-3 text-blue-600"></span>
+            决策链路分析看板
+          </h1>
+          <p class="mt-1 text-zinc-500 font-medium">监测用户从搜索到购买的全链路转化数据</p>
+        </div>
+        <div class="flex items-center gap-4">
+          <ElRadioGroup v-model="days" size="small" @change="fetchData">
+            <ElRadioButton :value="1">今日</ElRadioButton>
+            <ElRadioButton :value="7">近7天</ElRadioButton>
+            <ElRadioButton :value="30">近30天</ElRadioButton>
+          </ElRadioGroup>
+          <ElButton type="primary" plain class="!rounded-xl" @click="fetchData">刷新数据</ElButton>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <!-- Stat Cards -->
+      <!-- Key Metrics -->
+      <div v-loading="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div
-          v-for="i in 4"
-          :key="i"
-          class="bg-white dark:bg-zinc-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-zinc-800 hover:-translate-y-1 transition-all duration-300"
-        >
-          <div class="flex items-center justify-between mb-4">
-            <div
-              class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center"
-            >
-              <div class="w-5 h-5 bg-blue-500 rounded-full animate-pulse"></div>
-            </div>
-            <span
-              class="text-xs font-semibold px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg"
-              >+12.5%</span>
-          </div>
-          <h3 class="text-gray-500 dark:text-zinc-400 text-sm font-medium">Metric Title {{ i }}</h3>
-          <p class="text-2xl font-bold text-gray-900 dark:text-zinc-100 mt-1">$4,250.00</p>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div
-          class="lg:col-span-2 bg-white dark:bg-zinc-900 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-zinc-800 min-h-[400px] flex flex-col items-center justify-center relative overflow-hidden group"
+          v-for="(val, key) in stats?.raw_counts || {}"
+          :key="key"
+          class="bg-white dark:bg-zinc-900 p-6 rounded-3xl border border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-lg transition-all group"
         >
           <div
-            class="absolute inset-0 bg-gradient-to-br from-blue-50 to-transparent dark:from-blue-900/10 opacity-50"
-          ></div>
-          <div class="z-10 text-center">
-            <div
-              class="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-500"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="w-10 h-10 text-blue-600 dark:text-blue-400"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M3 3v18h18" />
-                <path d="m19 9-5 5-4-4-3 3" />
-              </svg>
-            </div>
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-zinc-100">
-              Analytics Graph Placeholder
-            </h2>
-            <p class="text-gray-500 dark:text-zinc-400 mt-2 max-w-sm">
-              Detailed performance analytics and trend monitoring visualization will appear here.
-            </p>
+            class="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1 group-hover:text-blue-500 transition-colors"
+          >
+            {{ key.replace(/_/g, " ") }}
+          </div>
+          <div class="text-3xl font-black text-zinc-900 dark:text-zinc-100 font-mono">
+            {{ val }}
           </div>
         </div>
 
+        <!-- Placeholder for empty stats -->
+        <template v-if="!stats">
+          <div
+            v-for="i in 4"
+            :key="i"
+            class="h-28 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded-3xl"
+          ></div>
+        </template>
+      </div>
+
+      <!-- Funnel and Top Searches -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Conversion Funnel (M1-07) -->
         <div
-          class="bg-white dark:bg-zinc-900 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-zinc-800"
+          class="bg-white dark:bg-zinc-900 p-8 rounded-[40px] border border-zinc-100 dark:border-zinc-800 shadow-sm"
         >
-          <h3 class="text-lg font-bold text-gray-900 dark:text-zinc-100 mb-6">Recent Activities</h3>
-          <div class="space-y-6">
-            <div v-for="item in 5" :key="item" class="flex gap-4">
-              <div class="w-2 h-2 rounded-full bg-blue-600 mt-2 shrink-0"></div>
-              <div>
-                <p class="text-sm font-medium text-gray-800 dark:text-zinc-200">
-                  System update available
-                </p>
-                <p class="text-xs text-gray-500 dark:text-zinc-500 mt-1">2 hours ago</p>
+          <h3
+            class="text-lg font-black text-zinc-900 dark:text-zinc-100 mb-8 flex items-center gap-2"
+          >
+            <span class="iconify lucide--filter text-zinc-400"></span>
+            核心转化漏斗
+          </h3>
+
+          <div class="space-y-10" v-if="stats?.funnel">
+            <div class="relative">
+              <div class="flex justify-between items-end mb-2">
+                <span class="text-xs font-bold text-zinc-500">搜索 -> 详情点击 (CTR)</span>
+                <span class="text-sm font-black text-blue-600">{{ stats.funnel.search_to_detail.toFixed(1) }}%</span>
               </div>
+              <ElProgress
+                :percentage="clampPercentage(stats.funnel.search_to_detail)"
+                :stroke-width="12"
+                :show-text="false"
+                color="#2563eb"
+              />
+            </div>
+
+            <div class="relative">
+              <div class="flex justify-between items-end mb-2">
+                <span class="text-xs font-bold text-zinc-500">详情 -> 去购买点击</span>
+                <span class="text-sm font-black text-cyan-500">{{ stats.funnel.detail_to_buy.toFixed(1) }}%</span>
+              </div>
+              <ElProgress
+                :percentage="clampPercentage(stats.funnel.detail_to_buy)"
+                :stroke-width="12"
+                :show-text="false"
+                color="#0891b2"
+              />
+            </div>
+
+            <div class="relative">
+              <div class="flex justify-between items-end mb-2">
+                <span class="text-xs font-bold text-zinc-500">详情 -> 提醒创建成功</span>
+                <span class="text-sm font-black text-purple-500">{{ stats.funnel.detail_to_alert.toFixed(1) }}%</span>
+              </div>
+              <ElProgress
+                :percentage="clampPercentage(stats.funnel.detail_to_alert)"
+                :stroke-width="12"
+                :show-text="false"
+                color="#9333ea"
+              />
+            </div>
+          </div>
+
+          <div v-else class="h-64 flex items-center justify-center text-zinc-300 italic">
+            暂无足够数据生成漏斗
+          </div>
+        </div>
+
+        <!-- Top Searches (High Density) -->
+        <div
+          class="bg-zinc-900 text-zinc-100 p-8 rounded-[40px] shadow-2xl relative overflow-hidden"
+        >
+          <div
+            class="absolute top-0 right-0 w-64 h-64 bg-blue-600/20 blur-[100px] rounded-full"
+          ></div>
+
+          <h3 class="text-lg font-black mb-8 flex items-center gap-2 relative z-10">
+            <span class="iconify lucide--trending-up text-blue-400"></span>
+            高频搜索词云 (前 5)
+          </h3>
+
+          <div class="space-y-4 relative z-10">
+            <div
+              v-for="(item, idx) in stats?.top_searches"
+              :key="idx"
+              class="flex items-center justify-between p-4 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 hover:bg-white/10 transition-colors"
+            >
+              <div class="flex items-center gap-4">
+                <span
+                  class="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-xs font-black text-zinc-400"
+                  >{{ idx + 1 }}</span>
+                <span class="font-black tracking-tight">{{ item.query }}</span>
+              </div>
+              <span class="text-xs font-bold text-zinc-500">{{ item.count }} 次记录</span>
+            </div>
+
+            <div v-if="!stats?.top_searches?.length" class="text-center py-20 text-zinc-600 italic">
+              暂无搜索数据记录
             </div>
           </div>
         </div>
@@ -113,5 +194,13 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+:deep(.el-progress-bar__outer) {
+  background-color: rgb(228 228 231 / 50%) !important;
+}
+
+.dark :deep(.el-progress-bar__outer) {
+  background-color: rgb(63 63 70 / 50%) !important;
 }
 </style>

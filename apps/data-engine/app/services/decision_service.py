@@ -88,35 +88,83 @@ class DecisionService:
         elif total_score < 50:
             suggestion = "AVOID"
 
-        reasons = []
-        if current_final_price <= float(h_min) * 1.02: 
-            reasons.append("当前处于历史极低价区间")
-        elif current_final_price >= float(h_max) * 0.8:
-            reasons.append("当前价格处于相对高位")
-            
-        if price_competitiveness >= 95: reasons.append("全网价格最优")
-        elif price_competitiveness < 80: reasons.append("其他平台有更低报价")
-        
-        if discount_rate >= 0.2: reasons.append(f"折扣力度大({int(discount_rate*100)}%)")
-        
-        if risk_val >= 90: reasons.append("商家信誉极高")
-        elif risk_val < 60: reasons.append("该商家存在一定风险")
-        
-        if not reasons:
-            if total_score > 60: reasons.append("价格较稳，可按需入手")
-            else: reasons.append("建议继续观察，等待更优折扣")
-        
-        reason_str = "；".join(reasons)
+        # Calculate price difference from historical min
+        price_diff = float(current_final_price) - float(h_min)
+        price_diff_percent = (price_diff / float(h_min) * 100) if float(h_min) > 0 else 0
 
+        # Extract evidence and risks
+        evidences = []
+        risks = []
+        
+        # Evidence Logic
+        if price_diff <= 0:
+            evidences.append("当前处于历史最低价格，具备极强的购买价值")
+        elif price_diff_percent < 5:
+            evidences.append(f"当前价格贴近史低价，仅高出 ¥{price_diff:.0f} ({price_diff_percent:.1f}%)")
+        
+        if price_competitiveness >= 98:
+            evidences.append("已对全网 5 个主流平台进行比价，当前渠道到手价最省")
+        elif discount_rate >= 0.2:
+            evidences.append(f"到手价较建议零售价已大幅下浮 {int(discount_rate*100)}%，折扣力度显著")
+
+        if sku.is_official and risk_val >= 80:
+            evidences.append("货源来自官方自营/旗舰店，综合售后评价极佳")
+
+        # Risk Logic
+        if not sku.is_official:
+            risks.append("当前最低价来自第三方店铺，建议仔细甄别售后保障及店铺资质")
+        
+        if price_diff_percent > 15:
+            risks.append(f"当前价格相比历史低点溢价达 {price_diff_percent:.0f}%，价格处于相对高位")
+        
+        if risk_val < 85: # Increased threshold for risk explanation
+            if sku.risk_score:
+                if sku.risk_score.comment_abnormal:
+                    risks.append("AI 语义分析识别到该商品近期评价中‘质量、发货’相关负面词汇增多，可能存在品控风险")
+                if sku.risk_score.price_abnormal:
+                    risks.append("检测到价格存在异常跳变，警惕商家先涨后降或大数据杀熟行为")
+                if sku.risk_score.sales_abnormal:
+                    risks.append("销量走势与行业均值背离，可能存在虚假交易或清仓处理情况")
+                if sku.risk_score.rating_low:
+                    risks.append("商家综合评分显著低于同品类平均水平，售后服务保障性较低")
+            elif risk_val < 65:
+                risks.append("该渠道近期综合动态评分有所下滑，建议核实后再下单")
+
+        # Map action logic (Requirement 4.1: Conclusion + Action)
+        if suggestion == "BUY":
+            action_label = "前往平台立即下单"
+            action_type = "NAV_BUY"
+        elif suggestion == "WAIT":
+            action_label = "设置降价提醒，等待好价"
+            action_type = "SET_ALERT"
+        else:
+            action_label = "查看同类替代商品"
+            action_type = "NAV_SEARCH"
+
+        # Build discount breakdown
+        discount_details = [f"初始价格: ¥{sku.price:.2f}"]
+        for promo in current_promo.get("promotions", []):
+            discount_details.append(f"{promo['title']}")
+        
         return DecisionResponse(
             sku_id=sku_id,
             score=total_score,
             suggestion=suggestion,
             confidence=round(confidence, 2),
-            reason=reason_str,
+            reason=evidences[0] if evidences else (risks[0] if risks else "建议继续观察"),
             price_score=price_score,
             history_score=history_score,
             coupon_score=coupon_score,
             risk_score=risk_score,
-            best_platform=best_platform
+            best_platform=best_platform,
+            evidence_text="；".join(evidences[:3]) if evidences else None,
+            evidence_delta_percent=round(price_diff_percent, 1),
+            risk_text=" ; ".join(risks[:3]) if risks else None,
+            action_label=action_label,
+            action_type=action_type,
+            # R1-01 & R1-04
+            original_price=float(sku.price),
+            final_price=current_final_price,
+            total_discount=current_promo["total_discount"],
+            discount_details=discount_details
         )

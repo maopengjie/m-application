@@ -37,6 +37,8 @@ type EchartsThemeType = "dark" | "light" | null;
 function useEcharts(chartRef: Ref<EchartsUIType>) {
   let chartInstance: echarts.ECharts | null = null;
   let cacheOptions: EChartsOption = {};
+  let isRendering = false;
+  let pendingResize = false;
   // echarts是否处于激活状态
   const isActiveRef = ref(false);
 
@@ -80,6 +82,14 @@ function useEcharts(chartRef: Ref<EchartsUIType>) {
       return;
     }
     chartInstance = echarts.init(el, t || isDark.value ? "dark" : null);
+    chartInstance.on("finished", () => {
+      isRendering = false;
+
+      if (pendingResize) {
+        pendingResize = false;
+        resizeHandler?.();
+      }
+    });
 
     return chartInstance;
   };
@@ -121,6 +131,7 @@ function useEcharts(chartRef: Ref<EchartsUIType>) {
           if (clear) {
             chartInstance?.clear();
           }
+          isRendering = true;
           chartInstance?.setOption(currentOptions);
           resolve(chartInstance);
         }, 30);
@@ -147,6 +158,7 @@ function useEcharts(chartRef: Ref<EchartsUIType>) {
           ...getOptions.value,
         };
 
+        isRendering = true;
         chartInstance.setOption(finalOption, {
           notMerge,
           lazyUpdate,
@@ -163,6 +175,11 @@ function useEcharts(chartRef: Ref<EchartsUIType>) {
     if (isElHidden(el)) {
       return;
     }
+    if (isRendering) {
+      pendingResize = true;
+      return;
+    }
+    pendingResize = false;
     chartInstance?.resize({
       animation: {
         duration: 300,
@@ -182,12 +199,13 @@ function useEcharts(chartRef: Ref<EchartsUIType>) {
       chartInstance.dispose();
       initCharts();
       renderEcharts(cacheOptions);
-      resize();
     }
   });
 
   tryOnUnmounted(() => {
     // 销毁实例，释放资源
+    pendingResize = false;
+    isRendering = false;
     chartInstance?.dispose();
   });
   return {

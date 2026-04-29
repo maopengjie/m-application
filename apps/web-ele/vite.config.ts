@@ -16,7 +16,7 @@ export default defineConfig(async () => {
           // 所有接口统一指向 Python (FastAPI) 数据引擎
           "/api": {
             changeOrigin: true,
-            target: "http://localhost:8086",
+            target: "http://127.0.0.1:8086",
           },
         },
       },

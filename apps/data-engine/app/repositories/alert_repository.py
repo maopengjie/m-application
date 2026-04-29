@@ -32,7 +32,7 @@ class AlertRepository:
     def get_active_alerts(self, db: Session) -> list[PriceAlert]:
         return (
             db.query(PriceAlert)
-            .filter(PriceAlert.is_triggered == False, PriceAlert.status == "active")
+            .filter(PriceAlert.is_triggered == False, PriceAlert.status == "monitoring")
             .all()
         )
     def get_alert_by_user_and_sku(self, db: Session, user_id: int, sku_id: int) -> PriceAlert:

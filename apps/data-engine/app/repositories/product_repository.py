@@ -119,6 +119,27 @@ class ProductRepository:
         
         return results, total_count
 
+    def get_alternatives(self, db: Session, product_id: int, limit: int = 5) -> List[Product]:
+        """Find alternative products in the same category."""
+        target = db.query(Product).filter(Product.id == product_id).first()
+        if not target:
+            return []
+        
+        # Rule: Same category, different product, limit results
+        # We also want to ensure the products have skus
+        q = (
+            db.query(Product)
+            .join(ProductSKU)
+            .filter(
+                Product.category == target.category,
+                Product.id != product_id
+            )
+            .group_by(Product.id)
+            .limit(limit)
+            .all()
+        )
+        return q
+
     def get_sku_by_id(self, db: Session, sku_id: int) -> Optional[ProductSKU]:
         return (
             db.query(ProductSKU)
@@ -168,3 +189,47 @@ class ProductRepository:
             "avg_price": avg_price,
             "current_price": current_price,
         }
+
+    def follow_product(self, db: Session, user_id: int, product_id: int):
+        from app.models.product import UserFollow
+        existing = db.query(UserFollow).filter_by(user_id=user_id, product_id=product_id).first()
+        if existing:
+            return existing
+        
+        follow = UserFollow(user_id=user_id, product_id=product_id)
+        db.add(follow)
+        db.commit()
+        db.refresh(follow)
+        return follow
+
+    def unfollow_product(self, db: Session, user_id: int, product_id: int) -> bool:
+        from app.models.product import UserFollow
+        follow = db.query(UserFollow).filter_by(user_id=user_id, product_id=product_id).first()
+        if follow:
+            db.delete(follow)
+            db.commit()
+            return True
+        return False
+
+    def list_followed_products(self, db: Session, user_id: int) -> List:
+        from app.models.product import UserFollow, Product, ProductSKU
+        from sqlalchemy.orm import joinedload
+        return (
+            db.query(UserFollow)
+            .options(
+                joinedload(UserFollow.product)
+                .joinedload(Product.skus)
+                .joinedload(ProductSKU.risk_score),
+                joinedload(UserFollow.product)
+                .joinedload(Product.skus)
+                .joinedload(ProductSKU.price_history)
+            )
+            .filter_by(user_id=user_id)
+            .all()
+        )
+
+
+    def is_followed(self, db: Session, user_id: int, product_id: int) -> bool:
+        from app.models.product import UserFollow
+        return db.query(UserFollow).filter_by(user_id=user_id, product_id=product_id).first() is not None
+
