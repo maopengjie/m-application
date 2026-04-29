@@ -66,8 +66,6 @@ const getEventColor = (type: string) => {
   }
 };
 
-
-
 const handleImageError = (e: Event) => {
   const target = e.target as HTMLImageElement;
   target.src =
