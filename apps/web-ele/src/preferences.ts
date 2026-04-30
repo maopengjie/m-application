@@ -10,4 +10,12 @@ export const overridesPreferences = defineOverridesPreferences({
   app: {
     name: import.meta.env.VITE_APP_TITLE,
   },
+  copyright: {
+    companyName: 'maopengjie',
+    companySiteLink: 'https://github.com/maopengjie',
+    date: '2024-2026',
+  },
+  logo: {
+    source: '/logo.png',
+  },
 });

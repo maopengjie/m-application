@@ -1,18 +1,10 @@
 {
-  "name": "@vben/web-ele",
-  "version": "5.7.0",
-  "homepage": "https://vben.pro",
-  "bugs": "https://github.com/vbenjs/vue-vben-admin/issues",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/vbenjs/vue-vben-admin.git",
-    "directory": "apps/web-ele"
-  },
+  "name": "m-application-web",
+  "version": "1.0.0",
+  "private": true,
   "license": "MIT",
   "author": {
-    "name": "vben",
-    "email": "ann.vben@gmail.com",
-    "url": "https://github.com/anncwb"
+    "name": "maopengjie"
   },
   "type": "module",
   "scripts": {
@@ -26,6 +18,7 @@
     "#/*": "./src/*"
   },
   "dependencies": {
+    "@vben-core/shadcn-ui": "workspace:*",
     "@vben/access": "workspace:*",
     "@vben/common-ui": "workspace:*",
     "@vben/constants": "workspace:*",
@@ -42,7 +35,9 @@
     "@vben/utils": "workspace:*",
     "@vueuse/core": "catalog:",
     "dayjs": "catalog:",
+    "echarts": "catalog:",
     "element-plus": "catalog:",
+    "lucide-vue-next": "catalog:",
     "pinia": "catalog:",
     "vue": "catalog:",
     "vue-router": "catalog:"

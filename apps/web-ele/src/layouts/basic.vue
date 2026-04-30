@@ -223,8 +223,8 @@ watch(
         :avatar
         :menus
         :text="userStore.userInfo?.realName"
-        description="ann.vben@gmail.com"
-        tag-text="Pro"
+        description="maopengjie@personal.com"
+        tag-text="Personal"
         @logout="handleLogout"
       />
     </template>
