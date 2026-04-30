@@ -1,0 +1,271 @@
+
+> @vben/web-ele@5.7.0 build /Users/maopengjie/Documents/m-application/apps/web-ele
+> pnpm vite build --mode production
+
+vite v8.0.8 building client environment for production...
+[2Ktransforming...✓ 6283 modules transformed.
+rendering chunks...
+✨configuration file is build successfully!
+dist/_app.config.js                                0.23 kB
+dist/index.html                                    3.53 kB
+dist/css/CouponView-x1XGuNl0.css                   0.00 kB
+dist/css/css-D_6SYB2i.css                          0.04 kB
+dist/css/css-BIUTcNqp.css                          0.08 kB
+dist/css/analytics-visits-source-Bu7Tw4CY.css      0.08 kB
+dist/css/css-CzNlr7lQ.css                          0.16 kB
+dist/css/alert-BKLuON5C.css                        0.18 kB
+dist/css/analytics-Bg4T1FJZ.css                    0.18 kB
+dist/css/auth-D9bUDmFK.css                         0.38 kB
+dist/css/login-Bw5Nl-gj.css                        0.43 kB
+dist/css/config-u1fnOvnr.css                       0.47 kB
+dist/css/SearchView-BJRDU39M.css                   0.53 kB
+dist/css/loading-XxTdiuTZ.css                      0.56 kB
+dist/css/spinner-BGIK1dU1.css                      0.69 kB
+dist/css/css-B0pQhKGi.css                          0.70 kB
+dist/css/theme-toggle-SjGCJEQJ.css                 1.63 kB
+dist/css/css-CW9Th3CT.css                          2.59 kB
+dist/css/css-Cs7DlD6p.css                          3.13 kB
+dist/css/css-DV1zpjcm.css                          3.22 kB
+dist/css/store-7GpJdXPw.css                        3.24 kB
+dist/css/css-DKYHtnQQ.css                          3.85 kB
+dist/css/css-DKJncpW3.css                          3.95 kB
+dist/css/css-CYQNbf-U.css                          4.38 kB
+dist/css/css-DywFS_tm.css                          4.39 kB
+dist/css/AlertView-CkUb87PR.css                    4.82 kB
+dist/css/css-DbsgS0Ik.css                          5.21 kB
+dist/css/css-d_SKUgcc.css                          6.02 kB
+dist/css/css-BG9yLgZF.css                          6.56 kB
+dist/css/css-pisFGfzX.css                          6.57 kB
+dist/css/tippy-DkTQMyWH.css                        6.65 kB
+dist/css/css-Bd9dwSfJ.css                          7.94 kB
+dist/css/css-B33GfC8V.css                          8.31 kB
+dist/css/css-Bkc7yVNs.css                          8.67 kB
+dist/css/css-CqRIkEEr.css                         12.14 kB
+dist/css/css-B-IMx809.css                         12.40 kB
+dist/css/css-DigWIZh6.css                         15.47 kB
+dist/css/css-Dex8AFYM.css                         20.08 kB
+dist/css/basic-C2SFseSW.css                       22.29 kB
+dist/css/css-BdBbeLu3.css                         29.26 kB
+dist/css/ProductDetailView-BqTmBOtv.css           31.89 kB
+dist/css/bootstrap-D0ulA3vd.css                  160.50 kB
+dist/js/css-1vwJN_fH.js                            0.02 kB
+dist/js/css-BVkWXME-.js                            0.02 kB
+dist/js/css-BzpcDruz2.js                           0.02 kB
+dist/js/css-DBeMNxTu.js                            0.02 kB
+dist/js/css-DCCnrv5k2.js                           0.02 kB
+dist/js/css-DpxIx2aF.js                            0.02 kB
+dist/js/css-Xjc2E36p.js                            0.02 kB
+dist/js/css-mneBe8NF.js                            0.02 kB
+dist/js/typescript-DjU7-1yZ.js                     0.02 kB
+dist/js/src-VKTJCtaC.js                            0.03 kB
+dist/js/css-QdNnDJTF.js                            0.05 kB
+dist/js/css-CNfNUwZF.js                            0.05 kB
+dist/js/login-BN-G5gvX.js                          0.06 kB
+dist/js/base-setting-BLcGoEDe.js                   0.06 kB
+dist/js/password-setting-bdaqqSmz.js               0.07 kB
+dist/js/security-setting-DkXsyAbw.js               0.07 kB
+dist/js/notification-setting-Cd0RA6R5.js           0.07 kB
+dist/js/css-B6l0nHjT.js                            0.07 kB
+dist/js/css-D1nxR-nA.js                            0.07 kB
+dist/js/css-Di1f2_2e.js                            0.07 kB
+dist/js/analytics-visits-source-CBguoP6m.js        0.07 kB
+dist/js/validator-_aCskMUG.js                      0.08 kB
+dist/js/_plugin-vue_export-helper-DVsqMgR4.js      0.08 kB
+dist/js/css-BkigcWyu.js                            0.08 kB
+dist/js/css-CVU8_WA0.js                            0.08 kB
+dist/js/css-DCz6TT-s.js                            0.08 kB
+dist/js/css-u7CI2h0C.js                            0.08 kB
+dist/js/strings-BUPtkmTq.js                        0.09 kB
+dist/js/css-BXfmJj3q.js                            0.10 kB
+dist/js/css-DI7zpB6h.js                            0.10 kB
+dist/js/_baseFindIndex-Dl4LNd02.js                 0.11 kB
+dist/js/css-CvWH7XKj.js                            0.11 kB
+dist/js/css-Dh_1v78w.js                            0.11 kB
+dist/js/core-DxKvrttx.js                           0.11 kB
+dist/js/castArray-I_CHdXWR.js                      0.13 kB
+dist/js/date-CUts9cW-.js                           0.14 kB
+dist/js/input-number-DnOqsJ-Z.js                   0.14 kB
+dist/js/input-BCk-suOL.js                          0.15 kB
+dist/js/profile-CXRglvzS.js                        0.15 kB
+dist/js/src-BBQn7Axx.js                            0.15 kB
+dist/js/profile-BKbdPYk6.js                        0.15 kB
+dist/js/globals-4mxo60f5.js                        0.17 kB
+dist/js/rotate-cw-BxCyPHD1.js                      0.18 kB
+dist/js/src-BXxYC6fq.js                            0.21 kB
+dist/js/button-C8BE79kj.js                         0.23 kB
+dist/js/isArrayLikeObject-BHYS_mwY.js              0.23 kB
+dist/js/coming-soon-BZjgyR8m.js                    0.23 kB
+dist/js/page-C_S2WzvJ.js                           0.27 kB
+dist/js/page-ClQXZSGO.js                           0.28 kB
+dist/js/extends-qUpnOqSK.js                        0.29 kB
+dist/js/error-FJXtYcD2.js                          0.30 kB
+dist/js/forbidden-DSTwOass.js                      0.31 kB
+dist/js/not-found-B-IeVnoM.js                      0.31 kB
+dist/js/internal-error-KYKsmVY-.js                 0.31 kB
+dist/js/offline-CXiIkhnC.js                        0.31 kB
+dist/js/asyncToGenerator-BfVrlLLn.js               0.31 kB
+dist/js/checkbox-CqAI9GY0.js                       0.34 kB
+dist/js/Card-DUoWjPlW.js                           0.35 kB
+dist/js/use-deprecated--lxIBtjK.js                 0.35 kB
+dist/js/demos-CnWvEzf3.js                          0.36 kB
+dist/js/demos-B3zaAWbI.js                          0.36 kB
+dist/js/objectWithoutProperties-BwoIv8dG.js        0.37 kB
+dist/js/icon-CHL5thRb.js                           0.38 kB
+dist/js/flatten-BFtL7FXB.js                        0.40 kB
+dist/js/use-locale-DDNUSeJH.js                     0.46 kB
+dist/js/auth-title-B5HcpCmV.js                     0.47 kB
+dist/js/shared.esm-bundler-bkKHIiKk.js             0.56 kB
+dist/js/en-CY6_hZ4i.js                             0.57 kB
+dist/js/product-BfyzPLG0.js                        0.57 kB
+dist/js/repeat-click-Bjjjh6LU.js                   0.60 kB
+dist/js/defu-DhCqLmIY.js                           0.66 kB
+dist/js/CardTitle-BzRxsowB.js                      0.67 kB
+dist/js/use-form-common-props-D7iCn4Sl.js          0.71 kB
+dist/js/chunk-Cbdasd2v.js                          0.72 kB
+dist/js/event-5ARurbaH.js                          0.75 kB
+dist/js/common-BOD2BiIk.js                         0.78 kB
+dist/js/common-D3nPcm81.js                         0.81 kB
+dist/js/scroll-CwYUZxvK.js                         0.82 kB
+dist/js/divider-CGSCW4oe.js                        0.84 kB
+dist/js/icon-CUkiSkT3.js                           0.88 kB
+dist/js/Primitive-i_qHX3VV.js                      0.90 kB
+dist/js/vnode-DIpecL3F.js                          0.97 kB
+dist/js/click-outside-DhhMoAIr.js                  1.00 kB
+dist/js/debounce-B_ywKNeT.js                       1.05 kB
+dist/js/omit-Dml1wAXC.js                           1.09 kB
+dist/js/objectSpread2-CwpxwSvQ.js                  1.28 kB
+dist/js/icon-button-Bo6e_aLK.js                    1.30 kB
+dist/js/use-composition-raS7-WYI.js                1.33 kB
+dist/js/useProps-B3EDzke3.js                       1.34 kB
+dist/js/use-global-config-BBDG-Cbj.js              1.49 kB
+dist/js/loading-CBCliw2o.js                        1.50 kB
+dist/js/zh-cn-BWCpRqbX.js                          1.51 kB
+dist/js/use-form-item-k1WiMPRw.js                  1.53 kB
+dist/js/use-empty-values-BkWodFvl.js               1.58 kB
+dist/js/notification-setting-CI_3Btvb.js           1.66 kB
+dist/js/use-aria-DK02bt01.js                       1.72 kB
+dist/js/security-setting-DOQD1IoQ.js               1.88 kB
+dist/js/password-setting-YboXo4Lo.js               1.88 kB
+dist/js/base-setting-BP3ERIlA.js                   1.98 kB
+dist/js/button-DvvLPslk.js                         2.01 kB
+dist/js/page-xnovtuFh.js                           2.06 kB
+dist/js/forget-password-f6DFwKQE.js                2.27 kB
+dist/js/analytics-visits-source-CoGR7PM0.js        2.43 kB
+dist/js/FormLabel-BST4GFnP.js                      2.44 kB
+dist/js/CouponView-DAw08A6g.js                     2.60 kB
+dist/js/RiskView-D07pEgVh.js                       2.65 kB
+dist/js/dist-DYOcMRpE.js                           2.70 kB
+dist/js/space-Dts-fsW9.js                          2.71 kB
+dist/js/code-login-CylxVAH5.js                     2.94 kB
+dist/js/tag-DdDX2y6O.js                            3.30 kB
+dist/js/register-vmrURJyN.js                       3.36 kB
+dist/js/fallback-m7viCnAp.js                       3.39 kB
+dist/js/authentication-DKreiSIX.js                 3.40 kB
+dist/jse/index-index-B_15gvno.js                   3.51 kB
+dist/js/authentication-D9FH-SGS.js                 3.53 kB
+dist/js/profile-C0jPkddC.js                        3.57 kB
+dist/js/en-CcC65ZjG.js                             3.59 kB
+dist/js/Switch--c0Klhu1.js                         3.61 kB
+dist/js/alert-Dd_wVLjp.js                          3.73 kB
+dist/js/tasks-BS-bYvm_.js                          3.76 kB
+dist/js/analytics-C9Ebx__D.js                      3.91 kB
+dist/js/ui-BoWspY3h.js                             4.15 kB
+dist/js/nprogress-BZlyNNSR.js                      4.17 kB
+dist/js/HomeView-C3WMeThl.js                       4.28 kB
+dist/js/ui-Cx_j0l0-.js                             4.39 kB
+dist/js/progress-K-fvrAO0.js                       4.53 kB
+dist/js/avatar-mzve3_YH.js                         4.65 kB
+dist/js/_baseClone-BTetm06E.js                     4.71 kB
+dist/js/switch-BTFD4gcC.js                         5.33 kB
+dist/js/checkbox-BhbUAEcQ.js                       5.34 kB
+dist/js/VisuallyHiddenInput-hsep2ZxL.js            5.43 kB
+dist/js/focus-trap-BzJCNwKV.js                     5.81 kB
+dist/js/locales-CykZkkXq.js                        5.85 kB
+dist/js/TabsList-BQ3PAjOE.js                       5.89 kB
+dist/js/button-ezZWac6C.js                         5.89 kB
+dist/js/use-size-BjpGwgKd.js                       6.28 kB
+dist/js/radio-py2-XGVm.js                          6.29 kB
+dist/js/user-CXsaI8Jg.js                           6.38 kB
+dist/js/preferences-DzW8hDFb.js                    6.68 kB
+dist/js/preferences-CkKeUrpi.js                    6.78 kB
+dist/js/icon-500-vT-mcGC9.js                       7.10 kB
+dist/js/scrollbar-Bh44HKCg.js                      7.11 kB
+dist/js/isEqual-C4OPlJak.js                        7.16 kB
+dist/js/dayjs.min-DwBUgfDC.js                      7.17 kB
+dist/js/input-number-lfWV3MSv.js                   7.25 kB
+dist/js/time-picker-C7OGZy8U.js                    7.48 kB
+dist/js/icon-offline-BE8aRBY_.js                   8.10 kB
+dist/js/css-q_-1QdO9.js                            8.53 kB
+dist/js/icon-403-DtO63dTx.js                       9.40 kB
+dist/js/install-BtFSrZiZ.js                        9.73 kB
+dist/js/checkbox-BY3OZ_Rr.js                      10.38 kB
+dist/js/workspace-IKJcHCbs.js                     10.87 kB
+dist/js/src-dgSE_z6R.js                           12.03 kB
+dist/js/RovingFocusItem-CDkpI-IK.js               12.50 kB
+dist/js/icon-coming-soon-CZbwNmuK.js              12.91 kB
+dist/js/SearchView-CvnhXAeU.js                    12.96 kB
+dist/js/module-DpIYDODB.js                        13.46 kB
+dist/js/spinner-D6CQbpeC.js                       13.63 kB
+dist/js/input-Cnee4Ux5.js                         13.66 kB
+dist/js/icon-Bz4d4Y3b.js                          14.96 kB
+dist/js/upload-CBnu3Zb8.js                        15.29 kB
+dist/js/AlertView-DBRX9YBy.js                     16.07 kB
+dist/js/dist-D1bg6tn0.js                          20.70 kB
+dist/js/icon-404-BipOkXCF.js                      24.36 kB
+dist/js/vue-router-C44zp5IE.js                    24.93 kB
+dist/js/qrcode-login-C9YSFo83.js                  25.52 kB
+dist/js/customParseFormat-BjgQk39-.js             28.11 kB
+dist/js/index.esm-CzxO3p1I.js                     28.96 kB
+dist/js/dist-pvl9cJHO.js                          29.61 kB
+dist/js/select-DcBrLBGm.js                        30.93 kB
+dist/js/motion-DDmMyBRS.js                        34.73 kB
+dist/js/theme-toggle-CQx0akAr.js                  35.18 kB
+dist/js/tree-select-v9-RCvXE.js                   37.47 kB
+dist/js/vee-validate-BgrgfKME.js                  39.66 kB
+dist/js/util-B5aUCOxc.js                          41.52 kB
+dist/js/select-v2-DeR8Lnv_.js                     43.07 kB
+dist/js/sortable.complete.esm-CGIozBq2.js         45.70 kB
+dist/js/login-Bd_iQW8b.js                         46.52 kB
+dist/js/utils-BAy2Vewq.js                         47.83 kB
+dist/js/config-tuaqJvar.js                        49.11 kB
+dist/js/tippy-DnTdukVE.js                         50.99 kB
+dist/js/src-Bzjj2wnb.js                           51.78 kB
+dist/js/tooltip-Dyqvde-a.js                       56.73 kB
+dist/js/bootstrap-DD6wvHzp.js                     59.37 kB
+dist/js/date-picker-DkJH6fzc.js                   66.22 kB
+dist/js/use-vben-form-DhaGoh_V.js                 96.76 kB
+dist/js/vue.runtime.esm-bundler-4FN7W31B.js      110.32 kB
+dist/js/auth-BXBJety6.js                         119.69 kB
+dist/js/src-D3UhXNB8.js                          129.70 kB
+dist/js/store-Cv6IGcPH.js                        144.85 kB
+dist/js/basic-B4Ux6oYU.js                        298.48 kB
+dist/js/ProductDetailView-xZ6xJO8V.js          1,267.21 kB
+
+
+ ERROR  ✗ Build failed in 2.48s
+
+
+ ERROR  error during build:
+Build failed with 1 error:
+
+Error: [vite]: Rolldown failed to resolve import "lucide-vue-next" from "/Users/maopengjie/Documents/m-application/apps/web-ele/src/views/tools/tasks/index.vue?vue&type=script&setup=true&lang.ts".
+This is most likely unintended because it can break your application at runtime.
+If you do want to externalize this module explicitly add it to
+`build.rollupOptions.external`
+    at viteLog (file:///Users/maopengjie/Documents/m-application/node_modules/.pnpm/vite@8.0.8_@types+node@25.5.0_esbuild@0.27.4_jiti@2.6.1_less@4.6.4_sass-embedded@1.98.0_5a6a5ebf6b47db07075f7aaf0ff11773/node_modules/vite/dist/node/chunks/node.js:33047:57)
+    at onRollupLog (file:///Users/maopengjie/Documents/m-application/node_modules/.pnpm/vite@8.0.8_@types+node@25.5.0_esbuild@0.27.4_jiti@2.6.1_less@4.6.4_sass-embedded@1.98.0_5a6a5ebf6b47db07075f7aaf0ff11773/node_modules/vite/dist/node/chunks/node.js:33079:7)
+    at onLog (file:///Users/maopengjie/Documents/m-application/node_modules/.pnpm/vite@8.0.8_@types+node@25.5.0_esbuild@0.27.4_jiti@2.6.1_less@4.6.4_sass-embedded@1.98.0_5a6a5ebf6b47db07075f7aaf0ff11773/node_modules/vite/dist/node/chunks/node.js:32847:4)
+    at file:///Users/maopengjie/Documents/m-application/node_modules/.pnpm/rolldown@1.0.0-rc.15/node_modules/rolldown/dist/shared/rolldown-build-DtGk-m96.mjs:50:26
+    at logger (file:///Users/maopengjie/Documents/m-application/node_modules/.pnpm/rolldown@1.0.0-rc.15/node_modules/rolldown/dist/shared/rolldown-build-DtGk-m96.mjs:41:3)
+    at onLog (file:///Users/maopengjie/Documents/m-application/node_modules/.pnpm/rolldown@1.0.0-rc.15/node_modules/rolldown/dist/shared/bindingify-input-options-DYpBf1OG.mjs:2015:32)
+    at aggregateBindingErrorsIntoJsError (file:///Users/maopengjie/Documents/m-application/node_modules/.pnpm/rolldown@1.0.0-rc.15/node_modules/rolldown/dist/shared/error-w0u7biK-.mjs:48:18)
+    at unwrapBindingResult (file:///Users/maopengjie/Documents/m-application/node_modules/.pnpm/rolldown@1.0.0-rc.15/node_modules/rolldown/dist/shared/error-w0u7biK-.mjs:18:128)
+    at #build (file:///Users/maopengjie/Documents/m-application/node_modules/.pnpm/rolldown@1.0.0-rc.15/node_modules/rolldown/dist/shared/rolldown-build-DtGk-m96.mjs:3313:34)
+    at async buildEnvironment (file:///Users/maopengjie/Documents/m-application/node_modules/.pnpm/vite@8.0.8_@types+node@25.5.0_esbuild@0.27.4_jiti@2.6.1_less@4.6.4_sass-embedded@1.98.0_5a6a5ebf6b47db07075f7aaf0ff11773/node_modules/vite/dist/node/chunks/node.js:32954:64)
+    at async Object.build (file:///Users/maopengjie/Documents/m-application/node_modules/.pnpm/vite@8.0.8_@types+node@25.5.0_esbuild@0.27.4_jiti@2.6.1_less@4.6.4_sass-embedded@1.98.0_5a6a5ebf6b47db07075f7aaf0ff11773/node_modules/vite/dist/node/chunks/node.js:33376:19)
+    at async Object.buildApp (file:///Users/maopengjie/Documents/m-application/node_modules/.pnpm/vite@8.0.8_@types+node@25.5.0_esbuild@0.27.4_jiti@2.6.1_less@4.6.4_sass-embedded@1.98.0_5a6a5ebf6b47db07075f7aaf0ff11773/node_modules/vite/dist/node/chunks/node.js:33373:153)
+    at async CAC.<anonymous> (file:///Users/maopengjie/Documents/m-application/node_modules/.pnpm/vite@8.0.8_@types+node@25.5.0_esbuild@0.27.4_jiti@2.6.1_less@4.6.4_sass-embedded@1.98.0_5a6a5ebf6b47db07075f7aaf0ff11773/node_modules/vite/dist/node/cli.js:778:3) {
+  errors: [Getter/Setter]
+}
+
+ ELIFECYCLE  Command failed with exit code 1.

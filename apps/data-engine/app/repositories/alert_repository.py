@@ -1,0 +1,43 @@
+from sqlalchemy.orm import Session
+from app.models.product import PriceAlert
+
+
+class AlertRepository:
+    def list_alerts(self, db: Session, user_id: int) -> list[PriceAlert]:
+        return (
+            db.query(PriceAlert)
+            .filter(PriceAlert.user_id == user_id)
+            .order_by(PriceAlert.created_at.desc())
+            .all()
+        )
+
+    def create_alert(self, db: Session, alert_data: dict) -> PriceAlert:
+        db_alert = PriceAlert(**alert_data)
+        db.add(db_alert)
+        db.commit()
+        db.refresh(db_alert)
+        return db_alert
+    def delete_alert(self, db: Session, alert_id: int, user_id: int) -> bool:
+        db_alert = (
+            db.query(PriceAlert)
+            .filter(PriceAlert.id == alert_id, PriceAlert.user_id == user_id)
+            .first()
+        )
+        if db_alert:
+            db.delete(db_alert)
+            db.commit()
+            return True
+        return False
+
+    def get_active_alerts(self, db: Session) -> list[PriceAlert]:
+        return (
+            db.query(PriceAlert)
+            .filter(PriceAlert.is_triggered == False, PriceAlert.status == "monitoring")
+            .all()
+        )
+    def get_alert_by_user_and_sku(self, db: Session, user_id: int, sku_id: int) -> PriceAlert:
+        return (
+            db.query(PriceAlert)
+            .filter(PriceAlert.user_id == user_id, PriceAlert.sku_id == sku_id, PriceAlert.is_triggered == False)
+            .first()
+        )
