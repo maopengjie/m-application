@@ -1,0 +1,53 @@
+<script setup lang="ts">
+import type { Product } from "#/api/types";
+
+import { ElEmpty, ElSkeleton, ElSkeletonItem } from "element-plus";
+
+import ProductCard from "./ProductCard.vue";
+
+defineProps<{
+  loading?: boolean;
+  products: Product[];
+}>();
+
+const emit = defineEmits<{
+  (e: "click", product: Product): void;
+}>();
+</script>
+
+<template>
+  <div class="min-h-[400px]">
+    <template v-if="loading">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <ElSkeleton v-for="i in 8" :key="i" animated>
+          <template #template>
+            <ElSkeletonItem variant="image" style="height: 200px" />
+            <div style="padding: 14px">
+              <ElSkeletonItem variant="p" style="width: 50%" />
+              <div style="display: flex; align-items: center; justify-content: space-between">
+                <ElSkeletonItem variant="text" style="margin-right: 16px" />
+                <ElSkeletonItem variant="text" style="width: 30%" />
+              </div>
+            </div>
+          </template>
+        </ElSkeleton>
+      </div>
+    </template>
+
+    <div
+      v-else-if="products.length > 0"
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+    >
+      <ProductCard
+        v-for="product in products"
+        :key="product.id"
+        :product="product"
+        @click="emit('click', product)"
+      />
+    </div>
+
+    <div v-else class="flex flex-col items-center justify-center py-20 text-gray-400">
+      <ElEmpty description="暂无相关商品，换个关键词试试吧" />
+    </div>
+  </div>
+</template>
