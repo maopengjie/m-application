@@ -25,67 +25,54 @@ import AnalyticsVisitsSource from '../analytics/analytics-visits-source.vue';
 
 const userStore = useUserStore();
 
-// 这是一个示例数据，实际项目中需要根据实际情况进行调整
-// url 也可以是内部路由，在 navTo 方法中识别处理，进行内部跳转
-// 例如：url: /dashboard/workspace
 const projectItems: WorkbenchProjectItem[] = [
   {
-    color: '',
-    content: '不要等待机会，而要创造机会。',
-    date: '2021-04-01',
-    group: '开源组',
+    color: '#2563eb',
+    content: '聚焦本周最重要的功能，优先把核心闭环做完整。',
+    date: '2026-04-30',
+    group: '产品节奏',
+    icon: 'lucide:target',
+    title: '本周目标',
+    url: '/dashboard/analytics',
+  },
+  {
+    color: '#0f766e',
+    content: '把关键指标、趋势和来源统一收敛到一个观察面板。',
+    date: '2026-04-30',
+    group: '数据看板',
+    icon: 'lucide:chart-column',
+    title: '分析页',
+    url: '/dashboard/analytics',
+  },
+  {
+    color: '#7c3aed',
+    content: '整理待办、关键变更和最近动作，保持项目推进节奏。',
+    date: '2026-04-30',
+    group: '工作台',
+    icon: 'lucide:briefcase-business',
+    title: '工作台',
+    url: '/dashboard/workspace',
+  },
+  {
+    color: '#ea580c',
+    content: '维护登录态、权限和个人资料等基础能力，保证可持续迭代。',
+    date: '2026-04-30',
+    group: '基础设施',
+    icon: 'lucide:shield-check',
+    title: '账户中心',
+    url: '/profile',
+  },
+  {
+    color: '#4f46e5',
+    content: '把产品说明、部署方式和开发约定沉淀成可回看的文档。',
+    date: '2026-04-30',
+    group: '项目文档',
     icon: 'carbon:logo-github',
-    title: 'Github',
-    url: 'https://github.com',
-  },
-  {
-    color: '#3fb27f',
-    content: '现在的你决定将来的你。',
-    date: '2021-04-01',
-    group: '算法组',
-    icon: 'ion:logo-vue',
-    title: 'Vue',
-    url: 'https://vuejs.org',
-  },
-  {
-    color: '#e18525',
-    content: '没有什么才能比努力更重要。',
-    date: '2021-04-01',
-    group: '上班摸鱼',
-    icon: 'ion:logo-html5',
-    title: 'Html5',
-    url: 'https://developer.mozilla.org/zh-CN/docs/Web/HTML',
-  },
-  {
-    color: '#bf0c2c',
-    content: '热情和欲望可以突破一切难关。',
-    date: '2021-04-01',
-    group: 'UI',
-    icon: 'ion:logo-angular',
-    title: 'Angular',
-    url: 'https://angular.io',
-  },
-  {
-    color: '#00d8ff',
-    content: '健康的身体是实现目标的基石。',
-    date: '2021-04-01',
-    group: '技术牛',
-    icon: 'bx:bxl-react',
-    title: 'React',
-    url: 'https://reactjs.org',
-  },
-  {
-    color: '#EBD94E',
-    content: '路是走出来的，而不是空想出来的。',
-    date: '2021-04-01',
-    group: '架构组',
-    icon: 'ion:logo-javascript',
-    title: 'Js',
-    url: 'https://developer.mozilla.org/zh-CN/docs/Web/JavaScript',
+    title: '仓库主页',
+    url: 'https://github.com/maopengjie',
   },
 ];
 
-// 同样，这里的 url 也可以使用以 http 开头的外部链接
 const quickNavItems: WorkbenchQuickNavItem[] = [
   {
     color: '#1fdaca',
@@ -97,127 +84,119 @@ const quickNavItems: WorkbenchQuickNavItem[] = [
     color: '#bf0c2c',
     icon: 'ion:grid-outline',
     title: '仪表盘',
-    url: '/dashboard',
+    url: '/dashboard/workspace',
   },
   {
     color: '#e18525',
-    icon: 'ion:layers-outline',
-    title: '组件',
-    url: '/demos/features/icons',
+    icon: 'ion:bar-chart-outline',
+    title: '趋势分析',
+    url: '/analytics',
   },
   {
     color: '#3fb27f',
     icon: 'ion:settings-outline',
-    title: '系统管理',
-    url: '/demos/features/login-expired', // 这里的 URL 是示例，实际项目中需要根据实际情况进行调整
+    title: '个人设置',
+    url: '/profile',
   },
   {
     color: '#4daf1bc9',
-    icon: 'ion:key-outline',
-    title: '权限管理',
-    url: '/demos/access/page-control',
+    icon: 'ion:reader-outline',
+    title: '项目文档',
+    url: 'https://github.com/maopengjie',
   },
   {
     color: '#00d8ff',
-    icon: 'ion:bar-chart-outline',
-    title: '图表',
-    url: '/analytics',
+    icon: 'ion:checkmark-done-outline',
+    title: '待办检查',
+    url: '/dashboard/workspace',
   },
 ];
 
 const todoItems = ref<WorkbenchTodoItem[]>([
   {
     completed: false,
-    content: `审查最近提交到Git仓库的前端代码，确保代码质量和规范。`,
-    date: '2024-07-30 11:00:00',
-    title: '审查前端代码提交',
-  },
-  {
-    completed: true,
-    content: `检查并优化系统性能，降低CPU使用率。`,
-    date: '2024-07-30 11:00:00',
-    title: '系统性能优化',
+    content: `定义唯一主线功能，避免项目继续停留在“底座很多、产品不清晰”的状态。`,
+    date: '2026-04-30 11:00:00',
+    title: '确认核心产品方向',
   },
   {
     completed: false,
-    content: `进行系统安全检查，确保没有安全漏洞或未授权的访问。 `,
-    date: '2024-07-30 11:00:00',
-    title: '安全检查',
+    content: `把一个最关键的数据实体接到真实存储或真实 API，替代纯 mock 展示。`,
+    date: '2026-04-30 14:00:00',
+    title: '接入真实数据链路',
   },
   {
     completed: false,
-    content: `更新项目中的所有npm依赖包，确保使用最新版本。`,
-    date: '2024-07-30 11:00:00',
-    title: '更新项目依赖',
+    content: `整理环境变量、README 和部署说明，降低未来回看和继续开发的成本。`,
+    date: '2026-05-01 10:00:00',
+    title: '补全文档和环境说明',
   },
   {
     completed: false,
-    content: `修复用户报告的页面UI显示问题，确保在不同浏览器中显示一致。 `,
-    date: '2024-07-30 11:00:00',
-    title: '修复UI显示问题',
+    content: `给登录、工作台和核心业务流补最小可用验证，避免后续改动失控。`,
+    date: '2026-05-02 16:00:00',
+    title: '补关键链路验证',
+  },
+  {
+    completed: false,
+    content: `部署一个自己会每天打开使用的版本，让项目进入真实反馈循环。`,
+    date: '2026-05-03 18:00:00',
+    title: '发布可持续使用版本',
   },
 ]);
 const trendItems: WorkbenchTrendItem[] = [
   {
     avatar: 'svg:avatar-1',
-    content: `在 <a>开源组</a> 创建了项目 <a>Vue</a>`,
+    content: `整理了工作台入口，移除了和主产品方向无关的演示页面。`,
     date: '刚刚',
-    title: '威廉',
+    title: '项目助手',
   },
   {
     avatar: 'svg:avatar-2',
-    content: `关注了 <a>威廉</a> `,
+    content: `确认下一阶段重点是把 mock 数据替换成真实业务链路。`,
     date: '1个小时前',
-    title: '艾文',
+    title: '产品节奏',
   },
   {
     avatar: 'svg:avatar-3',
-    content: `发布了 <a>个人动态</a> `,
+    content: `更新了首页内容，让项目更像产品控制台，而不是技术模板。`,
     date: '1天前',
-    title: '克里斯',
+    title: '工作台',
   },
   {
     avatar: 'svg:avatar-4',
-    content: `发表文章 <a>如何编写一个Vite插件</a> `,
+    content: `开始梳理部署说明、环境变量和长期维护所需的最小文档。`,
     date: '2天前',
-    title: 'Vben',
+    title: '工程整理',
   },
   {
     avatar: 'svg:avatar-1',
-    content: `回复了 <a>杰克</a> 的问题 <a>如何进行项目优化？</a>`,
+    content: `完成了一轮项目分析，明确“少做框架，多做闭环”的推进原则。`,
     date: '3天前',
-    title: '皮特',
+    title: '产品复盘',
   },
   {
     avatar: 'svg:avatar-2',
-    content: `关闭了问题 <a>如何运行项目</a> `,
+    content: `预留了分析页和个人设置入口，作为后续真实功能承载区。`,
     date: '1周前',
-    title: '杰克',
+    title: '基础能力',
   },
   {
     avatar: 'svg:avatar-3',
-    content: `发布了 <a>个人动态</a> `,
+    content: `准备把核心指标、待办和项目文档集中到一个统一视图。`,
     date: '1周前',
-    title: '威廉',
+    title: '看板规划',
   },
   {
     avatar: 'svg:avatar-4',
-    content: `推送了代码到 <a>Github</a>`,
-    date: '2021-04-01 20:00',
-    title: '威廉',
-  },
-  {
-    avatar: 'svg:avatar-4',
-    content: `发表文章 <a>如何编写使用 Admin Vben</a> `,
-    date: '2021-03-01 20:00',
-    title: 'Vben',
+    content: `建立了 monorepo 工程基础，方便后续继续沿主线演进。`,
+    date: '2026-04-24 20:00',
+    title: '项目基础',
   },
 ];
 
 const router = useRouter();
 
-// 这是一个示例方法，实际项目中需要根据实际情况进行调整
-// This is a sample method, adjust according to the actual project requirements
 function navTo(nav: WorkbenchProjectItem | WorkbenchQuickNavItem) {
   if (nav.url?.startsWith('http')) {
     openWindow(nav.url);
@@ -239,9 +218,11 @@ function navTo(nav: WorkbenchProjectItem | WorkbenchQuickNavItem) {
       :avatar="userStore.userInfo?.avatar || preferences.app.defaultAvatar"
     >
       <template #title>
-        早安, {{ userStore.userInfo?.realName }}, 开始您一天的工作吧！
+        欢迎回来，{{ userStore.userInfo?.realName || '创作者' }}，继续推进你的产品。
       </template>
-      <template #description> 今日晴，20℃ - 32℃！ </template>
+      <template #description>
+        今天的重点是缩小范围、完成闭环，并让项目更接近真实可用。
+      </template>
     </WorkbenchHeader>
 
     <div class="mt-5 flex flex-col lg:flex-row">

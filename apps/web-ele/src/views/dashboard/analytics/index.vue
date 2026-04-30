@@ -23,41 +23,41 @@ import AnalyticsVisits from './analytics-visits.vue';
 const overviewItems: AnalysisOverviewItem[] = [
   {
     icon: SvgCardIcon,
-    title: '用户量',
-    totalTitle: '总用户量',
-    totalValue: 120_000,
-    value: 2000,
+    title: '活跃项目',
+    totalTitle: '累计项目数',
+    totalValue: 128,
+    value: 12,
   },
   {
     icon: SvgCakeIcon,
-    title: '访问量',
-    totalTitle: '总访问量',
-    totalValue: 500_000,
-    value: 20_000,
+    title: '本周访问',
+    totalTitle: '累计访问量',
+    totalValue: 86_400,
+    value: 4820,
   },
   {
     icon: SvgDownloadIcon,
-    title: '下载量',
-    totalTitle: '总下载量',
-    totalValue: 120_000,
-    value: 8000,
+    title: '新增线索',
+    totalTitle: '累计线索数',
+    totalValue: 940,
+    value: 37,
   },
   {
     icon: SvgBellIcon,
-    title: '使用量',
-    totalTitle: '总使用量',
-    totalValue: 50_000,
-    value: 5000,
+    title: '待处理事项',
+    totalTitle: '累计处理数',
+    totalValue: 3120,
+    value: 18,
   },
 ];
 
 const chartTabs: TabOption[] = [
   {
-    label: '流量趋势',
+    label: '趋势变化',
     value: 'trends',
   },
   {
-    label: '月访问量',
+    label: '访问分布',
     value: 'visits',
   },
 ];
@@ -79,10 +79,10 @@ const chartTabs: TabOption[] = [
       <AnalysisChartCard class="mt-5 md:mt-0 md:mr-4 md:w-1/3" title="访问数量">
         <AnalyticsVisitsData />
       </AnalysisChartCard>
-      <AnalysisChartCard class="mt-5 md:mt-0 md:mr-4 md:w-1/3" title="访问来源">
+      <AnalysisChartCard class="mt-5 md:mt-0 md:mr-4 md:w-1/3" title="来源分布">
         <AnalyticsVisitsSource />
       </AnalysisChartCard>
-      <AnalysisChartCard class="mt-5 md:mt-0 md:w-1/3" title="访问来源">
+      <AnalysisChartCard class="mt-5 md:mt-0 md:w-1/3" title="转化表现">
         <AnalyticsVisitsSales />
       </AnalysisChartCard>
     </div>
