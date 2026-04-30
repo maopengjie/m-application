@@ -1,0 +1,748 @@
+# Instincts generated from https://github.com/maopengjie/m-application
+# Generated: 2026-04-30T03:12:16.321Z
+# Version: 2.0
+# NOTE: This file supplements (does not replace) any existing curated instincts.
+# High-confidence manually curated instincts should be preserved alongside these.
+
+---
+id: m-application-commit-conventional
+trigger: "when writing a commit message"
+confidence: 0.85
+domain: git
+source: repo-analysis
+source_repo: https://github.com/maopengjie/m-application
+---
+
+# M Application Commit Conventional
+
+## Action
+
+Use conventional commit format with prefixes: chore, feat, fix, perf
+
+## Evidence
+
+- 100 commits analyzed
+- Detected conventional commit pattern
+- Examples: chore: init project, feat(other): The menu supports jumping to external links and fixing some known problems
+
+---
+id: m-application-commit-length
+trigger: "when writing a commit message"
+confidence: 0.6
+domain: git
+source: repo-analysis
+source_repo: https://github.com/maopengjie/m-application
+---
+
+# M Application Commit Length
+
+## Action
+
+Keep commit messages concise (~33 characters)
+
+## Evidence
+
+- Average commit message length: 33 chars
+- Based on 100 commits
+
+---
+id: m-application-naming-files
+trigger: "when creating a new file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/maopengjie/m-application
+---
+
+# M Application Naming Files
+
+## Action
+
+Use camelCase naming convention
+
+## Evidence
+
+- Analyzed file naming patterns in repository
+- Dominant pattern: camelCase
+
+---
+id: m-application-export-style
+trigger: "when exporting from a module"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/maopengjie/m-application
+---
+
+# M Application Export Style
+
+## Action
+
+Prefer named exports
+
+## Evidence
+
+- Export pattern analysis
+- Dominant style: named
+
+---
+id: m-application-arch-type-based
+trigger: "when adding new code"
+confidence: 0.8
+domain: architecture
+source: repo-analysis
+source_repo: https://github.com/maopengjie/m-application
+---
+
+# M Application Arch Type Based
+
+## Action
+
+Place code in the appropriate type folder (components/, services/, utils/, etc.)
+
+## Evidence
+
+- Type-based module organization detected
+- Folders: 
+
+---
+id: m-application-test-framework
+trigger: "when writing tests"
+confidence: 0.9
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/maopengjie/m-application
+---
+
+# M Application Test Framework
+
+## Action
+
+Use vitest as the test framework
+
+## Evidence
+
+- Test framework detected: vitest
+- File pattern: *.test.ts
+
+---
+id: m-application-test-naming
+trigger: "when creating a test file"
+confidence: 0.85
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/maopengjie/m-application
+---
+
+# M Application Test Naming
+
+## Action
+
+Name test files using the pattern: *.test.ts
+
+## Evidence
+
+- File pattern: *.test.ts
+- Consistent across test files
+
+---
+id: m-application-test-types
+trigger: "when planning tests for a feature"
+confidence: 0.7
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/maopengjie/m-application
+---
+
+# M Application Test Types
+
+## Action
+
+Write unit, e2e tests to match project standards
+
+## Evidence
+
+- Test types detected: unit, e2e
+- Coverage config: no
+
+---
+id: m-application-workflow-feature-development
+trigger: "when implementing a new feature"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/maopengjie/m-application
+---
+
+# M Application Workflow Feature Development
+
+## Action
+
+Follow the feature-development workflow:
+1. Add feature implementation
+2. Add tests for feature
+3. Update documentation
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~10x per month
+- Files: apps/antd-view/src/router/guard/*, apps/antd-view/src/router/*, apps/antd-view/src/router/routes/*
+
+---
+id: m-application-workflow-test-driven-development
+trigger: "when adding new functionality"
+confidence: 0.8
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/maopengjie/m-application
+---
+
+# M Application Workflow Test Driven Development
+
+## Action
+
+Follow the test-driven-development workflow:
+1. Write failing test
+2. Implement code to pass test
+3. Refactor if needed
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~6x per month
+- Files: **/*.test.*, **/*.spec.*, src/**/*
+
+---
+id: m-application-workflow-refactoring
+trigger: "when refactoring code"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/maopengjie/m-application
+---
+
+# M Application Workflow Refactoring
+
+## Action
+
+Follow the refactoring workflow:
+1. Ensure tests pass before refactor
+2. Refactor code structure
+3. Verify tests still pass
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: src/**/*
+
+---
+id: m-application-workflow-update-dependencies-and-monorepo-packages
+trigger: "when doing update dependencies and monorepo packages"
+confidence: 0.7
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/maopengjie/m-application
+---
+
+# M Application Workflow Update Dependencies And Monorepo Packages
+
+## Action
+
+Follow the update-dependencies-and-monorepo-packages workflow:
+1. Update root package.json and pnpm-lock.yaml
+2. Update internal/*/package.json and/or tsconfig.json
+3. Update packages/*/package.json and/or tsconfig.json
+4. Update apps/*/package.json if needed
+5. Commit with message like 'chore: update deps'
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~4x per month
+- Files: package.json, pnpm-lock.yaml, internal/**/package.json
+
+---
+id: m-application-workflow-feature-development-with-types-and-locales
+trigger: "when doing feature development with types and locales"
+confidence: 0.65
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/maopengjie/m-application
+---
+
+# M Application Workflow Feature Development With Types And Locales
+
+## Action
+
+Follow the feature-development-with-types-and-locales workflow:
+1. Update or add implementation files (Vue components, config, or logic)
+2. Update types in packages/@core/shared/typings or related typings files
+3. Update or add entries in packages/locales/src/langs/*.yaml
+4. Update or add config files if needed
+5. Update UI components to reflect new feature
+6. Commit with 'feat:' or similar message
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~3x per month
+- Files: packages/@core/shared/typings/src/**/*.ts, packages/business/universal-ui/src/**/*.vue, packages/business/universal-ui/src/**/*.ts
+
+---
+id: m-application-workflow-refactor-or-rename-package-or-directory
+trigger: "when doing refactor or rename package or directory"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/maopengjie/m-application
+---
+
+# M Application Workflow Refactor Or Rename Package Or Directory
+
+## Action
+
+Follow the refactor-or-rename-package-or-directory workflow:
+1. Move or rename directories and files
+2. Update import paths and references across the codebase
+3. Update related package.json and tsconfig.json
+4. Update workspace files (pnpm-workspace.yaml, code-workspace, etc.)
+5. Commit with 'refactor:' or 'chore:' message
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: packages/@vben-core/**, packages/@core/**, packages/business/common-ui/**
+
+---
+id: m-application-workflow-add-or-update-ui-component
+trigger: "when doing add or update ui component"
+confidence: 0.65
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/maopengjie/m-application
+---
+
+# M Application Workflow Add Or Update Ui Component
+
+## Action
+
+Follow the add-or-update-ui-component workflow:
+1. Add or update .vue component file in packages/@core/uikit/*/src/components/
+2. Update or add index.ts to export the component
+3. Update styles if needed (e.g., index.scss)
+4. Update package.json if new dependencies or exports are needed
+5. Commit with 'feat:' or 'fix:' message
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~3x per month
+- Files: packages/@core/uikit/*/src/components/**/*.vue, packages/@core/uikit/*/src/components/**/*.ts, packages/@core/uikit/*/src/index.ts
+
+---
+id: m-application-workflow-add-or-update-router-and-views
+trigger: "when doing add or update router and views"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/maopengjie/m-application
+---
+
+# M Application Workflow Add Or Update Router And Views
+
+## Action
+
+Follow the add-or-update-router-and-views workflow:
+1. Add or update route definition in apps/*/src/router/routes/**
+2. Add or update corresponding view component in apps/*/src/views/**
+3. Update router/index.ts or guard.ts as needed
+4. Commit with 'feat:' or 'fix:' message
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: apps/*/src/router/routes/**/*.ts, apps/*/src/views/**/*.vue, apps/*/src/router/index.ts
+
+---
+id: m-application-workflow-format-codebase
+trigger: "when doing format codebase"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/maopengjie/m-application
+---
+
+# M Application Workflow Format Codebase
+
+## Action
+
+Follow the format-codebase workflow:
+1. Run code formatter (e.g., Prettier) on codebase
+2. Update many .vue, .ts, .scss, and config files
+3. Commit with 'chore: format code'
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: **/*.vue, **/*.ts, **/*.scss
+
+---
+id: m-application-instinct-file-naming-camelCase
+trigger: "When creating or renaming a file (except classes or constants)"
+confidence: 0.85
+domain: code-style
+source: repo-analysis
+source_repo: maopengjie/m-application
+---
+
+# M Application Instinct File Naming CamelCase
+
+## Action
+
+Name the file using camelCase
+
+## Evidence
+
+- Pattern: namingConventions.files = camelCase
+- Seen in multiple files across packages and apps
+
+---
+id: m-application-instinct-function-naming-camelCase
+trigger: "When defining a function"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: maopengjie/m-application
+---
+
+# M Application Instinct Function Naming CamelCase
+
+## Action
+
+Name the function using camelCase
+
+## Evidence
+
+- Pattern: namingConventions.functions = camelCase
+- Consistent in TypeScript files
+
+---
+id: m-application-instinct-class-naming-PascalCase
+trigger: "When defining a class"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: maopengjie/m-application
+---
+
+# M Application Instinct Class Naming PascalCase
+
+## Action
+
+Name the class using PascalCase
+
+## Evidence
+
+- Pattern: namingConventions.classes = PascalCase
+
+---
+id: m-application-instinct-constant-naming-SCREAMING_SNAKE_CASE
+trigger: "When declaring a constant"
+confidence: 0.85
+domain: code-style
+source: repo-analysis
+source_repo: maopengjie/m-application
+---
+
+# M Application Instinct Constant Naming SCREAMING_SNAKE_CASE
+
+## Action
+
+Name the constant using SCREAMING_SNAKE_CASE
+
+## Evidence
+
+- Pattern: namingConventions.constants = SCREAMING_SNAKE_CASE
+
+---
+id: m-application-instinct-import-style-mixed
+trigger: "When importing modules"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: maopengjie/m-application
+---
+
+# M Application Instinct Import Style Mixed
+
+## Action
+
+Use mixed import styles as per context (default and named imports allowed)
+
+## Evidence
+
+- Pattern: importStyle = mixed
+- Seen in multiple TypeScript files
+
+---
+id: m-application-instinct-export-style-named
+trigger: "When exporting modules"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: maopengjie/m-application
+---
+
+# M Application Instinct Export Style Named
+
+## Action
+
+Prefer named exports
+
+## Evidence
+
+- Pattern: exportStyle = named
+- Seen in index.ts files
+
+---
+id: m-application-instinct-testing-vitest
+trigger: "When writing tests"
+confidence: 0.9
+domain: testing
+source: repo-analysis
+source_repo: maopengjie/m-application
+---
+
+# M Application Instinct Testing Vitest
+
+## Action
+
+Use vitest as the testing framework
+
+## Evidence
+
+- Pattern: testing.framework = vitest
+- Presence of vitest config and test files
+
+---
+id: m-application-instinct-testing-file-pattern
+trigger: "When creating a test file"
+confidence: 0.9
+domain: testing
+source: repo-analysis
+source_repo: maopengjie/m-application
+---
+
+# M Application Instinct Testing File Pattern
+
+## Action
+
+Name the file with the pattern *.test.ts
+
+## Evidence
+
+- Pattern: testing.filePattern = *.test.ts
+- Seen in src/utils/validation.test.ts
+
+---
+id: m-application-instinct-testing-types
+trigger: "When writing tests"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: maopengjie/m-application
+---
+
+# M Application Instinct Testing Types
+
+## Action
+
+Write both unit and e2e tests as appropriate
+
+## Evidence
+
+- Pattern: testing.testTypes = [unit, e2e]
+
+---
+id: m-application-instinct-git-commit-conventional
+trigger: "When making a commit"
+confidence: 0.95
+domain: git
+source: repo-analysis
+source_repo: maopengjie/m-application
+---
+
+# M Application Instinct Git Commit Conventional
+
+## Action
+
+Format the commit message using conventional commits (e.g., feat:, fix:, chore:, perf:)
+
+## Evidence
+
+- Pattern: commits.type = conventional
+- Examples: 'feat:', 'fix:', 'chore:'
+
+---
+id: m-application-instinct-git-commit-length
+trigger: "When writing a commit message"
+confidence: 0.7
+domain: git
+source: repo-analysis
+source_repo: maopengjie/m-application
+---
+
+# M Application Instinct Git Commit Length
+
+## Action
+
+Keep the commit message concise (average length ~33 characters)
+
+## Evidence
+
+- Pattern: commits.averageLength = 33
+
+---
+id: m-application-instinct-workflow-update-dependencies
+trigger: "When someone wants to update dependencies or sync package versions across the monorepo"
+confidence: 0.95
+domain: workflow
+source: repo-analysis
+source_repo: maopengjie/m-application
+---
+
+# M Application Instinct Workflow Update Dependencies
+
+## Action
+
+Update root, internal, packages, and apps package.json/tsconfig.json and pnpm-lock.yaml; commit with 'chore: update deps'
+
+## Evidence
+
+- Workflow: update-dependencies-and-monorepo-packages
+- Seen in commit: 'chore: update deps'
+
+---
+id: m-application-instinct-workflow-feature-types-locales
+trigger: "When adding a new feature or configuration affecting UI, types, and localization"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: maopengjie/m-application
+---
+
+# M Application Instinct Workflow Feature Types Locales
+
+## Action
+
+Update implementation, types, locales, config, and UI components; commit with 'feat:'
+
+## Evidence
+
+- Workflow: feature-development-with-types-and-locales
+- Seen in commits updating types, locales, and UI
+
+---
+id: m-application-instinct-workflow-refactor-rename-package
+trigger: "When renaming a package, directory, or refactoring structure"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: maopengjie/m-application
+---
+
+# M Application Instinct Workflow Refactor Rename Package
+
+## Action
+
+Move/rename directories, update import paths, update configs/workspace files, commit with 'refactor:' or 'chore:'
+
+## Evidence
+
+- Workflow: refactor-or-rename-package-or-directory
+- Seen in commit: 'chore(project): refactor types dir'
+
+---
+id: m-application-instinct-workflow-add-ui-component
+trigger: "When adding or updating a UI component in the UI kit"
+confidence: 0.85
+domain: workflow
+source: repo-analysis
+source_repo: maopengjie/m-application
+---
+
+# M Application Instinct Workflow Add Ui Component
+
+## Action
+
+Add/update .vue component, update index.ts, styles, and package.json as needed; commit with 'feat:' or 'fix:'
+
+## Evidence
+
+- Workflow: add-or-update-ui-component
+- Seen in commits adding/updating UI components
+
+---
+id: m-application-instinct-workflow-add-router-view
+trigger: "When adding a new route, fallback page, or updating routing logic"
+confidence: 0.85
+domain: workflow
+source: repo-analysis
+source_repo: maopengjie/m-application
+---
+
+# M Application Instinct Workflow Add Router View
+
+## Action
+
+Add/update route definition, corresponding view, update router/index.ts or guard.ts; commit with 'feat:' or 'fix:'
+
+## Evidence
+
+- Workflow: add-or-update-router-and-views
+- Seen in commits updating router and views
+
+---
+id: m-application-instinct-workflow-format-codebase
+trigger: "When someone wants to apply code formatting across the repo"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: maopengjie/m-application
+---
+
+# M Application Instinct Workflow Format Codebase
+
+## Action
+
+Run code formatter (e.g., Prettier) on .vue, .ts, .scss, and config files; commit with 'chore: format code'
+
+## Evidence
+
+- Workflow: format-codebase
+- Seen in commits with 'chore: format code'
+
+---
+id: m-application-instinct-error-handling-try-catch
+trigger: "When handling errors in code"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: maopengjie/m-application
+---
+
+# M Application Instinct Error Handling Try Catch
+
+## Action
+
+Use try-catch blocks for error handling
+
+## Evidence
+
+- Pattern: errorHandling.style = try-catch
+
