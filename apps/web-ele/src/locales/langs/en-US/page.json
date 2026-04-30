@@ -11,5 +11,13 @@
     "title": "Dashboard",
     "analytics": "Analytics",
     "workspace": "Workspace"
+  },
+  "dataCenter": {
+    "title": "Data Center",
+    "coreDashboard": "Core Dashboard",
+    "skuRepository": "SKU Repository",
+    "priceTimeSeries": "Price Time Series",
+    "mappingCenter": "Mapping Center",
+    "dataCleaning": "Data Cleaning & Logs"
   }
 }

@@ -11,5 +11,13 @@
     "title": "概览",
     "analytics": "分析页",
     "workspace": "工作台"
+  },
+  "dataCenter": {
+    "title": "数据中心",
+    "coreDashboard": "核心看板",
+    "skuRepository": "SKU 资源库",
+    "priceTimeSeries": "价格时序数据库",
+    "mappingCenter": "目录与映射中心",
+    "dataCleaning": "数据清洗与日志"
   }
 }
