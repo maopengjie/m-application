@@ -203,6 +203,7 @@ function handleRowClick(row: PriceTimeSeriesListItem) {
 }
 
 function renderTimelineChart(data: PriceTimeSeriesDetail) {
+  const maxFinalPrice = Math.max(...data.timeline.map((item) => item.finalPrice));
   void nextTick(async () => {
     await timelineChart.renderEcharts({
       color: ['#0f766e', '#2563eb'],
@@ -236,20 +237,47 @@ function renderTimelineChart(data: PriceTimeSeriesDetail) {
             opacity: 0.18,
           },
           data: data.timeline.map((item) => item.finalPrice),
+          markLine: {
+            data: [
+              {
+                label: {
+                  formatter: '均价: {c}',
+                  position: 'insideEndBottom',
+                },
+                lineStyle: {
+                  color: '#64748b',
+                  type: 'dashed',
+                },
+                name: '平均价',
+                yAxis: data.priceExtremes.averagePrice,
+              },
+            ],
+            symbol: ['none', 'none'],
+          },
           markPoint: {
-            data: data.timeline
-              .filter((item) => item.isHistoricalLow)
-              .map((item) => ({
-                coord: [item.capturedAt, item.finalPrice],
-                name: '历史低价',
-                value: item.finalPrice,
-              })),
-            itemStyle: {
-              color: '#dc2626',
-            },
-            label: {
-              formatter: '低点',
-            },
+            data: [
+              ...data.timeline
+                .filter((item) => item.isHistoricalLow)
+                .map((item) => ({
+                  coord: [item.capturedAt, item.finalPrice],
+                  name: '历史低价',
+                  value: item.finalPrice,
+                })),
+              ...data.timeline
+                .filter((item) => item.finalPrice === maxFinalPrice)
+                .map((item) => ({
+                  coord: [item.capturedAt, item.finalPrice],
+                  itemStyle: {
+                    color: '#f59e0b',
+                  },
+                  label: {
+                    formatter: '高点',
+                  },
+                  name: '历史最高',
+                  value: item.finalPrice,
+                })),
+            ],
+            symbolSize: 40,
           },
           name: '到手价',
           smooth: true,
@@ -259,6 +287,28 @@ function renderTimelineChart(data: PriceTimeSeriesDetail) {
         },
       ],
       tooltip: {
+        formatter: (params: any) => {
+          const date = params[0].axisValue;
+          let html = `<div class="font-bold mb-1">${date}</div>`;
+          params.forEach((item: any) => {
+            html += `<div class="flex items-center justify-between gap-4">
+              <span class="flex items-center gap-1">
+                <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background-color:${item.color};"></span>
+                ${item.seriesName}
+              </span>
+              <span class="font-bold">¥${item.value.toFixed(2)}</span>
+            </div>`;
+          });
+
+          // Find the snapshot for this date to show promo text
+          const snapshot = data.timeline.find((s) => s.capturedAt === date);
+          if (snapshot?.promoText) {
+            html += `<div class="mt-2 pt-2 border-t border-slate-200 text-xs text-slate-500 italic">
+              ${snapshot.promoText}
+            </div>`;
+          }
+          return html;
+        },
         trigger: 'axis',
       },
       xAxis: {
@@ -376,8 +426,8 @@ onMounted(async () => {
       </el-form>
     </div>
 
-    <div class="content-grid grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
-      <div class="card-box overflow-hidden p-5">
+    <div class="content-grid grid gap-5 2xl:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+      <div class="card-box min-w-0 overflow-hidden p-5">
         <div class="mb-4 flex items-center justify-between">
           <div>
             <div class="text-base font-semibold text-slate-900">SKU 价格轨迹列表</div>
@@ -398,7 +448,7 @@ onMounted(async () => {
           stripe
           @row-click="handleRowClick"
         >
-          <el-table-column label="商品" min-width="280">
+          <el-table-column label="商品" min-width="220" show-overflow-tooltip>
             <template #default="{ row }">
               <div class="product-cell">
                 <img
@@ -415,27 +465,27 @@ onMounted(async () => {
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="当前价" min-width="110">
+          <el-table-column label="当前价" min-width="90">
             <template #default="{ row }">
               <span class="font-semibold text-emerald-600">
                 {{ formatCurrency(row.currentPrice) }}
               </span>
             </template>
           </el-table-column>
-          <el-table-column label="历史低价" min-width="110">
+          <el-table-column label="历史低价" min-width="90">
             <template #default="{ row }">
               <span class="font-medium text-rose-600">
                 {{ formatCurrency(row.lowestPrice) }}
               </span>
             </template>
           </el-table-column>
-          <el-table-column label="均价" min-width="110">
+          <el-table-column label="均价" min-width="90">
             <template #default="{ row }">
               {{ formatCurrency(row.averagePrice) }}
             </template>
           </el-table-column>
           <el-table-column label="采样数" min-width="90" prop="captureCount" />
-          <el-table-column label="最近促销语" min-width="170">
+          <el-table-column label="最近促销语" min-width="170" show-overflow-tooltip>
             <template #default="{ row }">
               <el-tag effect="plain" round type="warning">
                 {{ row.recentPromoText || '日常价' }}
@@ -458,7 +508,7 @@ onMounted(async () => {
         </div>
       </div>
 
-      <div class="detail-stack grid gap-5">
+      <div class="detail-stack min-w-0 grid gap-5">
         <div class="card-box p-5">
           <el-skeleton :loading="detailLoading" animated>
             <template #template>
@@ -508,7 +558,7 @@ onMounted(async () => {
           </el-skeleton>
         </div>
 
-        <div class="grid gap-5 lg:grid-cols-3">
+        <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           <div class="extreme-card">
             <span>历史最低价</span>
             <strong>{{ detail ? formatCurrency(detail.priceExtremes.lowestPrice) : '--' }}</strong>
@@ -547,7 +597,7 @@ onMounted(async () => {
                 </span>
               </template>
             </el-table-column>
-            <el-table-column label="优惠公式" min-width="320" prop="formula" />
+            <el-table-column label="优惠公式" min-width="240" prop="formula" show-overflow-tooltip />
           </el-table>
           <el-empty v-else description="暂无促销记录" />
         </div>

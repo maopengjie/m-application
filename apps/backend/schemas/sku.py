@@ -163,6 +163,16 @@ class SkuImportTagSchema(BaseModel):
     tag_value: str | None = None
 
 
+class SkuImportPriceSchema(BaseModel):
+    captured_at: str = Field(..., description="抓取时间，ISO格式")
+    list_price: int = Field(..., description="标价，单位分")
+    reduction_amount: int = Field(default=0, description="满减金额，单位分")
+    coupon_amount: int = Field(default=0, description="优惠券金额，单位分")
+    other_discount_amount: int = Field(default=0, description="其他优惠金额，单位分")
+    final_price: int = Field(..., description="到手价，单位分")
+    promo_text: str | None = Field(default=None, description="促销文案")
+
+
 class SkuImportPayloadSchema(BaseModel):
     platform: str = "jd"
     sku_id: str
@@ -179,3 +189,4 @@ class SkuImportPayloadSchema(BaseModel):
     status: int = 1
     attributes: list[SkuImportAttributeSchema] = Field(default_factory=list)
     tags: list[SkuImportTagSchema] = Field(default_factory=list)
+    prices: list[SkuImportPriceSchema] = Field(default_factory=list)

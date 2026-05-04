@@ -21,6 +21,12 @@ class SkuProduct(Base, TimestampMixin):
     shop_name = Column(String(128), nullable=True, comment="店铺名称")
     product_url = Column(String(1024), nullable=True, comment="商品详情页链接")
     status = Column(SmallInteger, nullable=False, default=1, comment="状态（1:在售, 0:下架, -1:删除）")
+    
+    # Price Extremes (denormalized for performance)
+    min_price = Column(Integer, nullable=True, comment="历史最低价，单位分")
+    max_price = Column(Integer, nullable=True, comment="历史最高价，单位分")
+    avg_price = Column(Integer, nullable=True, comment="历史平均价，单位分")
+    snapshot_count = Column(Integer, nullable=False, default=0, comment="价格快照总数")
 
     # Relationships
     attributes = relationship(
