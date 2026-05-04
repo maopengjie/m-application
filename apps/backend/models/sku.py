@@ -1,11 +1,13 @@
-from sqlalchemy import Column, BigInteger, String, SmallInteger, Text, DateTime, UniqueConstraint, Index, func
+from sqlalchemy import Column, BigInteger, Integer, String, SmallInteger, Text, DateTime, UniqueConstraint, Index, func
 from sqlalchemy.orm import relationship, foreign
 from db.base import Base, TimestampMixin
+
+PK_TYPE = BigInteger().with_variant(Integer, "sqlite")
 
 class SkuProduct(Base, TimestampMixin):
     __tablename__ = "sku_product"
 
-    id = Column(BigInteger, primary_key=True, autoincrement=True, comment="自增主键")
+    id = Column(PK_TYPE, primary_key=True, autoincrement=True, comment="自增主键")
     platform = Column(String(32), nullable=False, comment="平台标识（jd, tmall等）")
     sku_id = Column(String(64), nullable=False, comment="原始平台SKU ID")
     product_name = Column(String(512), nullable=False, comment="原始商品全名")
@@ -33,6 +35,12 @@ class SkuProduct(Base, TimestampMixin):
         cascade="all, delete-orphan",
         primaryjoin=lambda: SkuProduct.id == foreign(SkuTagRelation.sku_product_id),
     )
+    price_snapshots = relationship(
+        "SkuPriceSnapshot",
+        back_populates="product",
+        cascade="all, delete-orphan",
+        primaryjoin=lambda: SkuProduct.id == foreign(SkuPriceSnapshot.sku_product_id),
+    )
 
     __table_args__ = (
         UniqueConstraint("platform", "sku_id", name="uk_platform_sku"),
@@ -46,8 +54,8 @@ class SkuProduct(Base, TimestampMixin):
 class SkuProductAttr(Base, TimestampMixin):
     __tablename__ = "sku_product_attr"
 
-    id = Column(BigInteger, primary_key=True, autoincrement=True, comment="自增主键")
-    sku_product_id = Column(BigInteger, nullable=False, comment="关联商品主表ID")
+    id = Column(PK_TYPE, primary_key=True, autoincrement=True, comment="自增主键")
+    sku_product_id = Column(PK_TYPE, nullable=False, comment="关联商品主表ID")
     attr_group = Column(String(64), default="主体", comment="属性分组")
     attr_name = Column(String(64), nullable=False, comment="属性键名")
     attr_value = Column(String(256), nullable=False, comment="属性值")
@@ -72,7 +80,7 @@ class SkuProductAttr(Base, TimestampMixin):
 class TagDefinition(Base, TimestampMixin):
     __tablename__ = "tag_definition"
 
-    id = Column(BigInteger, primary_key=True, autoincrement=True, comment="自增主键")
+    id = Column(PK_TYPE, primary_key=True, autoincrement=True, comment="自增主键")
     tag_code = Column(String(64), nullable=False, comment="标签唯一编码")
     tag_name = Column(String(64), nullable=False, comment="标签名称")
     tag_type = Column(String(32), nullable=False, default="SYSTEM", comment="类型（SYSTEM, MANUAL, RULE）")
@@ -93,9 +101,9 @@ class TagDefinition(Base, TimestampMixin):
 class SkuTagRelation(Base):
     __tablename__ = "sku_tag_relation"
 
-    id = Column(BigInteger, primary_key=True, autoincrement=True, comment="自增主键")
-    sku_product_id = Column(BigInteger, nullable=False, comment="关联商品主表ID")
-    tag_id = Column(BigInteger, nullable=False, comment="关联标签定义表ID")
+    id = Column(PK_TYPE, primary_key=True, autoincrement=True, comment="自增主键")
+    sku_product_id = Column(PK_TYPE, nullable=False, comment="关联商品主表ID")
+    tag_id = Column(PK_TYPE, nullable=False, comment="关联标签定义表ID")
     tag_value = Column(String(128), nullable=True, comment="标签附加值")
     source_type = Column(String(32), nullable=False, default="AUTO", comment="来源（AUTO, MANUAL, RULE）")
     created_at = Column(DateTime, server_default=func.now(), nullable=False, comment="创建时间")
@@ -118,4 +126,32 @@ class SkuTagRelation(Base):
         Index("idx_tag_id", "tag_id"),
         Index("idx_source_type", "source_type"),
         {"comment": "商品标签关联表"}
+    )
+
+
+class SkuPriceSnapshot(Base):
+    __tablename__ = "sku_price_snapshot"
+
+    id = Column(PK_TYPE, primary_key=True, autoincrement=True, comment="自增主键")
+    sku_product_id = Column(PK_TYPE, nullable=False, comment="关联商品主表ID")
+    captured_at = Column(DateTime, nullable=False, comment="抓取时间")
+    list_price = Column(Integer, nullable=False, default=0, comment="标价，单位分")
+    reduction_amount = Column(Integer, nullable=False, default=0, comment="满减金额，单位分")
+    coupon_amount = Column(Integer, nullable=False, default=0, comment="优惠券金额，单位分")
+    other_discount_amount = Column(Integer, nullable=False, default=0, comment="其他优惠金额，单位分")
+    final_price = Column(Integer, nullable=False, default=0, comment="到手价，单位分")
+    promo_text = Column(String(255), nullable=True, comment="促销文案")
+    created_at = Column(DateTime, server_default=func.now(), nullable=False, comment="创建时间")
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False, comment="更新时间")
+
+    product = relationship(
+        "SkuProduct",
+        back_populates="price_snapshots",
+        primaryjoin=lambda: foreign(SkuPriceSnapshot.sku_product_id) == SkuProduct.id,
+    )
+
+    __table_args__ = (
+        Index("idx_price_snapshot_product_capture", "sku_product_id", "captured_at"),
+        Index("idx_price_snapshot_capture", "captured_at"),
+        {"comment": "商品价格时序快照表"}
     )

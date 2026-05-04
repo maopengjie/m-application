@@ -7,16 +7,26 @@ from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from db.session import get_db
-from models import SkuProduct, SkuProductAttr, SkuTagRelation, TagDefinition
+from models import SkuPriceSnapshot, SkuProduct, SkuProductAttr, SkuTagRelation, TagDefinition
 from schemas.sku import (
     ApiResponse,
+    PriceExtremesSchema,
+    PriceSnapshotSchema,
+    PriceTimeSeriesDetailSchema,
+    PriceTimeSeriesListDataSchema,
+    PriceTimeSeriesListItemSchema,
+    PriceTimeSeriesQuerySchema,
+    PriceTimeSeriesSummarySchema,
+    PromotionRecordSchema,
     SkuAttributeSchema,
+    SkuImportPayloadSchema,
     SkuProductDetailSchema,
     SkuProductListDataSchema,
     SkuProductListItemSchema,
     SkuProductQuerySchema,
     SkuTagSchema,
 )
+from services import ingest_sku_payload
 
 
 router = APIRouter(prefix="/sku-repository", tags=["sku-repository"])
@@ -57,6 +67,77 @@ def _build_tag_map(db: Session, product_ids: list[int]) -> dict[int, list[SkuTag
     for relation, definition in rows:
         result[relation.sku_product_id].append(_serialize_tag_relation(relation, definition))
     return result
+
+
+def _price_to_yuan(value: int | None) -> float:
+    return round((value or 0) / 100, 2)
+
+
+def _build_price_formula(snapshot: SkuPriceSnapshot) -> str:
+    segments = [
+        snapshot.captured_at.isoformat(sep=" ", timespec="seconds"),
+        f"标价 {_price_to_yuan(snapshot.list_price):.2f}",
+    ]
+    if snapshot.reduction_amount:
+        segments.append(f"满减 -{_price_to_yuan(snapshot.reduction_amount):.2f}")
+    if snapshot.coupon_amount:
+        segments.append(f"券 -{_price_to_yuan(snapshot.coupon_amount):.2f}")
+    if snapshot.other_discount_amount:
+        segments.append(f"补贴 -{_price_to_yuan(snapshot.other_discount_amount):.2f}")
+    segments.append(f"到手 {_price_to_yuan(snapshot.final_price):.2f}")
+    return ", ".join(segments)
+
+
+def _serialize_price_snapshot(snapshot: SkuPriceSnapshot, min_final_price: int) -> PriceSnapshotSchema:
+    return PriceSnapshotSchema(
+        captured_at=snapshot.captured_at.isoformat(sep=" ", timespec="seconds"),
+        final_price=_price_to_yuan(snapshot.final_price),
+        is_historical_low=snapshot.final_price == min_final_price,
+        list_price=_price_to_yuan(snapshot.list_price),
+        promo_text=snapshot.promo_text,
+    )
+
+
+def _build_price_list_item(product: SkuProduct, snapshots: list[SkuPriceSnapshot]) -> PriceTimeSeriesListItemSchema:
+    if not snapshots:
+        return PriceTimeSeriesListItemSchema(
+            average_price=0,
+            brand_name=product.brand_name,
+            capture_count=0,
+            current_price=0,
+            highest_price=0,
+            id=product.id,
+            latest_capture_at=product.updated_at.isoformat(sep=" ", timespec="seconds"),
+            lowest_price=0,
+            main_image_url=product.main_image_url,
+            platform=product.platform,
+            product_name=product.normalized_name or product.product_name,
+            recent_promo_text=None,
+            shop_name=product.shop_name,
+            sku_id=product.sku_id,
+            status=product.status,
+        )
+
+    latest = snapshots[-1]
+    final_prices = [item.final_price for item in snapshots]
+    average_price = round(sum(final_prices) / len(final_prices) / 100, 2)
+    return PriceTimeSeriesListItemSchema(
+        average_price=average_price,
+        brand_name=product.brand_name,
+        capture_count=len(snapshots),
+        current_price=_price_to_yuan(latest.final_price),
+        highest_price=_price_to_yuan(max(final_prices)),
+        id=product.id,
+        latest_capture_at=latest.captured_at.isoformat(sep=" ", timespec="seconds"),
+        lowest_price=_price_to_yuan(min(final_prices)),
+        main_image_url=product.main_image_url,
+        platform=product.platform,
+        product_name=product.normalized_name or product.product_name,
+        recent_promo_text=latest.promo_text,
+        shop_name=product.shop_name,
+        sku_id=product.sku_id,
+        status=product.status,
+    )
 
 
 @router.get("/products")
@@ -203,3 +284,164 @@ def list_tags(db: Session = Depends(get_db)):
         for tag in tags
     ]
     return ok(payload)
+
+
+@router.get("/price-time-series")
+def list_price_time_series(
+    page: int = 1,
+    page_size: int = 10,
+    keyword: str | None = None,
+    platform: str | None = None,
+    status: int | None = None,
+    db: Session = Depends(get_db),
+):
+    query_params = PriceTimeSeriesQuerySchema(
+        page=page,
+        page_size=page_size,
+        keyword=keyword,
+        platform=platform,
+        status=status,
+    )
+
+    query = db.query(SkuProduct)
+    if query_params.keyword:
+        like_term = f"%{query_params.keyword.strip()}%"
+        query = query.filter(
+            or_(
+                SkuProduct.sku_id.ilike(like_term),
+                SkuProduct.product_name.ilike(like_term),
+                SkuProduct.normalized_name.ilike(like_term),
+            )
+        )
+    if query_params.platform:
+        query = query.filter(SkuProduct.platform == query_params.platform.strip())
+    if query_params.status is not None:
+        query = query.filter(SkuProduct.status == query_params.status)
+
+    total = query.count()
+    products = (
+        query.order_by(SkuProduct.updated_at.desc(), SkuProduct.id.desc())
+        .offset((query_params.page - 1) * query_params.page_size)
+        .limit(query_params.page_size)
+        .all()
+    )
+
+    product_ids = [item.id for item in products]
+    snapshots = (
+        db.query(SkuPriceSnapshot)
+        .filter(SkuPriceSnapshot.sku_product_id.in_(product_ids))
+        .order_by(SkuPriceSnapshot.sku_product_id.asc(), SkuPriceSnapshot.captured_at.asc())
+        .all()
+    )
+    snapshot_map: dict[int, list[SkuPriceSnapshot]] = defaultdict(list)
+    for snapshot in snapshots:
+        snapshot_map[snapshot.sku_product_id].append(snapshot)
+
+    items = [_build_price_list_item(product, snapshot_map.get(product.id, [])) for product in products]
+
+    all_filtered_ids = [item[0] for item in query.with_entities(SkuProduct.id).all()]
+    all_snapshots = (
+        db.query(SkuPriceSnapshot)
+        .filter(SkuPriceSnapshot.sku_product_id.in_(all_filtered_ids))
+        .order_by(SkuPriceSnapshot.sku_product_id.asc(), SkuPriceSnapshot.captured_at.asc())
+        .all()
+    )
+    all_snapshot_map: dict[int, list[SkuPriceSnapshot]] = defaultdict(list)
+    for snapshot in all_snapshots:
+        all_snapshot_map[snapshot.sku_product_id].append(snapshot)
+
+    discount_rates: list[float] = []
+    active_promotion_count = 0
+    lowest_price_sku_count = 0
+    for product_id, product_snapshots in all_snapshot_map.items():
+        if not product_snapshots:
+            continue
+        final_prices = [item.final_price for item in product_snapshots]
+        latest = product_snapshots[-1]
+        if latest.final_price == min(final_prices):
+            lowest_price_sku_count += 1
+        for snapshot in product_snapshots:
+            if snapshot.promo_text and snapshot.promo_text.strip():
+                active_promotion_count += 1
+            if snapshot.list_price > 0:
+                discount_rates.append(
+                    round((snapshot.list_price - snapshot.final_price) / snapshot.list_price * 100, 2)
+                )
+
+    summary = PriceTimeSeriesSummarySchema(
+        active_promotion_count=active_promotion_count,
+        avg_discount_rate=round(sum(discount_rates) / len(discount_rates), 2) if discount_rates else 0,
+        lowest_price_sku_count=lowest_price_sku_count,
+        total_sku_count=total,
+        total_snapshot_count=len(all_snapshots),
+    )
+    payload = PriceTimeSeriesListDataSchema(
+        items=items,
+        page=query_params.page,
+        page_size=query_params.page_size,
+        summary=summary,
+        total=total,
+    )
+    return ok(dump_model(payload))
+
+
+@router.get("/price-time-series/{product_id}")
+def get_price_time_series_detail(product_id: int, db: Session = Depends(get_db)):
+    product = db.query(SkuProduct).filter(SkuProduct.id == product_id).first()
+    if product is None:
+        raise HTTPException(status_code=404, detail="SKU product not found")
+
+    snapshots = (
+        db.query(SkuPriceSnapshot)
+        .filter(SkuPriceSnapshot.sku_product_id == product_id)
+        .order_by(SkuPriceSnapshot.captured_at.asc())
+        .all()
+    )
+    if not snapshots:
+        raise HTTPException(status_code=404, detail="Price timeline not found")
+
+    final_prices = [item.final_price for item in snapshots]
+    min_final_price = min(final_prices)
+    max_final_price = max(final_prices)
+    avg_final_price = round(sum(final_prices) / len(final_prices) / 100, 2)
+    lowest = min(snapshots, key=lambda item: item.final_price)
+    highest = max(snapshots, key=lambda item: item.final_price)
+    latest = snapshots[-1]
+
+    payload = PriceTimeSeriesDetailSchema(
+        price_extremes=PriceExtremesSchema(
+            average_price=avg_final_price,
+            current_price=_price_to_yuan(latest.final_price),
+            highest_price=_price_to_yuan(max_final_price),
+            highest_price_at=highest.captured_at.isoformat(sep=" ", timespec="seconds"),
+            lowest_price=_price_to_yuan(min_final_price),
+            lowest_price_at=lowest.captured_at.isoformat(sep=" ", timespec="seconds"),
+            price_span=_price_to_yuan(max_final_price - min_final_price),
+        ),
+        product=_build_price_list_item(product, snapshots),
+        promotion_records=[
+            PromotionRecordSchema(
+                captured_at=snapshot.captured_at.isoformat(sep=" ", timespec="seconds"),
+                coupon_amount=_price_to_yuan(snapshot.coupon_amount),
+                final_price=_price_to_yuan(snapshot.final_price),
+                formula=_build_price_formula(snapshot),
+                list_price=_price_to_yuan(snapshot.list_price),
+                other_discount_amount=_price_to_yuan(snapshot.other_discount_amount),
+                promo_text=snapshot.promo_text,
+                reduction_amount=_price_to_yuan(snapshot.reduction_amount),
+            )
+            for snapshot in reversed(snapshots)
+            if (snapshot.reduction_amount or snapshot.coupon_amount or snapshot.other_discount_amount)
+        ],
+        timeline=[
+            _serialize_price_snapshot(snapshot, min_final_price)
+            for snapshot in snapshots
+        ],
+    )
+    return ok(dump_model(payload))
+
+
+@router.post("/imports/payload")
+def import_product_payload(payload: SkuImportPayloadSchema, db: Session = Depends(get_db)):
+    result = ingest_sku_payload(db, dump_model(payload))
+    return ok(result, message="SKU import completed")
