@@ -4,10 +4,11 @@ import re
 import datetime
 from typing import Any
 
-from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from models import SkuPriceSnapshot, SkuProduct, SkuProductAttr, SkuTagRelation, TagDefinition
+from models import SkuPriceSnapshot, SkuProduct, SkuProductAttr, SkuTagRelation, TagDefinition, EtlLog, AnomalyAlert, CrawlEfficiency
+from services.mapping_service import apply_mapping_rules_to_product
+from services.price_statistics import recompute_product_price_extremes
 
 
 def _clean_text(value: Any) -> str | None:
@@ -24,6 +25,36 @@ def _build_tag_code(tag_name: str) -> str:
     return cleaned or "CUSTOM_TAG"
 
 
+def _filter_ad_slogans(name: str) -> tuple[str, list[str]]:
+    """
+    Filters out advertising slogans from product names.
+    Returns (cleaned_name, list_of_removed_slogans)
+    """
+    removed = []
+    # Common JD/Tmall ad patterns
+    patterns = [
+        r"【.*?】",             # Brackets like 【4月狂欢】
+        r"直播间专享",
+        r"限时秒杀",
+        r"领券立减\d*",
+        r"满\d+减\d+",
+        r"第[二三]件\d+折",
+        r"拍\d+件.*?元",
+        r"官方旗舰店",
+        r"新品上市",
+    ]
+    
+    cleaned = name
+    for pattern in patterns:
+        matches = re.findall(pattern, cleaned)
+        if matches:
+            removed.extend(matches)
+            cleaned = re.sub(pattern, "", cleaned)
+    
+    cleaned = re.sub(r"\s+", " ", cleaned).strip()
+    return cleaned, removed
+
+
 def _normalize_attr(item: dict[str, Any]) -> dict[str, str | None]:
     attr_name = _clean_text(item.get("attr_name") or item.get("name"))
     attr_value = _clean_text(item.get("attr_value") or item.get("value"))
@@ -36,6 +67,35 @@ def _normalize_attr(item: dict[str, Any]) -> dict[str, str | None]:
         "attr_unit": _clean_text(item.get("attr_unit") or item.get("unit")),
         "source_text": _clean_text(item.get("source_text")),
     }
+
+
+def _normalize_captured_at(raw_value: Any) -> datetime.datetime:
+    if not raw_value or not isinstance(raw_value, str):
+        raise ValueError("captured_at is required for each price snapshot")
+
+    captured_at = datetime.datetime.fromisoformat(raw_value.replace("Z", "+00:00"))
+    if captured_at.tzinfo is not None:
+        captured_at = captured_at.astimezone(datetime.timezone.utc).replace(tzinfo=None)
+    return captured_at
+
+
+def _normalize_price_amount(raw_value: Any, field_name: str) -> int:
+    try:
+        value = int(raw_value or 0)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{field_name} must be an integer amount in cents") from exc
+
+    if value < 0:
+        raise ValueError(f"{field_name} cannot be negative")
+    return value
+
+
+def _classify_price_anomaly(final_price: int, list_price: int) -> str | None:
+    if 0 < final_price < 100:
+        return "PRICE_BELOW_1_RMB"
+    if list_price > 0 and final_price > list_price:
+        return "FINAL_PRICE_ABOVE_LIST_PRICE"
+    return None
 
 
 def _ensure_tag_definition(db: Session, tag_item: dict[str, Any]) -> TagDefinition | None:
@@ -83,8 +143,30 @@ def ingest_sku_payload(db: Session, payload: dict[str, Any]) -> dict[str, Any]:
         db.add(product)
         db.flush()
 
-    product.product_name = _clean_text(payload.get("product_name")) or product.product_name or sku_id
-    product.normalized_name = _clean_text(payload.get("normalized_name")) or product.product_name
+    original_name = _clean_text(payload.get("product_name")) or product.product_name or sku_id
+    cleaned_name, removed_slogans = _filter_ad_slogans(original_name)
+    
+    product.product_name = cleaned_name
+    
+    if removed_slogans:
+        db.add(EtlLog(
+            event_type="CLEANING",
+            platform=platform,
+            sku_id=sku_id,
+            product_id=product.id,
+            field_name="product_name",
+            original_value=original_name,
+            cleaned_value=cleaned_name,
+            message=f"Filtered slogans: {', '.join(removed_slogans)}"
+        ))
+    
+    # Apply mapping rules if normalized_name is not explicitly provided in payload
+    provided_normalized = _clean_text(payload.get("normalized_name"))
+    if provided_normalized:
+        product.normalized_name = provided_normalized
+    else:
+        apply_mapping_rules_to_product(db, product)
+        
     product.brand_name = _clean_text(payload.get("brand_name"))
     product.main_image_url = _clean_text(payload.get("main_image_url"))
     product.category_level_1 = _clean_text(payload.get("category_level_1"))
@@ -121,12 +203,36 @@ def ingest_sku_payload(db: Session, payload: dict[str, Any]) -> dict[str, Any]:
 
     raw_prices = payload.get("prices") or []
     if raw_prices:
+        now = datetime.datetime.utcnow()
         for raw_price in raw_prices:
-            captured_at_str = raw_price.get("captured_at")
             try:
-                captured_at = datetime.datetime.fromisoformat(captured_at_str.replace("Z", "+00:00"))
-            except (ValueError, AttributeError):
-                continue
+                captured_at = _normalize_captured_at(raw_price.get("captured_at"))
+            except ValueError as exc:
+                raise ValueError(f"invalid captured_at for sku {sku_id}: {exc}") from exc
+
+            if captured_at > now + datetime.timedelta(minutes=5):
+                raise ValueError(f"captured_at cannot be in the future for sku {sku_id}")
+
+            list_price = _normalize_price_amount(raw_price.get("list_price"), "list_price")
+            reduction_amount = _normalize_price_amount(
+                raw_price.get("reduction_amount"),
+                "reduction_amount",
+            )
+            coupon_amount = _normalize_price_amount(
+                raw_price.get("coupon_amount"),
+                "coupon_amount",
+            )
+            other_discount_amount = _normalize_price_amount(
+                raw_price.get("other_discount_amount"),
+                "other_discount_amount",
+            )
+            final_price = _normalize_price_amount(raw_price.get("final_price"), "final_price")
+            anomaly_reason = _clean_text(raw_price.get("anomaly_reason"))
+            detected_anomaly = _classify_price_anomaly(final_price, list_price)
+            is_anomalous = int(raw_price.get("is_anomalous") or 0)
+            if detected_anomaly:
+                is_anomalous = 1
+                anomaly_reason = anomaly_reason or detected_anomaly
 
             # Check if snapshot already exists for this time
             existing = (
@@ -138,43 +244,56 @@ def ingest_sku_payload(db: Session, payload: dict[str, Any]) -> dict[str, Any]:
                 .first()
             )
             if existing:
-                existing.list_price = raw_price.get("list_price", 0)
-                existing.reduction_amount = raw_price.get("reduction_amount", 0)
-                existing.coupon_amount = raw_price.get("coupon_amount", 0)
-                existing.other_discount_amount = raw_price.get("other_discount_amount", 0)
-                existing.final_price = raw_price.get("final_price", 0)
+                existing.list_price = list_price
+                existing.reduction_amount = reduction_amount
+                existing.coupon_amount = coupon_amount
+                existing.other_discount_amount = other_discount_amount
+                existing.final_price = final_price
                 existing.promo_text = _clean_text(raw_price.get("promo_text"))
+                existing.is_anomalous = is_anomalous
+                existing.anomaly_reason = anomaly_reason
             else:
                 db.add(
                     SkuPriceSnapshot(
                         sku_product_id=product.id,
                         captured_at=captured_at,
-                        list_price=raw_price.get("list_price", 0),
-                        reduction_amount=raw_price.get("reduction_amount", 0),
-                        coupon_amount=raw_price.get("coupon_amount", 0),
-                        other_discount_amount=raw_price.get("other_discount_amount", 0),
-                        final_price=raw_price.get("final_price", 0),
+                        list_price=list_price,
+                        reduction_amount=reduction_amount,
+                        coupon_amount=coupon_amount,
+                        other_discount_amount=other_discount_amount,
+                        final_price=final_price,
                         promo_text=_clean_text(raw_price.get("promo_text")),
+                        is_anomalous=is_anomalous,
+                        anomaly_reason=anomaly_reason,
                     )
                 )
+            
+            # Anomaly Detection: Price < 1.00 RMB (100 cents)
+            if is_anomalous:
+                db.add(AnomalyAlert(
+                    alert_type="PRICE_BUG",
+                    platform=platform,
+                    sku_id=sku_id,
+                    product_id=product.id,
+                    alert_value=f"{final_price/100:.2f}元",
+                    threshold="valid final price",
+                    message=f"Possible invalid price detected: {final_price/100:.2f} RMB ({anomaly_reason})"
+                ))
         db.flush()
 
-        # Update Extremum Points
-        stats = (
-            db.query(
-                func.min(SkuPriceSnapshot.final_price).label("min_p"),
-                func.max(SkuPriceSnapshot.final_price).label("max_p"),
-                func.avg(SkuPriceSnapshot.final_price).label("avg_p"),
-                func.count(SkuPriceSnapshot.id).label("cnt"),
-            )
-            .filter(SkuPriceSnapshot.sku_product_id == product.id)
-            .first()
-        )
-        if stats and stats.cnt > 0:
-            product.min_price = stats.min_p
-            product.max_price = stats.max_p
-            product.avg_price = int(stats.avg_p)
-            product.snapshot_count = stats.cnt
+        # Pending anomaly snapshots are kept for audit, but excluded from
+        # high/low/average analytics to avoid false low-price alerts.
+        recompute_product_price_extremes(db, product.id)
+
+    # Log Crawl Efficiency if provided
+    efficiency = payload.get("efficiency")
+    if efficiency:
+        db.add(CrawlEfficiency(
+            platform=platform,
+            target_api=efficiency.get("target_api", "unknown"),
+            response_time_ms=efficiency.get("response_time_ms", 0),
+            status_code=efficiency.get("status_code", 200)
+        ))
 
     db.commit()
     db.refresh(product)

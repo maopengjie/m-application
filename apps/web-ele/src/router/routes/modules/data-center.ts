@@ -6,7 +6,7 @@ const routes: RouteRecordRaw[] = [
   {
     meta: {
       icon: 'lucide:database',
-      order: 10,
+      order: -1,
       title: $t('page.dataCenter.title'),
     },
     name: 'DataCenter',
@@ -17,6 +17,7 @@ const routes: RouteRecordRaw[] = [
         path: '/data-center/core-dashboard',
         component: () => import('#/views/data-center/core-dashboard/index.vue'),
         meta: {
+          affixTab: true,
           icon: 'lucide:layout-dashboard',
           title: $t('page.dataCenter.coreDashboard'),
         },

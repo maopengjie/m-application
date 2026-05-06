@@ -12,6 +12,9 @@ dist.war
 *-dist.war
 coverage
 *.local
+*.db
+__pycache__/
+**/__pycache__/
 **/.vitepress/cache
 .cache
 .turbo
@@ -24,6 +27,7 @@ package-lock.json
 **/backend-mock/data
 .omx
 # local env files
+.env
 .env.local
 .env.*.local
 .eslintcache

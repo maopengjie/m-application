@@ -19,5 +19,6 @@ RUN playwright install --with-deps chromium
 
 # Copy application code
 COPY apps/worker /app
+COPY apps/backend /backend
 
 CMD ["celery", "-A", "celery_app", "worker", "--loglevel=info"]

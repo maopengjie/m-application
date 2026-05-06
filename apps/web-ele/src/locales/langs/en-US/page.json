@@ -8,16 +8,16 @@
     "profile": "Profile"
   },
   "dashboard": {
-    "title": "Dashboard",
-    "analytics": "Analytics",
+    "title": "General Overview",
+    "analytics": "Business Analytics",
     "workspace": "Workspace"
   },
   "dataCenter": {
-    "title": "Data Center",
-    "coreDashboard": "Core Dashboard",
-    "skuRepository": "SKU Repository",
-    "priceTimeSeries": "Price Time Series",
-    "mappingCenter": "Mapping Center",
-    "dataCleaning": "Data Cleaning & Logs"
+    "title": "Product Data Ops",
+    "coreDashboard": "Today Monitor",
+    "skuRepository": "Product Library",
+    "priceTimeSeries": "Price Tracking",
+    "mappingCenter": "Item Matching",
+    "dataCleaning": "Anomaly Handling"
   }
 }

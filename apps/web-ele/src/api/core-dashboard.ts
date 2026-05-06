@@ -25,6 +25,7 @@ export interface CoreDashboardOverviewDto {
   active_sku_count: number;
   alert_items: DashboardAlertItem[];
   capture_timeline: DashboardCapturePoint[];
+  pending_anomaly_count?: number;
   platform_breakdown: DashboardPlatformBreakdownItem[];
   success_rate: number;
   total_price_records: number;
@@ -35,6 +36,7 @@ export interface CoreDashboardOverview {
   activeSkuCount: number;
   alertItems: DashboardAlertItem[];
   captureTimeline: DashboardCapturePoint[];
+  pendingAnomalyCount: number;
   platformBreakdown: DashboardPlatformBreakdownItem[];
   successRate: number;
   totalPriceRecords: number;
@@ -46,6 +48,7 @@ function mapOverview(data: CoreDashboardOverviewDto): CoreDashboardOverview {
     activeSkuCount: data.active_sku_count,
     alertItems: data.alert_items,
     captureTimeline: data.capture_timeline,
+    pendingAnomalyCount: data.pending_anomaly_count ?? 0,
     platformBreakdown: data.platform_breakdown,
     successRate: data.success_rate,
     totalPriceRecords: data.total_price_records,

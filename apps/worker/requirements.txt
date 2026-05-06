@@ -1,5 +1,8 @@
 celery
 redis
+sqlalchemy
+psycopg2-binary
+alembic
 playwright
 playwright-stealth
 beautifulsoup4

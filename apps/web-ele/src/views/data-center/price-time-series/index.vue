@@ -1,6 +1,8 @@
 <script lang="ts" setup>
-import type { EchartsUIType } from '@vben/plugins/echarts';
 import type { FormInstance } from 'element-plus';
+
+import type { EchartsUIType } from '@vben/plugins/echarts';
+
 import type {
   PriceTimeSeriesDetail,
   PriceTimeSeriesListItem,
@@ -8,8 +10,10 @@ import type {
 } from '#/api';
 
 import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
 
 import { EchartsUI, useEcharts } from '@vben/plugins/echarts';
+
 import {
   ElButton,
   ElEmpty,
@@ -23,6 +27,7 @@ import {
   ElTable,
   ElTableColumn,
   ElTag,
+  ElMessage,
 } from 'element-plus';
 
 import {
@@ -35,18 +40,19 @@ interface QueryFormState {
   page: number;
   pageSize: number;
   platform: string;
-  status: '' | -1 | 0 | 1;
+  status: -1 | 0 | 1 | '';
 }
 
 const queryFormRef = ref<FormInstance>();
 const timelineChartRef = ref<EchartsUIType>();
 const timelineChart = useEcharts(timelineChartRef);
+const route = useRoute();
 
 const loading = ref(false);
 const detailLoading = ref(false);
 const tableData = ref<PriceTimeSeriesListItem[]>([]);
 const total = ref(0);
-const summary = ref<PriceTimeSeriesSummary | null>(null);
+const summary = ref<null | PriceTimeSeriesSummary>(null);
 const selectedProductId = ref<number>();
 const detail = ref<null | PriceTimeSeriesDetail>(null);
 
@@ -118,6 +124,63 @@ const selectedProduct = computed(() =>
   tableData.value.find((item) => item.id === selectedProductId.value) ?? null,
 );
 
+type InsightTone = 'danger' | 'info' | 'primary' | 'success' | 'warning';
+
+const priceInsightCards = computed(() => {
+  const currentDetail = detail.value;
+  if (!currentDetail || currentDetail.timeline.length === 0) {
+    return [];
+  }
+  const product = currentDetail.product;
+  const extremes = currentDetail.priceExtremes;
+  const isHistoricalLow = extremes.currentPrice > 0 && extremes.currentPrice === extremes.lowestPrice;
+  return [
+    {
+      label: '历史低价提醒',
+      tone: (isHistoricalLow ? 'danger' : 'success') as InsightTone,
+      value: isHistoricalLow ? '当前命中历史低价' : `距低价差 ${formatCurrency(extremes.currentPrice - extremes.lowestPrice)}`,
+    },
+    {
+      label: '价格波动区间',
+      tone: 'info' as const,
+      value: `${formatCurrency(extremes.lowestPrice)} - ${formatCurrency(extremes.highestPrice)}`,
+    },
+    {
+      label: '促销拆解',
+      tone: (currentDetail.promotionRecords.length > 0 ? 'warning' : 'info') as InsightTone,
+      value: currentDetail.promotionRecords.length > 0
+        ? `共 ${currentDetail.promotionRecords.length} 条促销公式`
+        : '暂无促销公式',
+    },
+    {
+      label: '同款比价',
+      tone: 'primary' as const,
+      value: product.brandName ? `${product.brandName} 同款待接入` : '同款对比待接入',
+    },
+    {
+      label: '异常排除',
+      tone: (currentDetail.timeline.some((item) => item.isAnomalous) ? 'danger' : 'success') as InsightTone,
+      value: currentDetail.timeline.some((item) => item.isAnomalous)
+        ? '存在异常点已标记'
+        : '当前轨迹无异常点',
+    },
+  ];
+});
+
+const routeFilterHint = computed(() => {
+  if (route.query.recent === '1h' && route.query.sku) {
+    return `已按最近 1 小时价格异动 SKU「${route.query.sku}」筛选`;
+  }
+  if (route.query.recent === '1h') {
+    return '已从今日监控进入，可优先查看最近 1 小时价格异动 SKU';
+  }
+  return '';
+});
+
+function hasPriceHistory(item: Pick<PriceTimeSeriesListItem, 'captureCount'> | null | undefined) {
+  return Boolean(item && item.captureCount > 0);
+}
+
 function formatCurrency(value: number) {
   return new Intl.NumberFormat('zh-CN', {
     currency: 'CNY',
@@ -141,6 +204,13 @@ function normalizeQuery() {
   };
 }
 
+function applyRouteQuery() {
+  if (typeof route.query.sku === 'string' && route.query.sku) {
+    queryForm.keyword = route.query.sku;
+    queryForm.page = 1;
+  }
+}
+
 async function loadList() {
   loading.value = true;
   try {
@@ -157,6 +227,9 @@ async function loadList() {
     } else {
       detail.value = null;
     }
+  } catch (error) {
+    console.error('Failed to load price list:', error);
+    ElMessage.error('加载价格时序数据失败');
   } finally {
     loading.value = false;
   }
@@ -167,6 +240,13 @@ async function loadDetail(productId: number) {
   detailLoading.value = true;
   try {
     detail.value = await getPriceTimeSeriesDetailApi(productId);
+  } catch (error: any) {
+    console.error('Failed to load price detail:', error);
+    detail.value = null;
+    // Only show error if it's not a 404 (timeline not found)
+    if (error?.response?.status !== 404) {
+      ElMessage.error('加载详情图表失败');
+    }
   } finally {
     detailLoading.value = false;
   }
@@ -203,6 +283,33 @@ function handleRowClick(row: PriceTimeSeriesListItem) {
 }
 
 function renderTimelineChart(data: PriceTimeSeriesDetail) {
+  if (data.timeline.length === 0) {
+    void nextTick(async () => {
+      await timelineChart.renderEcharts({
+        graphic: {
+          left: 'center',
+          style: {
+            fill: '#94a3b8',
+            font: '14px sans-serif',
+            text: '暂无历史价格轨迹',
+          },
+          top: 'middle',
+          type: 'text',
+        },
+        xAxis: {
+          show: false,
+          type: 'category',
+        },
+        yAxis: {
+          show: false,
+          type: 'value',
+        },
+        series: [],
+      });
+    });
+    return;
+  }
+
   const maxFinalPrice = Math.max(...data.timeline.map((item) => item.finalPrice));
   void nextTick(async () => {
     await timelineChart.renderEcharts({
@@ -355,8 +462,17 @@ watch(
 );
 
 onMounted(async () => {
+  applyRouteQuery();
   await loadList();
 });
+
+watch(
+  () => route.query.sku,
+  async () => {
+    applyRouteQuery();
+    await loadList();
+  },
+);
 </script>
 
 <template>
@@ -365,12 +481,12 @@ onMounted(async () => {
       <div
         v-for="item in metricCards"
         :key="item.label"
-        class="metric-card overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+        class="metric-card overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
       >
-        <div class="metric-card__glow bg-gradient-to-br" :class="item.accent" />
+        <div class="metric-card__glow bg-gradient-to-br" :class="item.accent"></div>
         <div class="relative z-10">
-          <div class="text-sm text-slate-500">{{ item.label }}</div>
-          <div class="mt-4 text-3xl font-semibold tracking-tight text-slate-900">
+          <div class="text-sm text-slate-500 dark:text-slate-400">{{ item.label }}</div>
+          <div class="mt-4 text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
             {{ item.value }}
           </div>
         </div>
@@ -383,62 +499,68 @@ onMounted(async () => {
         <p class="mt-1 text-sm text-slate-500">
           聚合 SKU 每次抓取的标价、到手价、促销语，并自动计算促销公式与历史极值。
         </p>
+        <div
+          v-if="routeFilterHint"
+          class="mt-3 rounded-lg border border-amber-100 bg-amber-50 px-4 py-2 text-sm text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300"
+        >
+          {{ routeFilterHint }}
+        </div>
       </div>
 
-      <el-form ref="queryFormRef" :inline="true" :model="queryForm" class="price-filter">
-        <el-form-item label="关键词" prop="keyword">
-          <el-input
+      <ElForm ref="queryFormRef" :inline="true" :model="queryForm" class="price-filter">
+        <ElFormItem label="关键词" prop="keyword">
+          <ElInput
             v-model="queryForm.keyword"
             clearable
             placeholder="搜索 SKU / 商品名称"
             style="width: 240px"
           />
-        </el-form-item>
-        <el-form-item label="平台" prop="platform">
-          <el-select
+        </ElFormItem>
+        <ElFormItem label="平台" prop="platform">
+          <ElSelect
             v-model="queryForm.platform"
             clearable
             placeholder="全部平台"
             style="width: 160px"
           >
-            <el-option
+            <ElOption
               v-for="item in platformOptions"
               :key="item.value"
               :label="item.label"
               :value="item.value"
             />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-select v-model="queryForm.status" style="width: 140px">
-            <el-option
+          </ElSelect>
+        </ElFormItem>
+        <ElFormItem label="状态" prop="status">
+          <ElSelect v-model="queryForm.status" style="width: 140px">
+            <ElOption
               v-for="item in statusOptions"
               :key="`${item.value}`"
               :label="item.label"
               :value="item.value"
             />
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="handleSearch">查询</el-button>
-          <el-button @click="handleReset">重置</el-button>
-        </el-form-item>
-      </el-form>
+          </ElSelect>
+        </ElFormItem>
+        <ElFormItem>
+          <ElButton type="primary" @click="handleSearch">查询</ElButton>
+          <ElButton @click="handleReset">重置</ElButton>
+        </ElFormItem>
+      </ElForm>
     </div>
 
     <div class="content-grid grid gap-5 2xl:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
       <div class="card-box min-w-0 overflow-hidden p-5">
         <div class="mb-4 flex items-center justify-between">
           <div>
-            <div class="text-base font-semibold text-slate-900">SKU 价格轨迹列表</div>
+            <div class="text-base font-semibold text-slate-900 dark:text-slate-100">SKU 价格轨迹列表</div>
             <div class="mt-1 text-sm text-slate-500">
               点击任一 SKU 查看完整时间轴和促销模型拆解。
             </div>
           </div>
-          <el-tag effect="dark" round type="info">当前 {{ tableData.length }} 条</el-tag>
+          <ElTag effect="dark" round type="info">当前 {{ tableData.length }} 条</ElTag>
         </div>
 
-        <el-table
+        <ElTable
           v-loading="loading"
           :current-row-key="selectedProductId"
           :data="tableData"
@@ -448,7 +570,7 @@ onMounted(async () => {
           stripe
           @row-click="handleRowClick"
         >
-          <el-table-column label="商品" min-width="220" show-overflow-tooltip>
+          <ElTableColumn label="商品" min-width="220" show-overflow-tooltip>
             <template #default="{ row }">
               <div class="product-cell">
                 <img
@@ -458,44 +580,44 @@ onMounted(async () => {
                   class="product-image"
                 />
                 <div class="min-w-0">
-                  <div class="truncate font-medium text-slate-900">{{ row.productName }}</div>
+                  <div class="truncate font-medium text-slate-900 dark:text-slate-100">{{ row.productName }}</div>
                   <div class="mt-1 text-xs text-slate-500">{{ row.skuId }}</div>
                   <div class="mt-1 text-xs text-slate-400">{{ row.shopName || '-' }}</div>
                 </div>
               </div>
             </template>
-          </el-table-column>
-          <el-table-column label="当前价" min-width="90">
+          </ElTableColumn>
+          <ElTableColumn label="当前价" min-width="90">
             <template #default="{ row }">
               <span class="font-semibold text-emerald-600">
-                {{ formatCurrency(row.currentPrice) }}
+                {{ hasPriceHistory(row) ? formatCurrency(row.currentPrice) : '暂无历史价格' }}
               </span>
             </template>
-          </el-table-column>
-          <el-table-column label="历史低价" min-width="90">
+          </ElTableColumn>
+          <ElTableColumn label="历史低价" min-width="90">
             <template #default="{ row }">
               <span class="font-medium text-rose-600">
-                {{ formatCurrency(row.lowestPrice) }}
+                {{ hasPriceHistory(row) ? formatCurrency(row.lowestPrice) : '暂无历史价格' }}
               </span>
             </template>
-          </el-table-column>
-          <el-table-column label="均价" min-width="90">
+          </ElTableColumn>
+          <ElTableColumn label="均价" min-width="90">
             <template #default="{ row }">
-              {{ formatCurrency(row.averagePrice) }}
+              {{ hasPriceHistory(row) ? formatCurrency(row.averagePrice) : '--' }}
             </template>
-          </el-table-column>
-          <el-table-column label="采样数" min-width="90" prop="captureCount" />
-          <el-table-column label="最近促销语" min-width="170" show-overflow-tooltip>
+          </ElTableColumn>
+          <ElTableColumn label="采样数" min-width="90" prop="captureCount" />
+          <ElTableColumn label="最近促销语" min-width="170" show-overflow-tooltip>
             <template #default="{ row }">
-              <el-tag effect="plain" round type="warning">
-                {{ row.recentPromoText || '日常价' }}
-              </el-tag>
+              <ElTag effect="plain" round type="warning">
+                {{ hasPriceHistory(row) ? row.recentPromoText || '日常价' : '暂无历史价格' }}
+              </ElTag>
             </template>
-          </el-table-column>
-        </el-table>
+          </ElTableColumn>
+        </ElTable>
 
         <div class="mt-5 flex justify-end">
-          <el-pagination
+          <ElPagination
             :current-page="queryForm.page"
             :page-size="queryForm.pageSize"
             :page-sizes="[8, 12, 16, 20]"
@@ -510,9 +632,9 @@ onMounted(async () => {
 
       <div class="detail-stack min-w-0 grid gap-5">
         <div class="card-box p-5">
-          <el-skeleton :loading="detailLoading" animated>
+          <ElSkeleton :loading="detailLoading" animated>
             <template #template>
-              <div class="h-[120px] rounded-2xl bg-slate-100" />
+              <div class="h-[120px] rounded-2xl bg-slate-100"></div>
             </template>
             <template #default>
               <template v-if="detail && selectedProduct">
@@ -521,85 +643,149 @@ onMounted(async () => {
                     <div class="text-xs uppercase tracking-[0.24em] text-slate-400">
                       {{ selectedProduct.platform }}
                     </div>
-                    <div class="mt-2 text-xl font-semibold text-slate-900">
+                    <div class="mt-2 text-xl font-semibold text-slate-900 dark:text-slate-100">
                       {{ detail.product.productName }}
                     </div>
                     <div class="mt-2 text-sm text-slate-500">
                       {{ detail.product.skuId }} · {{ detail.product.brandName || '未标记品牌' }}
                     </div>
+                    <div
+                      v-if="detail.timeline.length === 0"
+                      class="mt-3 text-sm font-medium text-amber-600"
+                    >
+                      暂无历史价格，等待后续抓取或导入快照。
+                    </div>
                   </div>
                   <div class="detail-price-pill">
                     <span>当前到手</span>
-                    <strong>{{ formatCurrency(detail.priceExtremes.currentPrice) }}</strong>
+                    <strong>
+                      {{
+                        detail.timeline.length > 0
+                          ? formatCurrency(detail.priceExtremes.currentPrice)
+                          : '--'
+                      }}
+                    </strong>
                   </div>
                 </div>
               </template>
-              <el-empty v-else description="暂无价格轨迹" />
+              <ElEmpty v-else description="暂无历史价格" />
             </template>
-          </el-skeleton>
+          </ElSkeleton>
         </div>
 
         <div class="card-box p-5">
           <div class="mb-4 flex items-center justify-between">
             <div>
-              <div class="text-base font-semibold text-slate-900">历史轨迹</div>
+              <div class="text-base font-semibold text-slate-900 dark:text-slate-100">历史轨迹</div>
               <div class="mt-1 text-sm text-slate-500">
                 标价和到手价双线对比，低价点自动高亮。
               </div>
             </div>
           </div>
-          <el-skeleton :loading="detailLoading" animated>
+          <ElSkeleton :loading="detailLoading" animated>
             <template #template>
-              <div class="h-[320px] rounded-2xl bg-slate-100" />
+              <div class="h-[320px] rounded-2xl bg-slate-100"></div>
             </template>
             <template #default>
               <EchartsUI ref="timelineChartRef" class="h-[320px] w-full" />
             </template>
-          </el-skeleton>
+          </ElSkeleton>
         </div>
 
         <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           <div class="extreme-card">
             <span>历史最低价</span>
-            <strong>{{ detail ? formatCurrency(detail.priceExtremes.lowestPrice) : '--' }}</strong>
+            <strong>
+              {{
+                detail && detail.timeline.length > 0
+                  ? formatCurrency(detail.priceExtremes.lowestPrice)
+                  : '--'
+              }}
+            </strong>
             <small>{{ detail?.priceExtremes.lowestPriceAt || '—' }}</small>
           </div>
           <div class="extreme-card">
             <span>历史最高价</span>
-            <strong>{{ detail ? formatCurrency(detail.priceExtremes.highestPrice) : '--' }}</strong>
+            <strong>
+              {{
+                detail && detail.timeline.length > 0
+                  ? formatCurrency(detail.priceExtremes.highestPrice)
+                  : '--'
+              }}
+            </strong>
             <small>{{ detail?.priceExtremes.highestPriceAt || '—' }}</small>
           </div>
           <div class="extreme-card">
             <span>历史均价</span>
-            <strong>{{ detail ? formatCurrency(detail.priceExtremes.averagePrice) : '--' }}</strong>
-            <small>波动区间 {{ detail ? formatCurrency(detail.priceExtremes.priceSpan) : '--' }}</small>
+            <strong>
+              {{
+                detail && detail.timeline.length > 0
+                  ? formatCurrency(detail.priceExtremes.averagePrice)
+                  : '--'
+              }}
+            </strong>
+            <small>
+              波动区间
+              {{
+                detail && detail.timeline.length > 0
+                  ? formatCurrency(detail.priceExtremes.priceSpan)
+                  : '--'
+              }}
+            </small>
+          </div>
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+          <div
+            v-for="item in priceInsightCards"
+            :key="item.label"
+            class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+          >
+            <div class="mb-3 flex items-center justify-between gap-2">
+              <span class="text-sm font-semibold text-slate-600 dark:text-slate-300">{{ item.label }}</span>
+              <ElTag :type="item.tone" size="small">分析</ElTag>
+            </div>
+            <div class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ item.value }}</div>
           </div>
         </div>
 
         <div class="card-box p-5">
           <div class="mb-4">
-            <div class="text-base font-semibold text-slate-900">促销模型记录</div>
+            <div class="text-base font-semibold text-slate-900 dark:text-slate-100">促销模型记录</div>
             <div class="mt-1 text-sm text-slate-500">
               自动拆解满减、优惠券、平台补贴，并拼出可读公式。
             </div>
           </div>
 
-          <el-table v-if="detail" :data="detail.promotionRecords" border max-height="360" stripe>
-            <el-table-column label="抓取时间" min-width="160" prop="capturedAt" />
-            <el-table-column label="促销语" min-width="140" prop="promoText" />
-            <el-table-column label="标价" min-width="100">
+          <ElTable
+            v-if="detail && detail.promotionRecords.length > 0"
+            :data="detail.promotionRecords"
+            border
+            max-height="360"
+            stripe
+          >
+            <ElTableColumn label="抓取时间" min-width="160" prop="capturedAt" />
+            <ElTableColumn label="促销语" min-width="140" prop="promoText" />
+            <ElTableColumn label="标价" min-width="100">
               <template #default="{ row }">{{ formatCurrency(row.listPrice) }}</template>
-            </el-table-column>
-            <el-table-column label="到手价" min-width="100">
+            </ElTableColumn>
+            <ElTableColumn label="到手价" min-width="100">
               <template #default="{ row }">
                 <span class="font-semibold text-emerald-600">
                   {{ formatCurrency(row.finalPrice) }}
                 </span>
               </template>
-            </el-table-column>
-            <el-table-column label="优惠公式" min-width="240" prop="formula" show-overflow-tooltip />
-          </el-table>
-          <el-empty v-else description="暂无促销记录" />
+            </ElTableColumn>
+            <ElTableColumn label="优惠公式" min-width="240" prop="formula" show-overflow-tooltip />
+          </ElTable>
+          <ElEmpty
+            v-else
+            :description="detail?.timeline.length === 0 ? '暂无历史价格' : '暂无促销记录'"
+          >
+            <ElButton type="primary" @click="handleSearch">
+              刷新价格数据
+            </ElButton>
+          </ElEmpty>
         </div>
       </div>
     </div>
@@ -691,5 +877,17 @@ onMounted(async () => {
 .extreme-card small {
   color: #94a3b8;
   font-size: 12px;
+}
+
+.dark .extreme-card {
+  background:
+    linear-gradient(180deg, rgb(15 23 42 / 0.96), rgb(2 6 23 / 0.96)),
+    linear-gradient(135deg, rgb(14 165 233 / 0.12), rgb(249 115 22 / 0.1));
+  border-color: rgb(30 41 59);
+  box-shadow: none;
+}
+
+.dark .extreme-card strong {
+  color: #f8fafc;
 }
 </style>

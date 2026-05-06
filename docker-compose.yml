@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:15-alpine
@@ -33,8 +31,15 @@ services:
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-m_application}
       - REDIS_URL=redis://redis:6379/0
+      - ENABLE_DEMO_SEED=${ENABLE_DEMO_SEED:-false}
     ports:
       - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2)"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
 
   worker:
     build:
@@ -43,12 +48,42 @@ services:
     container_name: m_app_worker
     restart: always
     depends_on:
-      - redis
-      - db
+      redis:
+        condition: service_started
+      db:
+        condition: service_started
+      backend:
+        condition: service_healthy
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-m_application}
       - REDIS_URL=redis://redis:6379/0
+      - MAINTENANCE_INTERVAL_MINUTES=${MAINTENANCE_INTERVAL_MINUTES:-5}
     command: celery -A celery_app worker --loglevel=info
+
+  worker-beat:
+    build:
+      context: .
+      dockerfile: apps/worker/Dockerfile
+    container_name: m_app_worker_beat
+    restart: always
+    depends_on:
+      redis:
+        condition: service_started
+      db:
+        condition: service_started
+      backend:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-m_application}
+      - REDIS_URL=redis://redis:6379/0
+      - ENABLE_PERIODIC_SCRAPE=${ENABLE_PERIODIC_SCRAPE:-true}
+      - PERIODIC_SCRAPE_INTERVAL_MINUTES=${PERIODIC_SCRAPE_INTERVAL_MINUTES:-30}
+      - PERIODIC_SCRAPE_LIMIT=${PERIODIC_SCRAPE_LIMIT:-20}
+      - PERIODIC_SCRAPE_PLATFORM=${PERIODIC_SCRAPE_PLATFORM:-}
+      - MAINTENANCE_INTERVAL_MINUTES=${MAINTENANCE_INTERVAL_MINUTES:-5}
+      - ENABLE_PERIODIC_CATEGORY_SYNC=${ENABLE_PERIODIC_CATEGORY_SYNC:-false}
+      - PERIODIC_CATEGORY_SYNC_HOURS=${PERIODIC_CATEGORY_SYNC_HOURS:-24}
+    command: celery -A celery_app beat --loglevel=info
 
 volumes:
   postgres_data:

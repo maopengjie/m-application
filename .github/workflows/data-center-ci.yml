@@ -1,0 +1,63 @@
+name: Data Center CI
+
+on:
+  pull_request:
+    paths:
+      - '.env.example'
+      - 'apps/backend/**'
+      - 'apps/web-ele/src/api/**'
+      - 'apps/web-ele/src/views/data-center/**'
+      - 'apps/worker/**'
+      - 'docker-compose.yml'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'scripts/check_data_center_config.py'
+      - 'scripts/ci_data_center.py'
+      - 'scripts/verify_data_center_e2e.py'
+  push:
+    branches:
+      - main
+      - 'releases/*'
+    paths:
+      - '.env.example'
+      - 'apps/backend/**'
+      - 'apps/web-ele/src/api/**'
+      - 'apps/web-ele/src/views/data-center/**'
+      - 'apps/worker/**'
+      - 'docker-compose.yml'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'scripts/check_data_center_config.py'
+      - 'scripts/ci_data_center.py'
+      - 'scripts/verify_data_center_e2e.py'
+
+permissions:
+  contents: read
+
+jobs:
+  data-center:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          run_install: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+
+      - name: Install frontend dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install backend dependencies
+        run: python -m pip install -r apps/backend/requirements.txt
+
+      - name: Run data-center checks
+        run: pnpm run ci:data-center
